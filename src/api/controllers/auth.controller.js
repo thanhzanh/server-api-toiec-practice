@@ -1,4 +1,5 @@
 const NguoiDung = require("../../models/nguoiDung.model");
+const { Sequelize } = require('sequelize');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { where } = require("sequelize");
@@ -7,7 +8,7 @@ require('dotenv').config();
 // [POST] /api/users/register
 module.exports.register = async(req, res) => {
     try {
-        const { email, ten_dang_nhap, mat_khau, vai_tro } = req.body;
+        const { email, ten_dang_nhap, mat_khau } = req.body;
 
         // Kiểm tra email và ten_dang_nhap
         const existingUser = await NguoiDung.findOne({ where: { email } }) || await NguoiDung.findOne({ where: { ten_dang_nhap } });
@@ -25,7 +26,7 @@ module.exports.register = async(req, res) => {
             email,
             ten_dang_nhap,
             mat_khau: hashPassword,
-            vai_tro: vai_tro || 'nguoi_dung'
+            vai_tro: vai_tro || 'nguoi_dung',
         });
 
         res.status(201).json({ message: "Tạo tài khoản thành công" });
@@ -37,12 +38,20 @@ module.exports.register = async(req, res) => {
 // [POST] /api/users/login
 module.exports.login = async(req, res) => {
     try {
-        const { email, mat_khau } = req.body;
+        const { identifier, mat_khau } = req.body;
     
         // Tìm người dùng
-        const user = await NguoiDung.findOne({ where: { email } });
+        // SELECT * FROM nguoi_dung WHERE email = 'admin@gmail.com' OR ten_dang_nhap = 'abc123';
+        const user = await NguoiDung.findOne({ 
+            where: { 
+                [Sequelize.Op.or]: [
+                    { email: identifier },
+                    { ten_dang_nhap: identifier }
+                ],
+            },
+        });
         if (!user) {
-            return res.status(400).json({ message: "Email không tồn tại" });
+            return res.status(400).json({ message: "Email hoặc tên đăng nhập không đúng" });
         }
 
         // Mật khẩu
@@ -72,7 +81,8 @@ module.exports.login = async(req, res) => {
 
         res.status(200).json({
             message: "Đăng nhập thành công",
-            token
+            token,
+            vai_tro: user.vai_tro
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

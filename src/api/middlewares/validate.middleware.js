@@ -27,7 +27,7 @@ const registerValidation = [
         .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Tên đăng nhập phải chứa chữ cái, số, dấu gạch dưới hoặc dấu gạch ngang')
         .notEmpty().withMessage('Tên đăng nhập là bắt buộc')
         .custom(async (value) => {
-            const user = await NguoiDung.findOne({ where: { email: value } });
+            const user = await NguoiDung.findOne({ where: { ten_dang_nhap: value } });
             if (user) {
                 throw new Error('Tên đăng nhập đã được sử dụng');
             }
@@ -42,9 +42,8 @@ const registerValidation = [
 
 // Validation cho đăng nhập
 const loginValidation = [
-    body('email')
-        .isEmail().withMessage('Email không hợp lệ')
-        .notEmpty().withMessage('Email là bắt buộc'),
+    body('identifier')
+        .notEmpty().withMessage('Email hoặc tên đăng nhập không hợp lệ'),
     body('mat_khau')
         .notEmpty().withMessage('Mật khẩu là bắt buộc'),
         validate
