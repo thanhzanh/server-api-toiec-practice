@@ -1,0 +1,42 @@
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+
+const NguoiDung = sequelize.define('NguoiDung', {
+    id_nguoi_dung: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    email: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: true
+    },
+    ten_dang_nhap: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        unique: true
+    },
+    mat_khau: {
+        type: DataTypes.STRING(255)
+    },
+    vai_tro: {
+        type: DataTypes.ENUM('nguoi_dung', 'quan_tri_vien'),
+        defaultValue: 'nguoi_dung'
+    },
+    trang_thai: {
+        type: DataTypes.ENUM('hoat_dong', 'khong_hoat_dong'),
+        defaultValue: 'hoat_dong'
+    },
+    thoi_gian_tao: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+}, {
+    tableName: 'nguoi_dung',
+    timestamps: false,
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_unicode_ci'
+});
+
+module.exports = NguoiDung;
