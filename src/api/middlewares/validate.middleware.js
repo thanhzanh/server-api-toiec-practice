@@ -40,5 +40,15 @@ const registerValidation = [
         validate
 ];
 
-module.exports = { registerValidation };
+// Validation cho đăng nhập
+const loginValidation = [
+    body('email')
+        .isEmail().withMessage('Email không hợp lệ')
+        .notEmpty().withMessage('Email là bắt buộc'),
+    body('mat_khau')
+        .notEmpty().withMessage('Mật khẩu là bắt buộc'),
+        validate
+];
+
+module.exports = { registerValidation, loginValidation };
 
