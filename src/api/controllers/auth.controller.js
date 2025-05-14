@@ -1,11 +1,13 @@
 const NguoiDung = require("../../models/nguoiDung.model");
+const MaXacMinhEmail = require("../../models/maXacMinhEmail.model");
+const generateHelper = require("../../helpers/generate");
+const sendMailHelper = require("../../helpers/sendMail");
 const { Sequelize } = require('sequelize');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { where } = require("sequelize");
 require('dotenv').config();
 
-// [POST] /api/users/register
+// [POST] /api/auth/register
 module.exports.register = async(req, res) => {
     try {
         const { email, ten_dang_nhap, mat_khau } = req.body;
@@ -26,7 +28,6 @@ module.exports.register = async(req, res) => {
             email,
             ten_dang_nhap,
             mat_khau: hashPassword,
-            vai_tro: vai_tro || 'nguoi_dung',
         });
 
         res.status(201).json({ message: "Tạo tài khoản thành công" });
@@ -35,7 +36,7 @@ module.exports.register = async(req, res) => {
     }
 };
 
-// [POST] /api/users/login
+// [POST] /api/auth/login
 module.exports.login = async(req, res) => {
     try {
         const { identifier, mat_khau } = req.body;
@@ -87,4 +88,43 @@ module.exports.login = async(req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+// [POST] /api/auth/password/forgot
+module.exports.forgotPassword = async(req, res) => {
+    const { email } = req.body;
+
+    // Tìm người dùng
+    const user = await NguoiDung.findOne({ where: { email } });
+    if (!user) {
+        return res.status(400).json({ message: "Email không tồn tại" });
+    }
+
+    // Tạo mã otp
+    const otp = generateHelper.generateRandomNumber(6);
+
+    // Thời gian hết hạn mã otp (hết hạn sau 5p)
+    const thoi_gian_het_han = new Date(Date.now() + 5 * 60 * 1000);
+
+    // Lưu vào bảng ma_xac_minh_email
+    await MaXacMinhEmail.create({
+        id_nguoi_dung: user.id_nguoi_dung,
+        otp_code: otp,
+        thoi_gian_het_han
+    });
+    
+    // Gửi OTP qua email cho người dùng
+    const subject = "Mã OTP xác minh lấy lại mật khẩu";
+    const html = `
+        <p>Mã OTP để lấy lại mật khẩu của bạn là <b>${otp}</b></p>
+        <p>Mã OTP này sử dụng trong thời gian ${thoi_gian_het_han} phút.</p>
+        <p>Vui lòng không chia sẽ với bất kỳ ai.</p>
+        <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+    `;
+    sendMailHelper.sendMail(email, subject, html);
+
+    return res.status(200).json({
+        message: "Mã OTP đã được gửi đến email của bạn"
+    });
+
 };
