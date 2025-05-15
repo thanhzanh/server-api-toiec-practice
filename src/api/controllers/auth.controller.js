@@ -74,7 +74,7 @@ module.exports.login = async(req, res) => {
             {
                 id_nguoi_dung: user.id_nguoi_dung, email: user.email, vai_tro: user.vai_tro
             },
-            process.env.SECRET_KEY,
+            process.env.JWT_SECRET,
             {
                 expiresIn: '7d'
             }

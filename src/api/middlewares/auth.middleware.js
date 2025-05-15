@@ -8,6 +8,7 @@ const authenticateUser = (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
+    
     if (!token) {
         return res.status(401).json({ message: "Token không hợp lệ" });
     }
@@ -17,12 +18,12 @@ const authenticateUser = (req, res, next) => {
         req.user = decoded; // Lưu thông tin người dùng vào request
         next();
     } catch (error) {
-        res.status(400).json({ message: "Token không hợp lệ" });
+        res.status(400).json({ message: error.message });
     }
 };
 
 const authorizeRole = (roles) => {
-    return (req, res, next) => {
+    return (req, res, next) => {        
         if(!roles.includes(req.user.vai_tro)) {
             return res.status(403).json({ message: "Bạn không có quyền truy cập" })
         }
