@@ -90,7 +90,7 @@ module.exports.login = async(req, res) => {
     }
 };
 
-// [POST] /api/auth/password/forgot
+// [POST] /api/auth/forgot-password
 module.exports.forgotPassword = async(req, res) => {
     try {
         const { email } = req.body;
@@ -98,7 +98,7 @@ module.exports.forgotPassword = async(req, res) => {
         // Tìm người dùng
         const user = await NguoiDung.findOne({ where: { email } });
         if (!user) {
-            return res.status(400).json({ message: "Email không tồn tại" });
+            return res.status(404).json({ message: "Email không tồn tại" });
         }
 
         // Tạo mã otp
@@ -132,6 +132,7 @@ module.exports.forgotPassword = async(req, res) => {
     }
 };
 
+// [POST] /api/auth/vertify-otp
 module.exports.vertifyOtp = async(req, res) => {
     try {
         const { email, otp_code } = req.body;
@@ -139,7 +140,7 @@ module.exports.vertifyOtp = async(req, res) => {
         // Tìm người dùng
         const user = await NguoiDung.findOne({ where: { email } });
         if (!user) {
-            return res.status(400).json({ message: "Email không tồn tại" });
+            return res.status(404).json({ message: "Email không tồn tại" });
         }
 
         const otpResult = await MaXacMinhEmail.findOne({
@@ -153,6 +154,35 @@ module.exports.vertifyOtp = async(req, res) => {
         }
 
         res.status(200).json({ message: "Xác thực OTP thành công" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [POST] /api/auth/reset-password
+module.exports.resetPassword = async(req, res) => {
+    try {
+        const { email, mat_khau_moi } = req.body;
+
+        // Tìm người dùng
+        const user = await NguoiDung.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: "Email không tồn tại" });
+        }
+
+        // Kiểm tra mật khẩu mới trùng mật khẩu cũ không
+        const checkMatKhau = await bcrypt.compareSync(mat_khau_moi, user.mat_khau);
+        if(!checkMatKhau) {
+            return res.status(400).json({ message: "Vui lòng nhập mật khẩu khác mật khẩu cũ " });
+        }
+
+        // Mã hóa mật khẩu mới
+        const hashPassword = bcrypt.hashSync(mat_khau_moi, 10);
+
+        // Cập nhật database
+        await user.update({ mat_khau: hashPassword });
+
+        res.status(200).json({ message: "Đổi mật khẩu thành công" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -12,4 +12,6 @@ router.post("/forgot-password", validate.forgotPasswordValidation, controller.fo
 
 router.post("/vertify-otp", validate.vertifyOtpValidation, controller.vertifyOtp);
 
+router.post("/reset-password", validate.resetPasswordValidation, controller.resetPassword);
+
 module.exports = router;
