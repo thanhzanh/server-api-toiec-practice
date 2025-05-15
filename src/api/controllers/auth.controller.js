@@ -132,9 +132,9 @@ module.exports.forgotPassword = async(req, res) => {
     }
 };
 
-module.exports.vertifyOtpPassword = async(req, res) => {
+module.exports.vertifyOtp = async(req, res) => {
     try {
-        const { email, otp } = req.body;
+        const { email, otp_code } = req.body;
 
         // Tìm người dùng
         const user = await NguoiDung.findOne({ where: { email } });
@@ -145,7 +145,7 @@ module.exports.vertifyOtpPassword = async(req, res) => {
         const otpResult = await MaXacMinhEmail.findOne({
             where: {
                 id_nguoi_dung: user.id_nguoi_dung,
-                otp_code: otp
+                otp_code: otp_code
             }
         });
         if(!otpResult || otpResult.thoi_gian_het_han < Date.now()) {

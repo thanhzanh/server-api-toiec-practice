@@ -49,5 +49,30 @@ const loginValidation = [
         validate
 ];
 
-module.exports = { registerValidation, loginValidation };
+// Validation cho quên mật khẩu
+const forgotPasswordValidation = [
+    body('email')
+        .isEmail().withMessage('Email không hợp lệ')
+        .notEmpty().withMessage('Email là bắt buộc')
+        .custom(async (value) => {
+            const existingUser = await NguoiDung.findOne({ where: { email: value } });
+            if (existingUser) {
+                throw new Error('Email không tồn tại');
+            }
+            return true;
+        }),
+];
+
+// Validation cho xác thực mã otp
+const vertifyOtpValidation = [
+    body('email')
+        .isEmail().withMessage('Email không hợp lệ')
+        .notEmpty().withMessage('Email là bắt buộc'),
+    body('otp_code')
+        .isLength({ min: 6, max: 6 }).withMessage('Mã OTP phải có đủ 6 chữ số')
+        .matches(/^\d{6}$/).withMessage('Mã OTP chỉ được là số')
+        .notEmpty().withMessage('Mã OTP là bắt buộc')
+];
+
+module.exports = { registerValidation, loginValidation, forgotPasswordValidation, vertifyOtpValidation };
 
