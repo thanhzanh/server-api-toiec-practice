@@ -6,4 +6,6 @@ const { authenticateUser, authorizeRole } = require('../middlewares/auth.middlew
 
 router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.getAllUsers);
 
+router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"]), controller.getMe);
+
 module.exports = router;
