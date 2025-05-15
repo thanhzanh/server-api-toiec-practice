@@ -104,20 +104,20 @@ module.exports.forgotPassword = async(req, res) => {
     const otp = generateHelper.generateRandomNumber(6);
 
     // Thời gian hết hạn mã otp (hết hạn sau 5p)
-    const thoi_gian_het_han = new Date(Date.now() + 5 * 60 * 1000);
+    const thoi_gian = 5;
 
     // Lưu vào bảng ma_xac_minh_email
     await MaXacMinhEmail.create({
         id_nguoi_dung: user.id_nguoi_dung,
         otp_code: otp,
-        thoi_gian_het_han
+        thoi_gian_het_han: Date.now() + thoi_gian * 60 * 1000
     });
     
     // Gửi OTP qua email cho người dùng
     const subject = "Mã OTP xác minh lấy lại mật khẩu";
     const html = `
         <p>Mã OTP để lấy lại mật khẩu của bạn là <b>${otp}</b></p>
-        <p>Mã OTP này sử dụng trong thời gian ${thoi_gian_het_han} phút.</p>
+        <p>Mã OTP này sử dụng trong thời gian ${thoi_gian} phút.</p>
         <p>Vui lòng không chia sẽ với bất kỳ ai.</p>
         <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
     `;
