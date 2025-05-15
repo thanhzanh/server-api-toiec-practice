@@ -92,39 +92,68 @@ module.exports.login = async(req, res) => {
 
 // [POST] /api/auth/password/forgot
 module.exports.forgotPassword = async(req, res) => {
-    const { email } = req.body;
+    try {
+        const { email } = req.body;
 
-    // Tìm người dùng
-    const user = await NguoiDung.findOne({ where: { email } });
-    if (!user) {
-        return res.status(400).json({ message: "Email không tồn tại" });
+        // Tìm người dùng
+        const user = await NguoiDung.findOne({ where: { email } });
+        if (!user) {
+            return res.status(400).json({ message: "Email không tồn tại" });
+        }
+
+        // Tạo mã otp
+        const otp = generateHelper.generateRandomNumber(6);
+
+        // Thời gian hết hạn mã otp (hết hạn sau 5p)
+        const thoi_gian = 5;
+
+        // Lưu vào bảng ma_xac_minh_email
+        await MaXacMinhEmail.create({
+            id_nguoi_dung: user.id_nguoi_dung,
+            otp_code: otp,
+            thoi_gian_het_han: Date.now() + thoi_gian * 60 * 1000
+        });
+        
+        // Gửi OTP qua email cho người dùng
+        const subject = "Mã OTP xác minh lấy lại mật khẩu";
+        const html = `
+            <p>Mã OTP để lấy lại mật khẩu của bạn là <b>${otp}</b></p>
+            <p>Mã OTP này sử dụng trong thời gian ${thoi_gian} phút.</p>
+            <p>Vui lòng không chia sẽ với bất kỳ ai.</p>
+            <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+        `;
+        sendMailHelper.sendMail(email, subject, html);
+
+        return res.status(200).json({
+            message: "Mã OTP đã được gửi đến email của bạn"
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
+};
 
-    // Tạo mã otp
-    const otp = generateHelper.generateRandomNumber(6);
+module.exports.vertifyOtpPassword = async(req, res) => {
+    try {
+        const { email, otp } = req.body;
 
-    // Thời gian hết hạn mã otp (hết hạn sau 5p)
-    const thoi_gian = 5;
+        // Tìm người dùng
+        const user = await NguoiDung.findOne({ where: { email } });
+        if (!user) {
+            return res.status(400).json({ message: "Email không tồn tại" });
+        }
 
-    // Lưu vào bảng ma_xac_minh_email
-    await MaXacMinhEmail.create({
-        id_nguoi_dung: user.id_nguoi_dung,
-        otp_code: otp,
-        thoi_gian_het_han: Date.now() + thoi_gian * 60 * 1000
-    });
-    
-    // Gửi OTP qua email cho người dùng
-    const subject = "Mã OTP xác minh lấy lại mật khẩu";
-    const html = `
-        <p>Mã OTP để lấy lại mật khẩu của bạn là <b>${otp}</b></p>
-        <p>Mã OTP này sử dụng trong thời gian ${thoi_gian} phút.</p>
-        <p>Vui lòng không chia sẽ với bất kỳ ai.</p>
-        <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
-    `;
-    sendMailHelper.sendMail(email, subject, html);
+        const otpResult = await MaXacMinhEmail.findOne({
+            where: {
+                id_nguoi_dung: user.id_nguoi_dung,
+                otp_code: otp
+            }
+        });
+        if(!otpResult || otpResult.thoi_gian_het_han < Date.now()) {
+            return res.status(400).json({ message: "Mã OTP không hợp lệ hoặc đã hết hạn" });
+        }
 
-    return res.status(200).json({
-        message: "Mã OTP đã được gửi đến email của bạn"
-    });
-
+        res.status(200).json({ message: "Xác thực OTP thành công" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
