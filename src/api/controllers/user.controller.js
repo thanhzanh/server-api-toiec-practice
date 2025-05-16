@@ -44,6 +44,10 @@ module.exports.deleteUser = async(req, res) => {
         if (!user) {
             return res.status(404).json({ message: "Người dùng không tồn tại" });
         }
+        // Nếu là tài khoản quản trị viên thì không được xóa
+        if (user.vai_tro === "quan_tri_vien") {
+            return res.status(404).json({ message: "Đây là tài khoản quản trị viên không xóa được" });
+        }
 
         // Xóa mềm trong database
         await user.update({ da_xoa: true });
