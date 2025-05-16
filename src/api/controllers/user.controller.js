@@ -54,3 +54,24 @@ module.exports.deleteUser = async(req, res) => {
         res.status(404).json({ message: error.message });
     }
 };
+
+// [PUT] /api/users/change-status/:id_nguoi_dung
+module.exports.changeStatus = async(req, res) => {
+    try {
+        const { id_nguoi_dung } = req.params;
+        const { trang_thai } = req.body;
+
+        const user = await NguoiDung.findByPk(id_nguoi_dung);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+
+        // Cập nhật trạng thái
+        await user.update({ trang_thai: trang_thai });
+
+        res.status(200).json({ message: "Đã chặn người dùng thành công" });
+        
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};

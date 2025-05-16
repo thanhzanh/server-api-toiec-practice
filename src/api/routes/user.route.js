@@ -10,7 +10,10 @@ router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.g
 // Lấy thông tin tài khoản đăng nhập
 router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"]), controller.getMe);
 
-// Chặn tài khoản người dùng (quản trị viên)
+// Xóa tài khoản người dùng (quản trị viên)
 router.delete("/delete/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.deleteUser);
+
+// Cập nhật trạng thái người dùng (khong_hoat_dong = block)
+router.put("/change-status/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.changeStatus);
 
 module.exports = router;
