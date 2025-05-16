@@ -1,5 +1,5 @@
 const NguoiDung = require("../../models/nguoiDung.model");
-const { Sequelize } = require('sequelize');
+const { Sequelize, where } = require('sequelize');
 
 // [GET] /api/users
 module.exports.getAllUsers = async(req, res) => {
@@ -30,6 +30,26 @@ module.exports.getMe = async(req, res) => {
             return res.status(404).json({ message: "Người dùng không tồn tại" });
         }
         res.status(200).json(user);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+// [DELETE] /api/users/delete/:id_nguoi_dung
+module.exports.deleteUser = async(req, res) => {
+    try {
+        const { id_nguoi_dung } = req.params;
+
+        const user = await NguoiDung.findByPk(id_nguoi_dung);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+
+        // Xóa mềm trong database
+        await user.update({ da_xoa: true });
+
+        res.status(200).json({ message: "Đã xóa thành công" });
+        
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
