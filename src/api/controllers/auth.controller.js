@@ -3,9 +3,13 @@ const MaXacMinhEmail = require("../../models/maXacMinhEmail.model");
 const generateHelper = require("../../helpers/generate");
 const sendMailHelper = require("../../helpers/sendMail");
 const { Sequelize } = require('sequelize');
+const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 require('dotenv').config();
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // [POST] /api/auth/register
 module.exports.register = async(req, res) => {
@@ -76,7 +80,7 @@ module.exports.login = async(req, res) => {
             },
             process.env.JWT_SECRET,
             {
-                expiresIn: '7d'
+                expiresIn: '1h'
             }
         );
 
@@ -187,3 +191,56 @@ module.exports.resetPassword = async(req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// [POST] /api/auth/google
+module.exports.googleLogin = async(req, res) => {
+    const { token } = req.body;
+
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+
+    const { email, name, picture, sub} = payload;    
+
+    let user = await NguoiDung.findOne({ where: { email } });
+    if (!user) {
+        // Lưu bảng nguoi_dung
+        user = await NguoiDung.create({
+            email: email,
+            ten_dang_nhap: email.split('@')[0],
+            mat_khau: '',
+            id_google: sub,
+            vai_tro: 'nguoi_dung',
+            trang_thai: 'hoat_dong'
+        });
+
+        // Lưu bảng hồ sơ người dùng
+        await HoSoNguoiDung.create({
+            id_nguoi_dung: user.id_nguoi_dung,
+            ho_ten: name,
+            url_hinh_dai_dien: picture
+        });
+    }
+
+    const jwtToken = jwt.sign(
+        {
+            id_nguoi_dung: user.id_nguoi_dung,
+            email: user.email,
+            vai_tro: user.vai_tro,
+            action: 'auth'
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: '1h'
+        }
+    )
+
+    res.status(200).json({
+        message: "Đăng nhập bằng Google thành công",
+        token: jwtToken
+    });
+};
+

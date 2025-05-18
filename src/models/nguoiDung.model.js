@@ -20,6 +20,10 @@ const NguoiDung = sequelize.define('NguoiDung', {
     mat_khau: {
         type: DataTypes.STRING(255)
     },
+    id_google: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+    },
     vai_tro: {
         type: DataTypes.ENUM('nguoi_dung', 'quan_tri_vien'),
         defaultValue: 'nguoi_dung'

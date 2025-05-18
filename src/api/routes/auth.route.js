@@ -14,4 +14,6 @@ router.post("/vertify-otp", validate.vertifyOtpValidation, controller.vertifyOtp
 
 router.post("/reset-password", validate.resetPasswordValidation, controller.resetPassword);
 
+router.post("/google", controller.googleLogin);
+
 module.exports = router;
