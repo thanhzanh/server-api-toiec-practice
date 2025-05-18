@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const NguoiDung = require("../../models/nguoiDung.model");
+const HoSoNguoiDung = require('../../models/hoSoNguoiDung.model');
 
 // Middleware xử lý lỗi validation
 const validate = (req, res, next) => {
@@ -34,7 +35,7 @@ const registerValidation = [
             return true;
         }),
     body('mat_khau')
-        .isLength({ min: 8 }).withMessage('Mật khẩu phải ít nhất ký tự')
+        .isLength({ min: 8 }).withMessage('Mật khẩu phải ít nhất 8 ký tự')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/).withMessage('Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt')
         .notEmpty().withMessage('Mật khẩu là bắt buộc'),
         validate
@@ -86,5 +87,52 @@ const resetPasswordValidation = [
         validate
 ];
 
-module.exports = { registerValidation, loginValidation, forgotPasswordValidation, vertifyOtpValidation, resetPasswordValidation };
+// Validation cho cập nhật thông tin cá nhân
+const updateProfileValidation = [
+    body('ten_dang_nhap')
+        .optional()
+        .isLength({ min: 5, max: 30 }).withMessage('Tên đăng nhập từ 5 đến 30 ký tự')
+        .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Tên đăng nhập phải chứa chữ cái, số, dấu gạch dưới hoặc dấu gạch ngang')
+        .notEmpty().withMessage('Tên đăng nhập là bắt buộc')
+        .custom(async (value) => {
+            const user = await NguoiDung.findOne({ where: { ten_dang_nhap: value } });
+            if (user) {
+                throw new Error('Tên đăng nhập đã được sử dụng');
+            }
+            return true;
+        }),
+    body('ho_ten')
+        .optional()
+        .isLength({ min: 0, max: 100 }).withMessage('Họ và tên có độ dài từ 1 ký tự đến 100 ký tự'),
+    body('so_dien_thoai')
+        .optional()
+        .matches(/^\d{10}$/).withMessage('Số điện thoại phải đủ 10 số')
+        .custom(async (value, { req }) => {
+            if (value) {
+                const profile = await HoSoNguoiDung.findOne({ where: { so_dien_thoai: value } });
+                if (profile && profile.id_nguoi_dung !== req.user.id_nguoi_dung) {
+                    throw new Error('Số điện thoại đã được sử dụng');
+                }
+            }
+        }),
+    body('url_hinh_dai_dien')
+        .optional()
+        .isURL().withMessage('URL hình đại diện không hợp lệ')
+        .matches(/\.(png|jpg|jpeg|gif)$/i).withMessage('Hình đại diện phải có dạng .png .jpg .jpeg .gif'),
+    body('dia_chi')
+        .optional()
+        .isLength({ max: 255 }).withMessage('Địa chỉ không được vượt quá 255 ký tự'),
+    body('ngay_sinh')
+        .optional()
+        .custom(async (value) => {
+            const ns = new Date(value);
+            const ngay_hien_tai = new Date();
+            if (ns => ngay_hien_tai) {
+                throw new Error('Ngày sinh phải nhỏ hơn hoặc bằng ngày hiện tại');
+            }
+        }),
+    validate
+]
+
+module.exports = { registerValidation, loginValidation, forgotPasswordValidation, vertifyOtpValidation, resetPasswordValidation, updateProfileValidation };
 
