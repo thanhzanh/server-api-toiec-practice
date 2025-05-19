@@ -132,7 +132,7 @@ const updateProfileValidation = [
             }
         }),
     validate
-]
+];
 
 module.exports = { registerValidation, loginValidation, forgotPasswordValidation, vertifyOtpValidation, resetPasswordValidation, updateProfileValidation };
 

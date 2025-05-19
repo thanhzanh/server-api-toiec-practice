@@ -14,6 +14,9 @@ router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"
 // Xóa tài khoản người dùng (quản trị viên)
 router.delete("/delete/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.deleteUser);
 
+// Sửa tài khoản người dùng (quản trị viên)
+router.put("/edit/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.editUser);
+
 // Cập nhật trạng thái người dùng (khong_hoat_dong = block)
 router.put("/change-status/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.changeStatus);
 

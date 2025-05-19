@@ -176,7 +176,7 @@ module.exports.resetPassword = async(req, res) => {
 
         // Kiểm tra mật khẩu mới trùng mật khẩu cũ không
         const checkMatKhau = await bcrypt.compareSync(mat_khau_moi, user.mat_khau);
-        if(!checkMatKhau) {
+        if(checkMatKhau) {
             return res.status(400).json({ message: "Vui lòng nhập mật khẩu khác mật khẩu cũ " });
         }
 
