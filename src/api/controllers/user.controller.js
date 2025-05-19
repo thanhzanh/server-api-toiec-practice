@@ -15,7 +15,7 @@ module.exports.getAllUsers = async(req, res) => {
 
         res.status(200).json(users);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -32,7 +32,7 @@ module.exports.getMe = async(req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -56,7 +56,7 @@ module.exports.deleteUser = async(req, res) => {
         res.status(200).json({ message: "Đã xóa thành công" });
         
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -77,7 +77,7 @@ module.exports.changeStatus = async(req, res) => {
         res.status(200).json({ message: "Đã chặn người dùng thành công" });
         
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -143,6 +143,40 @@ module.exports.updateProfile = async(req, res) => {
         });
         
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/users/profile
+module.exports.getProfile = async(req, res) => {
+    try {
+        const id_nguoi_dung = req.user.id_nguoi_dung;        
+
+        // Lấy thông tin cá nhân
+        let profile = await HoSoNguoiDung.findByPk(
+            id_nguoi_dung, 
+            {
+                include: [
+                    {
+                        model: NguoiDung,
+                        attributes: ['email', 'ten_dang_nhap', 'vai_tro'],
+                    },
+                ],
+            },
+        );
+
+        // Nếu người dùng chưa cập nhật thông tin
+        if (!profile) {
+            return res.status(404).json({ message: "Hồ sơ chưa được tạo" });
+        }
+
+        res.status(200).json({ 
+            message: "Thông tin cá nhân người dùng" ,
+            data: profile
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
     }
 };

@@ -20,4 +20,7 @@ router.put("/change-status/:id_nguoi_dung", authenticateUser, authorizeRole(["qu
 // Cập nhật thông tin cá nhân người dùng 
 router.put("/update-profile", authenticateUser, authorizeRole(["nguoi_dung"]), validate.updateProfileValidation, controller.updateProfile);
 
+// Lấy thông tin một người dùng
+router.get("/profile", authenticateUser, authorizeRole(["nguoi_dung", "quan_tri_vien"]), controller.getProfile);
+
 module.exports = router;
