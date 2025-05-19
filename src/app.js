@@ -11,7 +11,13 @@ sequelize.authenticate()
     .then(() => console.log("Connected to MySQL database"))
     .catch(error => console.error("Database connection error", error));
 
-app.use(cors());
+// Cho phép tất cả các domain truy cập API
+app.use(cors({
+    origin: "http://localhost:5173", // Đổi thành domain frontend của bạn
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded());
