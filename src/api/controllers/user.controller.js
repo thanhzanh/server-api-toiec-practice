@@ -1,20 +1,72 @@
 const NguoiDung = require("../../models/nguoiDung.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
+const { createPaginationQuery } = require('../../helpers/pagination');
+const { createSearchQuery } = require('../../helpers/search');
 const bcrypt = require("bcrypt");
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 // [GET] /api/users
-module.exports.getAllUsers = async(req, res) => {
+module.exports.index = async(req, res) => {
     try {
-        // Lấy tất cả loại bỏ thuộc tính mat_khau
-        const users = await NguoiDung.findAll({
-            where: {
-                vai_tro: "nguoi_dung"
-            },
-            attributes: { exclude: ['mat_khau'] },
+        const { page, limit, search } = req.query;
+
+        // Query tìm kiếm
+        const userSearch = createSearchQuery(search, ['email', 'ten_dang_nhap']);
+
+        const profileSearch = createSearchQuery(search, ['ho_ten']);
+
+        // Đếm tổng số bản ghi
+        const count = await NguoiDung.count({
+            where: userSearch,
+            include: [
+                {
+                    model: HoSoNguoiDung,
+                    where: profileSearch
+                }
+            ],
+            distinct: true
         });
 
-        res.status(200).json(users);
+        // Query pagination
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 8
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Xây dựng query
+        const query = {
+            offset: pagination.skip,
+            limit: pagination.limitItem,
+            where: userSearch,
+            include: [
+                {
+                    model: HoSoNguoiDung,
+                    attributes: ['ho_ten'],
+                    where: profileSearch
+                }
+            ],
+            attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'vai_tro', 'trang_thai']
+        }
+
+        // Lấy danh sách người dùng
+        const users = await NguoiDung.findAll(query);
+
+        res.status(200).json({
+            message: "Danh sách người dùng",
+            data: users,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPage
+            }
+        });
+        
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

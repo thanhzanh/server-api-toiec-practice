@@ -194,53 +194,57 @@ module.exports.resetPassword = async(req, res) => {
 
 // [POST] /api/auth/google
 module.exports.googleLogin = async(req, res) => {
-    const { token } = req.body;
+    try {
+        const { token } = req.body;
 
-    const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID
-    });
-
-    const payload = ticket.getPayload();
-
-    const { email, name, picture, sub} = payload;    
-
-    let user = await NguoiDung.findOne({ where: { email } });
-    if (!user) {
-        // Lưu bảng nguoi_dung
-        user = await NguoiDung.create({
-            email: email,
-            ten_dang_nhap: email.split('@')[0],
-            mat_khau: '',
-            id_google: sub,
-            vai_tro: 'nguoi_dung',
-            trang_thai: 'hoat_dong'
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
         });
 
-        // Lưu bảng hồ sơ người dùng
-        await HoSoNguoiDung.create({
-            id_nguoi_dung: user.id_nguoi_dung,
-            ho_ten: name,
-            url_hinh_dai_dien: picture
-        });
-    }
+        const payload = ticket.getPayload();
 
-    const jwtToken = jwt.sign(
-        {
-            id_nguoi_dung: user.id_nguoi_dung,
-            email: user.email,
-            vai_tro: user.vai_tro,
-            action: 'auth'
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '1h'
+        const { email, name, picture, sub} = payload;    
+
+        let user = await NguoiDung.findOne({ where: { email } });
+        if (!user) {
+            // Lưu bảng nguoi_dung
+            user = await NguoiDung.create({
+                email: email,
+                ten_dang_nhap: email.split('@')[0],
+                mat_khau: '',
+                id_google: sub,
+                vai_tro: 'nguoi_dung',
+                trang_thai: 'hoat_dong'
+            });
+
+            // Lưu bảng hồ sơ người dùng
+            await HoSoNguoiDung.create({
+                id_nguoi_dung: user.id_nguoi_dung,
+                ho_ten: name,
+                url_hinh_dai_dien: picture
+            });
         }
-    )
 
-    res.status(200).json({
-        message: "Đăng nhập bằng Google thành công",
-        token: jwtToken
-    });
+        const jwtToken = jwt.sign(
+            {
+                id_nguoi_dung: user.id_nguoi_dung,
+                email: user.email,
+                vai_tro: user.vai_tro,
+                action: 'auth'
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: '1h'
+            }
+        )
+
+        res.status(200).json({
+            message: "Đăng nhập bằng Google thành công",
+            token: jwtToken
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 

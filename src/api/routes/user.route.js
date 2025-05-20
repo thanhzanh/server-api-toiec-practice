@@ -5,8 +5,8 @@ const controller = require('../controllers/user.controller');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 
-// Lấy danh sách tất cả người dùng (quản trị viên)
-router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.getAllUsers);
+// Lấy danh sách tất cả người dùng tìm kiếm, phân trang (quản trị viên)
+router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.index);
 
 // Lấy thông tin tài khoản đăng nhập
 router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"]), controller.getMe);
@@ -24,6 +24,6 @@ router.put("/change-status/:id_nguoi_dung", authenticateUser, authorizeRole(["qu
 router.put("/update-profile", authenticateUser, authorizeRole(["nguoi_dung"]), validate.updateProfileValidation, controller.updateProfile);
 
 // Lấy thông tin một người dùng
-router.get("/profile", authenticateUser, authorizeRole(["nguoi_dung", "quan_tri_vien"]), controller.getProfile);
+router.get("/profile", authenticateUser, authorizeRole(["nguoi_dung"]), controller.getProfile);
 
 module.exports = router;
