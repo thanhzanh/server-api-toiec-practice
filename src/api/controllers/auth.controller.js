@@ -192,6 +192,50 @@ module.exports.resetPassword = async(req, res) => {
     }
 };
 
+// [POST] /api/auth/change-password
+module.exports.changePassword = async(req, res) => {
+    try {
+        const { mat_khau_hien_tai, mat_khau_moi, xac_nhan_mat_khau } = req.body;
+
+        if (mat_khau_moi !== xac_nhan_mat_khau) {
+            return res.status(400).json({ message: "Mật khẩu xác nhận không khớp" });
+        }
+
+        // Lấy người dùng từ token
+        const id_nguoi_dung = req.user.id_nguoi_dung;
+
+        const user = await NguoiDung.findByPk(id_nguoi_dung);
+
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+        
+        if (!user.mat_khau) {
+            return res.status(400).json({ message: "Tài khoản của bạn đăng nhập bằng Google, không thể đổi mật khẩu" });
+        }
+
+        // Kiểm tra mật khẩu hiện tại có đúng không
+        const checkMatKhau = bcrypt.compareSync(mat_khau_hien_tai, user.mat_khau);
+        if (!checkMatKhau) {
+            return res.status(400).json({ message: "Mật khẩu hiện tại không đúng" });
+        }
+
+        // Kiểm tra mật khẩu mới có trùng mật khẩu cũ
+        const samePassword = bcrypt.compareSync(mat_khau_moi, user.mat_khau);
+        if (samePassword) {
+            return res.status(400).json({ message: "Mật khẩu mới không được trùng với mật khẩu cũ" });
+        }
+
+        // Cập nhật mật khẩu
+        user.mat_khau = bcrypt.hashSync(mat_khau_moi, 10);
+        await user.save();
+
+        return res.status(200).json({ message:"Thay đổi mật khẩu thành công" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [POST] /api/auth/google
 module.exports.googleLogin = async(req, res) => {
     try {
