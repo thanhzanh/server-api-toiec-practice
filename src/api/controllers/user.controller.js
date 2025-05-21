@@ -89,6 +89,40 @@ module.exports.getMe = async(req, res) => {
     }
 };
 
+// [GET] /api/users/detail/:id_nguoi_dung
+module.exports.detailUser = async(req, res) => {
+    try {
+        const id_nguoi_dung = req.params.id_nguoi_dung;        
+
+        // Lấy thông tin cá nhân
+        let profile = await HoSoNguoiDung.findByPk(
+            id_nguoi_dung, 
+            {
+                include: [
+                    {
+                        model: NguoiDung,
+                        attributes: ['email', 'ten_dang_nhap', 'vai_tro'],
+                    },
+                ],
+            },
+        );
+
+        // Nếu người dùng chưa cập nhật thông tin
+        if (!profile) {
+            return res.status(404).json({ message: "Hồ sơ chưa được tạo" });
+        }
+
+        res.status(200).json({ 
+            message: "Thông tin cá nhân người dùng" ,
+            data: profile
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [DELETE] /api/users/delete/:id_nguoi_dung
 module.exports.deleteUser = async(req, res) => {
     try {

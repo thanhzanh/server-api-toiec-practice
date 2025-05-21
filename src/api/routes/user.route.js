@@ -12,8 +12,8 @@ const uploadCloud = require('../middlewares/uploadCloud.middleware');
 // Lấy danh sách tất cả người dùng tìm kiếm, phân trang (quản trị viên)
 router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.index);
 
-// Lấy thông tin tài khoản đăng nhập
-router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"]), controller.getMe);
+// Lấy thông tin một người dùng (quản trị viên)
+router.get("/detail/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.detailUser);
 
 // Xóa tài khoản người dùng (quản trị viên)
 router.delete("/delete/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.deleteUser);
@@ -23,6 +23,9 @@ router.put("/edit/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vi
 
 // Cập nhật trạng thái người dùng (khong_hoat_dong = block)
 router.put("/change-status/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.changeStatus);
+
+// Lấy thông tin tài khoản đăng nhập
+router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"]), controller.getMe);
 
 // Cập nhật thông tin cá nhân người dùng 
 router.put("/update-profile",
