@@ -11,6 +11,9 @@ cloudinary.config({
 
 module.exports.upload = async (req, res, next) => {
     try {
+        if (!req.file) {
+            return next(); // Không có file, bỏ qua upload
+        }
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
                 let stream = cloudinary.uploader.upload_stream(
@@ -30,8 +33,9 @@ module.exports.upload = async (req, res, next) => {
         let result = await streamUpload(req);
         console.log(result.secure_url);
         req.body.url_hinh_dai_dien = result.secure_url;
+        return next();
     } catch (error) {
+        console.error("Lỗi upload:", error);
         res.status(500).json({ message: "Upload ảnh thất bại", error });
     }
-    next();
 };
