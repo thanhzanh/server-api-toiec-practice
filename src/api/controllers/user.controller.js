@@ -253,7 +253,15 @@ module.exports.updateProfile = async(req, res) => {
         // Cập nhật hồ sơ người dùng
         let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
         if (!profile) {
-            profile = await HoSoNguoiDung.create({ id_nguoi_dung: id_nguoi_dung });
+            profile = await HoSoNguoiDung.create({
+                id_nguoi_dung,
+                ho_ten: ho_ten || null,
+                so_dien_thoai: so_dien_thoai || null,
+                url_hinh_dai_dien: url_hinh_dai_dien || null,
+                dia_chi: dia_chi || null,
+                ngay_sinh: ngay_sinh || null,
+                gioi_thieu: gioi_thieu || null
+            });
         }
 
         if (ho_ten !== undefined) profile.ho_ten = ho_ten;
