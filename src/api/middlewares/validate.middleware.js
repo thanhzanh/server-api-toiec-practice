@@ -118,7 +118,7 @@ const updateProfileValidation = [
             const profile = await HoSoNguoiDung.findOne({ 
                 where: {
                     so_dien_thoai: value,
-                    so_dien_thoai: { [Op.ne]: req.params.id_nguoi_dung }
+                    id_nguoi_dung: { [Op.ne]: req.params.id_nguoi_dung }
                 }
             });
             if (profile) {
