@@ -107,9 +107,15 @@ module.exports.detailUser = async(req, res) => {
             },
         );
 
+        // Lấy danh sách trạng thái
+        const listStatus = NguoiDung.rawAttributes.trang_thai.values;
+
         res.status(200).json({ 
             message: "Thông tin cá nhân người dùng" ,
-            data: profile
+            data: {
+                user: profile,
+                listStatus
+            }
         });
         
     } catch (error) {
@@ -346,15 +352,9 @@ module.exports.getProfile = async(req, res) => {
             },
         );
 
-        // Lấy danh sách trạng thái
-        const listStatus = NguoiDung.rawAttributes.trang_thai.values;
-
         res.status(200).json({ 
             message: "Thông tin cá nhân người dùng" ,
-            data: {
-                user: profile,
-                listStatus
-            }
+            data: profile
         });
         
     } catch (error) {
