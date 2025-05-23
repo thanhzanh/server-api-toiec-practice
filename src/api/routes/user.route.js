@@ -19,7 +19,14 @@ router.get("/detail/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_
 router.delete("/delete/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.deleteUser);
 
 // Sửa tài khoản người dùng (quản trị viên)
-router.put("/edit/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.editUser);
+router.put("/edit/:id_nguoi_dung", 
+    authenticateUser, 
+    authorizeRole(["quan_tri_vien"]), 
+    upload.single("url_hinh_dai_dien"),
+    uploadCloud.upload,
+    validate.updateProfileValidation,
+    controller.editUser
+);
 
 // Cập nhật trạng thái người dùng (khong_hoat_dong = block)
 router.put("/change-status/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.changeStatus);

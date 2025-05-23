@@ -154,7 +154,7 @@ module.exports.deleteUser = async(req, res) => {
 module.exports.editUser = async(req, res) => {
     try {
         
-        const { ten_dang_nhap, ho_ten, so_dien_thoai, url_hinh_dai_dien, dia_chi, ngay_sinh, gioi_thieu } = req.body;
+        const { ten_dang_nhap, ho_ten, so_dien_thoai, url_hinh_dai_dien, dia_chi, ngay_sinh, gioi_thieu, trang_thai } = req.body;
 
         // id_nguoi_dung
         const { id_nguoi_dung } = req.params;
@@ -180,7 +180,8 @@ module.exports.editUser = async(req, res) => {
                 url_hinh_dai_dien: url_hinh_dai_dien || null,
                 dia_chi: dia_chi || null,
                 ngay_sinh: ngay_sinh || null,
-                gioi_thieu: gioi_thieu || null
+                gioi_thieu: gioi_thieu || null,
+                trang_thai: trang_thai || null
             });
         }
 
@@ -190,6 +191,7 @@ module.exports.editUser = async(req, res) => {
         if (dia_chi !== undefined) profile.dia_chi = dia_chi;
         if (ngay_sinh !== undefined) profile.ngay_sinh = ngay_sinh;
         if (gioi_thieu !== undefined) profile.gioi_thieu = gioi_thieu;
+        if (trang_thai !== undefined) profile.trang_thai = trang_thai;
 
         await profile.save();
 
@@ -197,7 +199,7 @@ module.exports.editUser = async(req, res) => {
         const userProfile = await NguoiDung.findByPk(
             id_nguoi_dung,
             {
-                attributes: ['id_nguoi_dung', 'ten_dang_nhap'],
+                attributes: ['id_nguoi_dung', 'ten_dang_nhap', 'trang_thai', 'vai_tro'],
                 include: [
                     {
                         model: HoSoNguoiDung,
