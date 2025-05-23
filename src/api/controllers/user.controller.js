@@ -172,7 +172,7 @@ module.exports.editUser = async(req, res) => {
             userUpdateData.ten_dang_nhap = ten_dang_nhap;
         }
         if (trang_thai !== undefined) {
-            userUpdateData.trang_thai = trang_thai;
+            userUpdateData.trang_thai = trang_thai || null;
         }
         // Khi có thay đổi thì cập nhật
         if (Object.keys(userUpdateData).length > 0)
