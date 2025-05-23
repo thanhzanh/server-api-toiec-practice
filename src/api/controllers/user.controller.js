@@ -187,11 +187,12 @@ module.exports.editUser = async(req, res) => {
             if (dia_chi !== undefined) updateData.dia_chi = dia_chi || null;
             if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh || null;
             if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu || null;
-        }
 
-        // Chỉ update nếu có dữ liệu thay đổi
-        if (Object.keys(updateData) > 0) {
-            await profile.update(updateData);
+            updateData.thoi_gian_cap_nhat = new Date();
+            // Chỉ update nếu có dữ liệu thay đổi
+            if (Object.keys(updateData) > 1) {
+                await profile.update(updateData);
+            }
         }
 
         // Trả về thông tin người dùng
@@ -338,9 +339,15 @@ module.exports.getProfile = async(req, res) => {
             },
         );
 
+        // Lấy danh sách trạng thái
+        const listStatus = NguoiDung.rawAttributes.trang_thai.values;
+
         res.status(200).json({ 
             message: "Thông tin cá nhân người dùng" ,
-            data: profile
+            data: {
+                user: profile,
+                listStatus
+            }
         });
         
     } catch (error) {
