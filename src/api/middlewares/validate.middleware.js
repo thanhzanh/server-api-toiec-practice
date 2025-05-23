@@ -93,8 +93,8 @@ const updateProfileValidation = [
         .optional()
         .isLength({ min: 5, max: 30 }).withMessage('Tên đăng nhập từ 5 đến 30 ký tự')
         .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Tên đăng nhập phải chứa chữ cái, số, dấu gạch dưới hoặc dấu gạch ngang')
-        .notEmpty().withMessage('Tên đăng nhập là bắt buộc')
         .custom(async (value) => {
+            if (!value) return true;
             const user = await NguoiDung.findOne({ where: { ten_dang_nhap: value } });
             if (user) {
                 throw new Error('Tên đăng nhập đã được sử dụng');
@@ -108,12 +108,14 @@ const updateProfileValidation = [
         .optional()
         .matches(/^\d{10}$/).withMessage('Số điện thoại phải đủ 10 số')
         .custom(async (value, { req }) => {
+            if (!value) return true;
             if (value) {
                 const profile = await HoSoNguoiDung.findOne({ where: { so_dien_thoai: value } });
                 if (profile && profile.id_nguoi_dung !== req.user.id_nguoi_dung) {
                     throw new Error('Số điện thoại đã được sử dụng');
                 }
             }
+            return true;
         }),
     body('url_hinh_dai_dien')
         .optional()
@@ -125,11 +127,13 @@ const updateProfileValidation = [
     body('ngay_sinh')
         .optional()
         .custom(async (value) => {
+            if (!value) return true;
             const ns = new Date(value);
-            const ngay_hien_tai = Date.now();
-            if (ns => ngay_hien_tai) {
+            const ngay_hien_tai = new Date();
+            if (ns >= ngay_hien_tai) {
                 throw new Error('Ngày sinh phải nhỏ hơn hoặc bằng ngày hiện tại');
             }
+            return true;
         }),
     validate
 ];
