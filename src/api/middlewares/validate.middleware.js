@@ -95,7 +95,12 @@ const updateProfileValidation = [
         .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Tên đăng nhập phải chứa chữ cái, số, dấu gạch dưới hoặc dấu gạch ngang')
         .custom(async (value) => {
             if (!value) return true;
-            const user = await NguoiDung.findOne({ where: { ten_dang_nhap: value } });
+            const user = await NguoiDung.findOne({ 
+                where: { 
+                    ten_dang_nhap: value,
+                    id_nguoi_dung: { [Op.ne]: req.params.id_nguoi_dung }
+                } 
+            });
             if (user) {
                 throw new Error('Tên đăng nhập đã được sử dụng');
             }
@@ -110,7 +115,12 @@ const updateProfileValidation = [
         .custom(async (value, { req }) => {
             if (!value) return true;
             if (value) {
-                const profile = await HoSoNguoiDung.findOne({ where: { so_dien_thoai: value } });
+                const profile = await HoSoNguoiDung.findOne({ 
+                    where: {
+                        so_dien_thoai: value,
+                        so_dien_thoai: { [Op.ne]: req.params.id_nguoi_dung }
+                    }
+                });
                 if (profile && profile.id_nguoi_dung !== req.user.id_nguoi_dung) {
                     throw new Error('Số điện thoại đã được sử dụng');
                 }

@@ -160,17 +160,24 @@ module.exports.editUser = async(req, res) => {
             return res.status(404).json({ message: "Người dùng không tồn tại" });
         }
 
-        // Cập nhật ten_dang_nhap từ bảng NguoiDung
+        // Cập nhật ten_dang_nhap, trang_thai từ bảng NguoiDung
+        const userUpdateData = {};
         if (ten_dang_nhap && ten_dang_nhap !== user.ten_dang_nhap) {
-            await user.update({ ten_dang_nhap, trang_thai });
+            userUpdateData.ten_dang_nhap = ten_dang_nhap;
         }
+        if (trang_thai !== undefined) {
+            userUpdateData.trang_thai = trang_thai;
+        }
+        // Khi có thay đổi thì cập nhật
+        if (Object.keys(userUpdateData).length > 0)
+            await user.update(userUpdateData);
 
         // Cập nhật hồ sơ người dùng
         let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
         if (!profile) {
             // Tạo mới profile nếu chưa có
             profile = await HoSoNguoiDung.create({
-                id_nguoi_dung,
+                id_nguoi_dung: parseInt(id_nguoi_dung),
                 ho_ten: ho_ten || null,
                 so_dien_thoai: so_dien_thoai || null,
                 url_hinh_dai_dien: url_hinh_dai_dien || null,
@@ -188,9 +195,9 @@ module.exports.editUser = async(req, res) => {
             if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh || null;
             if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu || null;
 
-            updateData.thoi_gian_cap_nhat = new Date();
             // Chỉ update nếu có dữ liệu thay đổi
-            if (Object.keys(updateData) > 1) {
+            if (Object.keys(updateData).length > 0) {
+                updateData.thoi_gian_cap_nhat = new Date();
                 await profile.update(updateData);
             }
         }
