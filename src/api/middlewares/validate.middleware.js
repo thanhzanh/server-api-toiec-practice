@@ -94,7 +94,7 @@ const updateProfileValidation = [
         .optional()
         .isLength({ min: 5, max: 30 }).withMessage('Tên đăng nhập từ 5 đến 30 ký tự')
         .matches(/^[a-zA-Z0-9_-]+$/).withMessage('Tên đăng nhập phải chứa chữ cái, số, dấu gạch dưới hoặc dấu gạch ngang')
-        .custom(async (value) => {
+        .custom(async (value, {req}) => {
             if (!value) return true;
             const user = await NguoiDung.findOne({ 
                 where: { 
@@ -115,16 +115,14 @@ const updateProfileValidation = [
         .matches(/^\d{10}$/).withMessage('Số điện thoại phải đủ 10 số')
         .custom(async (value, { req }) => {
             if (!value) return true;
-            if (value) {
-                const profile = await HoSoNguoiDung.findOne({ 
-                    where: {
-                        so_dien_thoai: value,
-                        so_dien_thoai: { [Op.ne]: req.params.id_nguoi_dung }
-                    }
-                });
-                if (profile && profile.id_nguoi_dung !== req.user.id_nguoi_dung) {
-                    throw new Error('Số điện thoại đã được sử dụng');
+            const profile = await HoSoNguoiDung.findOne({ 
+                where: {
+                    so_dien_thoai: value,
+                    so_dien_thoai: { [Op.ne]: req.params.id_nguoi_dung }
                 }
+            });
+            if (profile) {
+                throw new Error('Số điện thoại đã được sử dụng');
             }
             return true;
         }),
