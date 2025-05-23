@@ -17,7 +17,10 @@ module.exports.index = async(req, res) => {
 
         // Đếm tổng số bản ghi
         const count = await NguoiDung.count({
-            where: userSearch,
+            where: {
+                ...userSearch,
+                da_xoa: false
+            },
             include: [
                 {
                     model: HoSoNguoiDung,
