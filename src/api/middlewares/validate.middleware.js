@@ -126,7 +126,7 @@ const updateProfileValidation = [
         .optional()
         .custom(async (value) => {
             const ns = new Date(value);
-            const ngay_hien_tai = new Date();
+            const ngay_hien_tai = Date.now();
             if (ns => ngay_hien_tai) {
                 throw new Error('Ngày sinh phải nhỏ hơn hoặc bằng ngày hiện tại');
             }

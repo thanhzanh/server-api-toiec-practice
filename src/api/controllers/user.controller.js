@@ -101,16 +101,11 @@ module.exports.detailUser = async(req, res) => {
                 include: [
                     {
                         model: NguoiDung,
-                        attributes: ['email', 'ten_dang_nhap', 'vai_tro'],
+                        attributes: ['email', 'ten_dang_nhap', 'vai_tro', 'trang_thai'],
                     },
                 ],
             },
         );
-
-        // Nếu người dùng chưa cập nhật thông tin
-        if (!profile) {
-            return res.status(404).json({ message: "Hồ sơ chưa được tạo" });
-        }
 
         res.status(200).json({ 
             message: "Thông tin cá nhân người dùng" ,
@@ -167,7 +162,7 @@ module.exports.editUser = async(req, res) => {
 
         // Cập nhật ten_dang_nhap từ bảng NguoiDung
         if (ten_dang_nhap && ten_dang_nhap !== user.ten_dang_nhap) {
-            await user.update({ ten_dang_nhap });
+            await user.update({ ten_dang_nhap, trang_thai });
         }
 
         // Cập nhật hồ sơ người dùng
@@ -181,7 +176,6 @@ module.exports.editUser = async(req, res) => {
                 dia_chi: dia_chi || null,
                 ngay_sinh: ngay_sinh || null,
                 gioi_thieu: gioi_thieu || null,
-                trang_thai: trang_thai || null
             });
         }
 
@@ -191,7 +185,6 @@ module.exports.editUser = async(req, res) => {
         if (dia_chi !== undefined) profile.dia_chi = dia_chi;
         if (ngay_sinh !== undefined) profile.ngay_sinh = ngay_sinh;
         if (gioi_thieu !== undefined) profile.gioi_thieu = gioi_thieu;
-        if (trang_thai !== undefined) profile.trang_thai = trang_thai;
 
         await profile.save();
 
@@ -338,11 +331,6 @@ module.exports.getProfile = async(req, res) => {
                 ],
             },
         );
-
-        // Nếu người dùng chưa cập nhật thông tin
-        // if (!profile) {
-        //     return res.status(404).json({ message: "Hồ sơ chưa được tạo" });
-        // }
 
         res.status(200).json({ 
             message: "Thông tin cá nhân người dùng" ,
