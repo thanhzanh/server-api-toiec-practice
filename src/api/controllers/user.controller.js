@@ -168,6 +168,7 @@ module.exports.editUser = async(req, res) => {
         // Cập nhật hồ sơ người dùng
         let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
         if (!profile) {
+            // Tạo mới profile nếu chưa có
             profile = await HoSoNguoiDung.create({
                 id_nguoi_dung,
                 ho_ten: ho_ten || null,
@@ -177,16 +178,21 @@ module.exports.editUser = async(req, res) => {
                 ngay_sinh: ngay_sinh || null,
                 gioi_thieu: gioi_thieu || null,
             });
+        } else {
+            // Cập nhật profile đã có - chỉ cập nhật field có giá trị
+            const updateData = {};
+            if (ho_ten !== undefined) updateData.ho_ten = ho_ten || null;
+            if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai || null;
+            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien || null;
+            if (dia_chi !== undefined) updateData.dia_chi = dia_chi || null;
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh || null;
+            if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu || null;
         }
 
-        if (ho_ten !== undefined) profile.ho_ten = ho_ten;
-        if (so_dien_thoai !== undefined) profile.so_dien_thoai = so_dien_thoai;
-        if (url_hinh_dai_dien !== undefined) profile.url_hinh_dai_dien = url_hinh_dai_dien;
-        if (dia_chi !== undefined) profile.dia_chi = dia_chi;
-        if (ngay_sinh !== undefined) profile.ngay_sinh = ngay_sinh;
-        if (gioi_thieu !== undefined) profile.gioi_thieu = gioi_thieu;
-
-        await profile.save();
+        // Chỉ update nếu có dữ liệu thay đổi
+        if (Object.keys(updateData) > 0) {
+            await profile.update(updateData);
+        }
 
         // Trả về thông tin người dùng
         const userProfile = await NguoiDung.findByPk(
