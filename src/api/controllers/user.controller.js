@@ -177,35 +177,37 @@ module.exports.editUser = async(req, res) => {
         if (ten_dang_nhap && ten_dang_nhap !== user.ten_dang_nhap) {
             userUpdateData.ten_dang_nhap = ten_dang_nhap;
         }
-        if (trang_thai !== undefined) {
-            userUpdateData.trang_thai = trang_thai || null;
+        if (trang_thai !== undefined && trang_thai !== user.trang_thai) {
+            userUpdateData.trang_thai = trang_thai;
         }
         // Khi có thay đổi thì cập nhật
-        if (Object.keys(userUpdateData).length > 0)
+        if (Object.keys(userUpdateData).length > 0) {
+            userUpdateData.thoi_gian_cap_nhat = new Date();
             await user.update(userUpdateData);
-
+        }
+            
         // Cập nhật hồ sơ người dùng
         let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
         if (!profile) {
             // Tạo mới profile nếu chưa có
             profile = await HoSoNguoiDung.create({
                 id_nguoi_dung: parseInt(id_nguoi_dung),
-                ho_ten: ho_ten || null,
-                so_dien_thoai: so_dien_thoai || null,
-                url_hinh_dai_dien: url_hinh_dai_dien || null,
-                dia_chi: dia_chi || null,
-                ngay_sinh: ngay_sinh || null,
-                gioi_thieu: gioi_thieu || null,
+                ho_ten: ho_ten === "" ? null : ho_ten,
+                so_dien_thoai: so_dien_thoai === "" ? null : so_dien_thoai,
+                url_hinh_dai_dien: url_hinh_dai_dien === "" ? null : url_hinh_dai_dien,
+                dia_chi: dia_chi === "" ? null : dia_chi,
+                ngay_sinh: ngay_sinh === "" ? null : ngay_sinh,
+                gioi_thieu: gioi_thieu === "" ? null : gioi_thieu,
             });
         } else {
             // Cập nhật profile đã có - chỉ cập nhật field có giá trị
             const updateData = {};
-            if (ho_ten !== undefined) updateData.ho_ten = ho_ten || null;
-            if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai || null;
-            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien || null;
-            if (dia_chi !== undefined) updateData.dia_chi = dia_chi || null;
-            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh || null;
-            if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu || null;
+            if (ho_ten !== undefined) updateData.ho_ten === "" ? null : ho_ten;
+            if (so_dien_thoai !== undefined) updateData.so_dien_thoai === "" ? null : so_dien_thoai;
+            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien === "" ? null : url_hinh_dai_dien;
+            if (dia_chi !== undefined) updateData.dia_chi = dia_chi === "" ? null : dia_chi;
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh === "" ? null : ngay_sinh;
+            if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu === "" ? null : gioi_thieu;
 
             // Chỉ update nếu có dữ liệu thay đổi
             if (Object.keys(updateData).length > 0) {
