@@ -45,7 +45,10 @@ module.exports.index = async(req, res) => {
         const query = {
             offset: pagination.skip,
             limit: pagination.limitItem,
-            where: userSearch,
+            where: {
+                ...userSearch,
+                da_xoa: false
+            },
             include: [
                 {
                     model: HoSoNguoiDung,

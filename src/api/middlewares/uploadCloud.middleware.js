@@ -14,6 +14,7 @@ module.exports.upload = async (req, res, next) => {
         if (!req.file) {
             return next(); // Không có file, bỏ qua upload
         }
+        console.log("File nhận được:", req.file.originalname);
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
                 let stream = cloudinary.uploader.upload_stream(
