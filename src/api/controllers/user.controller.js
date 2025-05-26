@@ -2,7 +2,7 @@ const NguoiDung = require("../../models/nguoiDung.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { createSearchQuery } = require('../../helpers/search');
-const bcrypt = require("bcrypt");
+const dayjs = require('dayjs');
 const { Op, where } = require('sequelize');
 
 // [GET] /api/users
@@ -185,6 +185,11 @@ module.exports.editUser = async(req, res) => {
             userUpdateData.thoi_gian_cap_nhat = new Date();
             await user.update(userUpdateData);
         }
+
+        const parseDate = (dateStr) => {
+            const date = dayjs(dateStr, 'YYYY-MM-DD', true);
+            return date.isValid() ? date.toDate() : null;
+        }
             
         // Cập nhật hồ sơ người dùng
         let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
@@ -202,11 +207,11 @@ module.exports.editUser = async(req, res) => {
         } else {
             // Cập nhật profile đã có - chỉ cập nhật field có giá trị
             const updateData = {};
-            if (ho_ten !== undefined) updateData.ho_ten === "" ? null : ho_ten;
-            if (so_dien_thoai !== undefined) updateData.so_dien_thoai === "" ? null : so_dien_thoai;
-            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien === "" ? null : url_hinh_dai_dien;
+            if (ho_ten !== undefined) updateData.ho_ten = ho_ten === "" ? null : ho_ten;
+            if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai === "" ? null : so_dien_thoai;
+            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien ===  "" ? null : url_hinh_dai_dien;
             if (dia_chi !== undefined) updateData.dia_chi = dia_chi === "" ? null : dia_chi;
-            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh === "" ? null : ngay_sinh;
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = parseDate(ngay_sinh);
             if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu === "" ? null : gioi_thieu;
 
             // Chỉ update nếu có dữ liệu thay đổi
@@ -296,6 +301,11 @@ module.exports.updateProfile = async(req, res) => {
             userUpdateData.thoi_gian_cap_nhat = new Date();
             await user.update(userUpdateData);
         }
+
+        const parseDate = (dateStr) => {
+            const date = dayjs(dateStr, 'YYYY-MM-DD', true);
+            return date.isValid() ? date.toDate() : null;
+        }
             
         // Cập nhật hồ sơ người dùng
         let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
@@ -313,11 +323,11 @@ module.exports.updateProfile = async(req, res) => {
         } else {
             // Cập nhật profile đã có - chỉ cập nhật field có giá trị
             const updateData = {};
-            if (ho_ten !== undefined) updateData.ho_ten === "" ? null : ho_ten;
-            if (so_dien_thoai !== undefined) updateData.so_dien_thoai === "" ? null : so_dien_thoai;
-            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien === "" ? null : url_hinh_dai_dien;
+            if (ho_ten !== undefined) updateData.ho_ten = ho_ten === "" ? null : ho_ten;
+            if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai === "" ? null : so_dien_thoai;
+            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien ===  "" ? null : url_hinh_dai_dien;
             if (dia_chi !== undefined) updateData.dia_chi = dia_chi === "" ? null : dia_chi;
-            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh === "" ? null : ngay_sinh;
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = parseDate(ngay_sinh);
             if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu === "" ? null : gioi_thieu;
 
             // Chỉ update nếu có dữ liệu thay đổi
