@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const NganHangCauHoi = require('../models/nganHangCauHoi.model');
 
 const LuaChon = sequelize.define('LuaChon', {
     id_lua_chon: {
@@ -22,11 +21,7 @@ const LuaChon = sequelize.define('LuaChon', {
     }
 }, {
     tableName: 'lua_chon',
-    timestamps: fasle,
-    charset: 'utf8mb4',
-    collate: 'utf8mb4_unicode_ci'
+    timestamps: false
 });
-
-LuaChon.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi' });
 
 module.exports = LuaChon;

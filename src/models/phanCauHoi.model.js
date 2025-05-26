@@ -32,7 +32,7 @@ const PhanCauHoi = sequelize.define('PhanCauHoi', {
     }
 }, {
     tableName: 'phan_cau_hoi',
-    timestamps: fasle
+    timestamps: false
 });
 
 module.exports = PhanCauHoi;

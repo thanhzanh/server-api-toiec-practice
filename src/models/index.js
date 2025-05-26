@@ -28,6 +28,9 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+// Gọi associations sau khi tất cả model đã được định nghĩa
+// require('./associations')(db);
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

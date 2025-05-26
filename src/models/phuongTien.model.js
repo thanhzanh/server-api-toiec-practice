@@ -21,7 +21,7 @@ const PhuongTien = sequelize.define('PhuongTien', {
     }
 }, {
     tableName: 'phuong_tien',
-    timestamps: fasle
+    timestamps: false
 });
 
 module.exports = PhuongTien;

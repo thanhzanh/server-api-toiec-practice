@@ -1,5 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const PhanCauHoi = require('./phanCauHoi.model');
+const PhuongTien = require('./phuongTien.model');
+const DoanVan = require('./doanVan.model');
 
 const NganHangCauHoi = sequelize.define('NganHangCauHoi', {
     id_cau_hoi: {
@@ -61,8 +64,12 @@ const NganHangCauHoi = sequelize.define('NganHangCauHoi', {
     }
 }, {
     tableName: 'ngan_hang_cau_hoi',
-    timestamps: fasle
+    timestamps: false
 });
 
+NganHangCauHoi.belongsTo(PhanCauHoi, { foreignKey: 'id_phan' });
+NganHangCauHoi.belongsTo(DoanVan, { foreignKey: 'id_doan_van' });
+NganHangCauHoi.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_hinh_anh', as: 'hinh_anh' });
+NganHangCauHoi.belongsTo(PhanCauHoi, { foreignKey: 'id_phuong_tien_am_thanh', as: 'am_thanh' });
 
 module.exports = NganHangCauHoi;

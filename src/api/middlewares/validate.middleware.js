@@ -144,6 +144,8 @@ const updateProfileValidation = [
             }
             return true;
         }),
+    body('trang_thai')
+        .optional(),
     validate
 ];
 

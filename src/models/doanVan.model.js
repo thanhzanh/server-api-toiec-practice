@@ -1,10 +1,10 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const PhanCauHoi = require('../models/phanCauHoi.model');
-const PhuongTien = require('../models/phuongTien.model');
+const PhanCauHoi = require('./phanCauHoi.model');
+const PhuongTien = require('./phuongTien.model');
 
 const DoanVan = sequelize.define('DoanVan', {
-    id_phan: {
+    id_doan_van: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -23,7 +23,7 @@ const DoanVan = sequelize.define('DoanVan', {
     }
 }, {
     tableName: 'doan_van',
-    timestamps: fasle
+    timestamps: false
 });
 
 PhanCauHoi.belongsTo(PhanCauHoi, { foreignKey: 'id_phan' });

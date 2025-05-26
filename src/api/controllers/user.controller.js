@@ -374,15 +374,16 @@ module.exports.getProfile = async(req, res) => {
         const id_nguoi_dung = req.user.id_nguoi_dung;        
 
         // Lấy thông tin cá nhân
-        let profile = await HoSoNguoiDung.findByPk(
+        let profile = await NguoiDung.findByPk(
             id_nguoi_dung, 
             {
                 include: [
                     {
-                        model: NguoiDung,
-                        attributes: ['email', 'ten_dang_nhap', 'vai_tro'],
+                        model: HoSoNguoiDung,
+                        attributes: { exclude: ['thoi_gian_cap_nhat'] },
                     },
                 ],
+                attributes: ['ten_dang_nhap', 'email', 'vai_tro', 'trang_thai']
             },
         );
 
