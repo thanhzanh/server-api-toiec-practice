@@ -45,9 +45,7 @@ const HoSoNguoiDung = sequelize.define('HoSoNguoiDung', {
     },
 }, {
     tableName: 'ho_so_nguoi_dung',
-    timestamps: false,
-    charset: 'utf8mb4',
-    collate: 'utf8mb4_unicode_ci'
+    timestamps: false
 });
 
 HoSoNguoiDung.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung' });

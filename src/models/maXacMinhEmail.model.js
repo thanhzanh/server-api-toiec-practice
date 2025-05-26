@@ -30,9 +30,7 @@ const MaXacMinhEmail = sequelize.define('MaXacMinhEmail', {
     },
 }, {
     tableName: 'ma_xac_minh_email',
-    timestamps: false,
-    charset: 'utf8mb4',
-    collate: 'utf8mb4_unicode_ci'
+    timestamps: false
 });
 
 MaXacMinhEmail.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung' });

@@ -61,9 +61,7 @@ const NganHangCauHoi = sequelize.define('NganHangCauHoi', {
     }
 }, {
     tableName: 'ngan_hang_cau_hoi',
-    timestamps: fasle,
-    charset: 'utf8mb4',
-    collate: 'utf8mb4_unicode_ci'
+    timestamps: fasle
 });
 
 

@@ -46,9 +46,7 @@ const NguoiDung = sequelize.define('NguoiDung', {
     }
 }, {
     tableName: 'nguoi_dung',
-    timestamps: false,
-    charset: 'utf8mb4',
-    collate: 'utf8mb4_unicode_ci'
+    timestamps: false
 });
 
 module.exports = NguoiDung;
