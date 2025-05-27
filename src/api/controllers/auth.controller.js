@@ -1,12 +1,10 @@
-const NguoiDung = require("../../models/nguoiDung.model");
-const MaXacMinhEmail = require("../../models/maXacMinhEmail.model");
+const { NguoiDung, MaXacMinhEmail, HoSoNguoiDung } = require("../../models");
 const generateHelper = require("../../helpers/generate");
 const sendMailHelper = require("../../helpers/sendMail");
 const { Sequelize } = require('sequelize');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 require('dotenv').config();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

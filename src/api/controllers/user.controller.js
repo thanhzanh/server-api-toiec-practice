@@ -1,5 +1,4 @@
-const NguoiDung = require("../../models/nguoiDung.model");
-const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
+const { HoSoNguoiDung, NguoiDung } = require("../../models");
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { createSearchQuery } = require('../../helpers/search');
 const dayjs = require('dayjs');
@@ -24,6 +23,7 @@ module.exports.index = async(req, res) => {
             include: [
                 {
                     model: HoSoNguoiDung,
+                    as: 'ho_so',
                     where: profileSearch
                 }
             ],
@@ -52,6 +52,7 @@ module.exports.index = async(req, res) => {
             include: [
                 {
                     model: HoSoNguoiDung,
+                    as: 'ho_so',
                     attributes: ['ho_ten'],
                     where: profileSearch
                 }
@@ -107,6 +108,7 @@ module.exports.detailUser = async(req, res) => {
                 include: [
                     {
                         model: NguoiDung,
+                        as: 'nguoi_dung',
                         attributes: ['email', 'ten_dang_nhap', 'vai_tro', 'trang_thai'],
                     },
                 ],
@@ -229,6 +231,7 @@ module.exports.editUser = async(req, res) => {
                 include: [
                     {
                         model: HoSoNguoiDung,
+                        as: 'ho_so',
                         attributes: [
                             'ho_ten',
                             'so_dien_thoai',
@@ -345,6 +348,7 @@ module.exports.updateProfile = async(req, res) => {
                 include: [
                     {
                         model: HoSoNguoiDung,
+                        as: 'ho_so',
                         attributes: [
                             'ho_ten',
                             'so_dien_thoai',
@@ -380,6 +384,7 @@ module.exports.getProfile = async(req, res) => {
                 include: [
                     {
                         model: HoSoNguoiDung,
+                        as: 'ho_so',
                         attributes: { exclude: ['thoi_gian_cap_nhat'] },
                     },
                 ],
