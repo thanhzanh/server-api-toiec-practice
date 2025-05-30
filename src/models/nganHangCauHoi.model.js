@@ -32,8 +32,8 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 'trung_binh'
         },
         trang_thai: {
-            type: DataTypes.ENUM('nhap', 'da_xuat_ban', 'luu_tru'),
-            defaultValue: 'nhap'
+            type: DataTypes.ENUM('da_xuat_ban', 'luu_tru'),
+            defaultValue: 'da_xuat_ban'
         },
         id_phuong_tien_hinh_anh: {
             type: DataTypes.INTEGER,

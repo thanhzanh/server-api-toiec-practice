@@ -1,6 +1,7 @@
 const { NganHangCauHoi, PhanCauHoi, DoanVan, PhuongTien, LuaChon } = require('../../models');
 const { createPaginationQuery } = require('../../helpers/pagination');
 
+// [GET] /api/questions
 module.exports.index = async (req, res) => {
     try {
         const { page, limit, id_phan, muc_do_kho, trang_thai } = req.query;
@@ -63,6 +64,23 @@ module.exports.index = async (req, res) => {
                 total: count,
                 totalPages: pagination.totalPages
             }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/questions
+module.exports.create = async (req, res) => {
+    try {
+        const { id_phan, id_doan_van, noi_dung, dap_an_dung, giai_thich, muc_do_kho, id_phuong_tien_hinh_anh, id_phuong_tien_am_thanh } = req.body;
+
+        console.log('Dữ liệu test postman gửi lên: ', req.body);
+        
+        
+        res.status(200).json({ 
+            message: "Lấy danh sách câu hỏi thành công",
+            
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

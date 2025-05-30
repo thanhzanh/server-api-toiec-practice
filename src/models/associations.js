@@ -20,5 +20,5 @@ module.exports = (db) => {
 
     // DoanVan relationships
     DoanVan.belongsTo(PhanCauHoi, { foreignKey: 'id_phan', as: 'phan' });
-    DoanVan.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_am_thanh', as: 'am_thanh', targetKey: 'id_phuong_tien' });
+    DoanVan.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_hinh_anh', as: 'hinh_anh', targetKey: 'id_phuong_tien' });
 };

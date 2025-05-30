@@ -1,6 +1,5 @@
 const { body, validationResult } = require('express-validator');
-const NguoiDung = require("../../models/nguoiDung.model");
-const HoSoNguoiDung = require('../../models/hoSoNguoiDung.model');
+const { NguoiDung, HoSoNguoiDung } = require('../../models');
 const { Op } = require('sequelize');
 
 // Middleware xử lý lỗi validation
