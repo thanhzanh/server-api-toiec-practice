@@ -13,8 +13,7 @@ sequelize.authenticate()
 
 // Cho phép tất cả các domain truy cập API
 app.use(cors({
-    origin: "http://localhost:5173", // Đổi thành domain frontend của bạn
-    credentials: true,
+    origin: ["http://localhost:5173", "https://toeic-practice-eight.vercel.app"], // Cho phep hoat dong tren local va online
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
