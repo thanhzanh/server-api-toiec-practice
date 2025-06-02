@@ -32,6 +32,15 @@ module.exports.index = async (req, res) => {
             count
         );
 
+        // Lấy danh sách trạng thái
+        const dsTrangThai = NganHangCauHoi.rawAttributes.trang_thai.values;
+
+        // Lấy danh sách phần câu hỏi
+        const dsPhan = await PhanCauHoi.findAll({ attributes: ['id_phan', 'ten_phan'] });
+
+        // Lấy danh sách mức độ khó
+        const dsMucDoKho = NganHangCauHoi.rawAttributes.muc_do_kho.values;
+
         // Danh sách câu hỏi theo bộ lọc phần, trạng thái, mức độ
         const questions = await NganHangCauHoi.findAll({
             where,
@@ -64,7 +73,10 @@ module.exports.index = async (req, res) => {
                 limit: pagination.limitItem,
                 total: count,
                 totalPages: pagination.totalPages
-            }
+            },
+            dsPhan,
+            dsTrangThai,
+            dsMucDoKho
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
