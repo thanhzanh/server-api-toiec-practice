@@ -10,4 +10,7 @@ router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.i
 // Tạo câu hỏi thủ công nhập tay
 router.post("/create", authenticateUser, authorizeRole(['quan_tri_vien']), upload, controller.create);
 
+// Xem chi tiết 1 câu hỏi
+router.get("/detail/:id_cau_hoi", authenticateUser, authorizeRole(['quan_tri_vien']), controller.detail);
+
 module.exports = router;
