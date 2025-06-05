@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../middlewares/uploadCloud.middleware');
+const { uploadCloudinary } = require('../middlewares/upload.middleware');
 const controller = require('../controllers/question.controller');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
 
@@ -8,7 +8,12 @@ const { authenticateUser, authorizeRole } = require('../middlewares/auth.middlew
 router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.index);
 
 // Tạo câu hỏi thủ công nhập tay
-router.post("/create", authenticateUser, authorizeRole(['quan_tri_vien']), upload, controller.create);
+router.post("/create", 
+    authenticateUser, 
+    authorizeRole(['quan_tri_vien']), 
+    uploadCloudinary([{ name: 'hinh_anh', type: 'image' }, { name: 'am_thanh', type: 'video' }]), 
+    controller.create
+);
 
 // Xem chi tiết 1 câu hỏi
 router.get("/detail/:id_cau_hoi", authenticateUser, authorizeRole(['quan_tri_vien']), controller.detail);

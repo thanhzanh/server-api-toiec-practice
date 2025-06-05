@@ -162,8 +162,9 @@ module.exports.deleteUser = async(req, res) => {
 // [PUT] /api/users/edit/:id_nguoi_dung
 module.exports.editUser = async(req, res) => {
     try {
-        
         const { ten_dang_nhap, ho_ten, so_dien_thoai, url_hinh_dai_dien, dia_chi, ngay_sinh, gioi_thieu, trang_thai } = req.body;
+        console.log("Data gửi lên cập nhật: ", req.body);
+        
 
         // id_nguoi_dung
         const { id_nguoi_dung } = req.params;
@@ -244,6 +245,9 @@ module.exports.editUser = async(req, res) => {
                 ],
             },
         );
+
+        console.log(userProfile);
+        
 
         res.status(200).json({ 
             message: "Đã cập nhật thông tin cá nhân",

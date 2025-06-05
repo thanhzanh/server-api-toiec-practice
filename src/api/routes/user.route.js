@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage() });
 
 const controller = require('../controllers/user.controller');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 
-const uploadCloud = require('../middlewares/uploadCloud.middleware');
+const { uploadCloudinary } = require('../middlewares/upload.middleware');
 
 // Lấy danh sách tất cả người dùng tìm kiếm, phân trang (quản trị viên)
 router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.index);
@@ -22,8 +20,7 @@ router.delete("/delete/:id_nguoi_dung", authenticateUser, authorizeRole(["quan_t
 router.put("/edit/:id_nguoi_dung", 
     authenticateUser, 
     authorizeRole(["quan_tri_vien"]), 
-    upload.single("url_hinh_dai_dien"),
-    uploadCloud.upload,
+    uploadCloudinary([{ name: 'hinh_dai_dien', type: 'image' }]),
     validate.updateProfileValidation,
     controller.editUser
 );
@@ -38,8 +35,7 @@ router.get("/me", authenticateUser, authorizeRole(["quan_tri_vien", "nguoi_dung"
 router.put("/update-profile",
     authenticateUser,
     authorizeRole(["nguoi_dung"]),
-    upload.single("url_hinh_dai_dien"),
-    uploadCloud.upload,
+    uploadCloudinary([{ name: 'hinh_dai_dien', type: 'image' }]),
     validate.updateProfileValidation,
     controller.updateProfile
 );
