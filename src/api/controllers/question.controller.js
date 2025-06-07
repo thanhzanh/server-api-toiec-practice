@@ -1,4 +1,9 @@
-const { NganHangCauHoi, PhanCauHoi, DoanVan, PhuongTien, LuaChon } = require('../../models');
+const NganHangCauHoi = require("../../models/nganHangCauHoi.model");
+const PhanCauHoi = require("../../models/phanCauHoi.model");
+const DoanVan = require("../../models/doanVan.model");
+const PhuongTien = require("../../models/phuongTien.model");
+const LuaChon = require("../../models/luaChon.model");
+
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
 
@@ -101,24 +106,16 @@ module.exports.create = async (req, res) => {
             }
         }
 
-        // Kiểm tra đoạn văn
-        if (id_doan_van) {
-            const doanvan = await DoanVan.findByPk(id_doan_van);
-            if (!doanvan) {
-                return res.status(400).json({ message: "Đoạn văn không tồn tại" });
-            }
-            
-            if (phan && !phan.co_doan_van) {
-                return res.status(400).json({ message: "Đoạn văn chỉ nằm trong Part 6 và Part 7" });
-            }
-        }
-
-        // Validate Part 1
-        if (id_phan === 1) {
-            if (!req.body.url_am_thanh && !req.body.url_hinh_anh) {
-                return res.status(400).json({ message: "Part 1 bắt buộc phải có hình ảnh và âm thanh!" });
-            }
-        }
+        // Validate cho Part
+        const phandoanvan = {
+            1: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false },
+            2: { co_hinh_anh: false, co_am_thanh: true, co_doan_van: false },
+            3: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false },
+            4: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false },
+            5: { co_hinh_anh: false, co_am_thanh: false, co_doan_van: false },
+            6: { co_hinh_anh: false, co_am_thanh: false, co_doan_van: true },
+            7: { co_hinh_anh: true, co_am_thanh: false, co_doan_van: true },
+        };
 
         // Xử lý hình ảnh
         let id_phuong_tien_am_thanh = null;
@@ -175,10 +172,11 @@ module.exports.create = async (req, res) => {
         });
                 
         res.status(200).json({ 
-            message: "Lấy danh sách câu hỏi thành công",
+            message: "Tạo câu hỏi thành công",
             data: dataQuestion
         });
     } catch (error) {
+        console.error(error.message);
         res.status(500).json({ message: error.message });
     }
 };

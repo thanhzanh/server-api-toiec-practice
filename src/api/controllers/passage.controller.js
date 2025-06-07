@@ -1,4 +1,5 @@
-const { PhanCauHoi, DoanVan } = require('../../models');
+const PhanCauHoi = require('../../models/phanCauHoi.model');
+const DoanVan = require('../../models/phanCauHoi.model');
 const { createPaginationQuery } = require('../../helpers/pagination');
 
 // [GET] /api/passages

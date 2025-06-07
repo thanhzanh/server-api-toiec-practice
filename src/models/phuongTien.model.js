@@ -1,28 +1,31 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database");
 
-module.exports = (sequelize, DataTypes) => {
-    const PhuongTien = sequelize.define('PhuongTien', {
-        id_phuong_tien: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        url_phuong_tien: {
-            type: DataTypes.TEXT,
-            allowNull: false
-        },
-        loai_phuong_tien: {
-            type: DataTypes.ENUM('hinh_anh', 'am_thanh'),
-            allowNull: false
-        },
-        thoi_gian_tao: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
-        }
-    }, {
-        tableName: 'phuong_tien',
-        timestamps: false
-    });
+const PhuongTien = sequelize.define(
+  "PhuongTien",
+  {
+    id_phuong_tien: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    url_phuong_tien: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    loai_phuong_tien: {
+      type: DataTypes.ENUM("hinh_anh", "am_thanh"),
+      allowNull: false,
+    },
+    thoi_gian_tao: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: "phuong_tien",
+    timestamps: false,
+  }
+);
 
-    return PhuongTien;
-};
+module.exports = PhuongTien;

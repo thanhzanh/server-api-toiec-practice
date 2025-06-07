@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const sequelize = require('./config/database');
 const routesApi = require('./api/routes/index.route');
 
+const setupAssociations = require('./config/setupAssociations');
+setupAssociations();
+
 const app = express();
 
 // Connect Database

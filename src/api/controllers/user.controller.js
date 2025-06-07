@@ -1,4 +1,5 @@
-const { HoSoNguoiDung, NguoiDung } = require("../../models");
+const NguoiDung = require("../../models/nguoiDung.model");
+const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { createSearchQuery } = require('../../helpers/search');
 const dayjs = require('dayjs');
@@ -299,9 +300,6 @@ module.exports.updateProfile = async(req, res) => {
         const userUpdateData = {};
         if (ten_dang_nhap && ten_dang_nhap !== user.ten_dang_nhap) {
             userUpdateData.ten_dang_nhap = ten_dang_nhap;
-        }
-        if (trang_thai !== undefined && trang_thai !== user.trang_thai) {
-            userUpdateData.trang_thai = trang_thai;
         }
         // Khi có thay đổi thì cập nhật
         if (Object.keys(userUpdateData).length > 0) {

@@ -1,4 +1,6 @@
-const { NguoiDung, MaXacMinhEmail, HoSoNguoiDung } = require("../../models");
+const NguoiDung = require("../../models/nguoiDung.model");
+const MaXacMinhEmail = require("../../models/nguoiDung.model");
+const HoSoNguoiDung = require("../../models/nguoiDung.model");
 const generateHelper = require("../../helpers/generate");
 const sendMailHelper = require("../../helpers/sendMail");
 const { Sequelize } = require('sequelize');

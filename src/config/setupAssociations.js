@@ -1,6 +1,15 @@
-module.exports = (db) => {
-    const { NganHangCauHoi, LuaChon, DoanVan, PhuongTien, PhanCauHoi, HoSoNguoiDung, NguoiDung, MaXacMinhEmail } = db;
+const NguoiDung = require('../models/nguoiDung.model');
+const HoSoNguoiDung = require('../models/hoSoNguoiDung.model');
+const MaXacMinhEmail = require('../models/maXacMinhEmail.model');
+const NganHangCauHoi = require('../models/nganHangCauHoi.model');
+const LuaChon = require('../models/luaChon.model');
+const DoanVan = require('../models/doanVan.model');
+const PhuongTien = require('../models/phuongTien.model');
+const PhanCauHoi = require('../models/phanCauHoi.model');
 
+const setupAssociations = () => {
+    console.log('Setting up model associations...');
+    
     // HoSoNguoiDung relationships
     HoSoNguoiDung.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
     NguoiDung.hasOne(HoSoNguoiDung, { foreignKey: 'id_nguoi_dung', as: 'ho_so' });
@@ -21,4 +30,8 @@ module.exports = (db) => {
     // DoanVan relationships
     DoanVan.belongsTo(PhanCauHoi, { foreignKey: 'id_phan', as: 'phan' });
     DoanVan.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_hinh_anh', as: 'hinh_anh', targetKey: 'id_phuong_tien' });
+
+    console.log('All model associations have been set up successfully!');
 };
+
+module.exports = setupAssociations;
