@@ -91,12 +91,22 @@ module.exports.index = async (req, res) => {
 // [POST] /api/questions/create
 module.exports.create = async (req, res) => {
     try {
-
         let data;
         data = JSON.parse(req.body.data);
         const { id_phan, id_doan_van, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, lua_chon } = data;
 
-        console.log('Dữ liệu test postman gửi lên: ', data);
+        // Validate cho Part
+        const phandoanvan = {
+            1: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false, so_lua_chon: 4 },
+            2: { co_hinh_anh: false, co_am_thanh: true, co_doan_van: false, so_lua_chon: 3 },
+            3: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false, so_lua_chon: 4, so_cau_hoi: 3 },
+            4: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false, so_lua_chon: 4, so_cau_hoi: 3 },
+            5: { co_hinh_anh: false, co_am_thanh: false, co_doan_van: false, so_lua_chon: 4 },
+            6: { co_hinh_anh: false, co_am_thanh: false, co_doan_van: true, so_lua_chon: 4 },
+            7: { co_hinh_anh: true, co_am_thanh: false, co_doan_van: true, so_lua_chon: 4 },
+        };
+
+        const checkPhan = phandoanvan[id_phan];
 
         // Kiểm tra phần
         if (id_phan) {
@@ -106,16 +116,74 @@ module.exports.create = async (req, res) => {
             }
         }
 
-        // Validate cho Part
-        const phandoanvan = {
-            1: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false },
-            2: { co_hinh_anh: false, co_am_thanh: true, co_doan_van: false },
-            3: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false },
-            4: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false },
-            5: { co_hinh_anh: false, co_am_thanh: false, co_doan_van: false },
-            6: { co_hinh_anh: false, co_am_thanh: false, co_doan_van: true },
-            7: { co_hinh_anh: true, co_am_thanh: false, co_doan_van: true },
-        };
+        // Bắt buộc phải có hình ảnh cho Part 1, 2, 5
+        if (checkPhan.co_hinh_anh && !req.body.url_hinh_anh) {
+            if ([1, 2, 5].includes(id_phan)) {
+                return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có hình ảnh!` });
+            }
+        }
+
+        // Bắt buộc phải có âm thanh    
+        if (checkPhan.co_am_thanh && !req.body.url_am_thanh) {
+            return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có âm thanh!` });
+        }
+
+        // Bắt buộc có đoạn văn
+        if (!id_doan_van && checkPhan.co_doan_van) {
+            return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có đoạn văn!` });
+        }
+        if (id_doan_van) {
+            const doanvan = await DoanVan.findByPk(id_doan_van);
+            if (!doanvan) {
+                return res.status(400).json({ message: "Đoạn văn không tồn tại!" });
+            }
+        }
+
+        // Kiểm tra đáp án đúng
+        if (Array.isArray(dap_an_dung)) {
+            for (const dapAn of dap_an_dung) {
+                if (!['A', 'B', 'C', 'D'].includes(dapAn)) {
+                    return res.status(400).json({ message: "Đáp án chỉ có thể là A, B, C hoặc D!" });
+                }
+            }
+        } else {
+            if (!['A', 'B', 'C', 'D'].includes(dap_an_dung)) {
+                return res.status(400).json({ message: "Đáp án chỉ có thể là A, B, C hoặc D!" });
+            }
+        }
+
+        // Validate cho Lua chon
+        switch(id_phan) {
+            case 1:
+            case 5:
+            case 2:
+                if (lua_chon.length !== checkPhan.so_lua_chon) {
+                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
+                }   
+                break;
+            case 3:
+            case 4:
+                if (noi_dung && noi_dung.length !== checkPhan.so_cau_hoi) {
+                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có 3 câu hỏi!` });
+                }
+                for (const lc of lua_chon) {
+                    if (lc.length !== checkPhan.so_lua_chon) {
+                        return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
+                    }   
+                }
+                break;
+            case 6:
+            case 7:
+                for (const lc of lua_chon) {
+                    if (lc.length !== checkPhan.so_lua_chon) {
+                        return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
+                    }   
+                }
+                break;
+            default:
+                break;
+        }    
+        // End validate cho Part
 
         // Xử lý hình ảnh
         let id_phuong_tien_am_thanh = null;
@@ -138,38 +206,71 @@ module.exports.create = async (req, res) => {
         }
 
         // Lưu vào database ngan_hang_cau_hoi
-        const question = await NganHangCauHoi.create({
-            id_phan,
-            id_doan_van,
-            noi_dung,
-            dap_an_dung,
-            giai_thich,
-            muc_do_kho,
-            id_phuong_tien_hinh_anh,
-            id_phuong_tien_am_thanh,
-            trang_thai: trang_thai
-        });
+        let questions = []; // Lưu câu hỏi theo từng Part
+        if ([3, 4, 6, 7].includes(id_phan)) {
+            for (let i = 0; i < noi_dung.length; i++) {
+                const question = await NganHangCauHoi.create({
+                    id_phan: id_phan,
+                    id_doan_van: id_doan_van || null,
+                    noi_dung: noi_dung[i],
+                    dap_an_dung: dap_an_dung[i],
+                    giai_thich: giai_thich[i] || null,
+                    muc_do_kho: muc_do_kho,
+                    id_phuong_tien_hinh_anh,
+                    id_phuong_tien_am_thanh,
+                    trang_thai: trang_thai
+                });
+                questions.push(question);
 
-        // Tạo lựa chọn
-        const luaChonDapAn = lua_chon.map((item) => ({
-            id_cau_hoi: question.id_cau_hoi,
-            ky_tu_lua_chon: item.ky_tu_lua_chon,
-            noi_dung: item.noi_dung
-        }));
+                // Tạo lựa chọn
+                const luaChonDapAn = lua_chon[i].map((item) => ({
+                    id_cau_hoi: question.id_cau_hoi,
+                    ky_tu_lua_chon: item.ky_tu_lua_chon,
+                    noi_dung: item.noi_dung
+                }));
+                
+                // Lưu vào database lua_chon
+                await LuaChon.bulkCreate(luaChonDapAn);
+            }
+        } else {
+            const question = await NganHangCauHoi.create({
+                id_phan: id_phan,
+                id_doan_van: id_doan_van || null,
+                noi_dung: noi_dung,
+                dap_an_dung: dap_an_dung,
+                giai_thich: giai_thich || null,
+                muc_do_kho: muc_do_kho,
+                id_phuong_tien_hinh_anh,
+                id_phuong_tien_am_thanh,
+                trang_thai: trang_thai
+            });
+            questions.push(question);
 
-        // Lưu vào database lua_chon
-        await LuaChon.bulkCreate(luaChonDapAn);
+            // Tạo lựa chọn
+            const luaChonDapAn = lua_chon.map((item) => ({
+                id_cau_hoi: question.id_cau_hoi,
+                ky_tu_lua_chon: item.ky_tu_lua_chon,
+                noi_dung: item.noi_dung
+            }));
 
+            // Lưu vào database lua_chon
+            await LuaChon.bulkCreate(luaChonDapAn);
+        }
+        
         // Lấy dữ liệu câu hỏi trả về
-        const dataQuestion = await NganHangCauHoi.findByPk(question.id_cau_hoi, {
-            include: [
-                { model: PhanCauHoi, as: 'phan', attributes: ['ten_phan', 'loai_phan'] },
-                { model: DoanVan, as: 'doan_van', attributes: ['noi_dung'] },
-                { model: PhuongTien, as: 'hinh_anh', attributes: ['url_phuong_tien'] },
-                { model: PhuongTien, as: 'am_thanh', attributes: ['url_phuong_tien'] },
-                { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] },
-            ]
-        });
+        const dataQuestion = await Promise.all(
+            questions.map((q) => {
+                return NganHangCauHoi.findByPk(q.id_cau_hoi, {
+                    include: [
+                        { model: PhanCauHoi, as: 'phan', attributes: ['ten_phan', 'loai_phan'] },
+                        { model: DoanVan, as: 'doan_van', attributes: ['noi_dung'] },
+                        { model: PhuongTien, as: 'hinh_anh', attributes: ['url_phuong_tien'] },
+                        { model: PhuongTien, as: 'am_thanh', attributes: ['url_phuong_tien'] },
+                        { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] },
+                    ]
+                })
+            })
+        );
                 
         res.status(200).json({ 
             message: "Tạo câu hỏi thành công",

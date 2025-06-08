@@ -19,7 +19,7 @@ const NganHangCauHoi = sequelize.define(
     },
     noi_dung: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     dap_an_dung: {
       type: DataTypes.CHAR(1),
