@@ -10,4 +10,7 @@ router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.i
 // Tạo đoạn văn mới
 router.post("/create", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.create);
 
+// Chỉnh sửa đoạn văn
+router.put("/edit/:id_doan_van", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.edit);
+
 module.exports = router;

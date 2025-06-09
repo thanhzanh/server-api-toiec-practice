@@ -42,3 +42,31 @@ module.exports.create = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// [PUT] /api/passages/edit
+module.exports.edit = async (req, res) => {
+    try {        
+        const { id_doan_van } = req.params;
+        const { tieu_de, noi_dung } = req.body;
+
+        // Kiểm tra phần tồn tại không
+        const doanvan = await DoanVan.findByPk(id_doan_van);
+        if (!doanvan) {
+            return res.status(400).json({ message: "Đoạn văn không hợp lệ!" });
+        }
+
+        const updateData = {};
+        if (tieu_de !== doanvan.tieu_de) updateData.tieu_de = tieu_de || doanvan.tieu_de;
+        if (noi_dung !== doanvan.noi_dung) updateData.noi_dung = noi_dung || doanvan.noi_dung;
+
+        const data = await doanvan.update(updateData);        
+
+        res.status(200).json({ 
+            message: "Đã chỉnh sửa đoạn văn thành công",
+            data: data
+        });
+    } catch (error) {
+        console.error("Lỗi chỉnh sửa đoạn văn:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
