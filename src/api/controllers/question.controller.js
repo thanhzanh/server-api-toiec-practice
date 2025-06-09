@@ -6,6 +6,7 @@ const LuaChon = require("../../models/luaChon.model");
 
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
+const striptags = require('striptags');
 
 // [GET] /api/questions
 module.exports.index = async (req, res) => {
@@ -160,24 +161,43 @@ module.exports.create = async (req, res) => {
                 if (lua_chon.length !== checkPhan.so_lua_chon) {
                     return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
                 }   
+
+                // Kiểm tra phải nhập lựa chọn
+                for (const lc of lua_chon) {
+                    if (!lc.ky_tu_lua_chon || !lc.noi_dung) {
+                        return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                    }
+                }
                 break;
             case 3:
             case 4:
                 if (noi_dung && noi_dung.length !== checkPhan.so_cau_hoi) {
-                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có 3 câu hỏi!` });
+                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_cau_hoi} câu hỏi!` });
                 }
-                for (const lc of lua_chon) {
-                    if (lc.length !== checkPhan.so_lua_chon) {
+                for (const luachon of lua_chon) {
+                    if (luachon.length !== checkPhan.so_lua_chon) {
                         return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
                     }   
+
+                    for (const lc of luachon) {
+                        if (!lc.ky_tu_lua_chon || !lc.noi_dung) {
+                            return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                        }
+                    }
                 }
                 break;
             case 6:
             case 7:
-                for (const lc of lua_chon) {
-                    if (lc.length !== checkPhan.so_lua_chon) {
+                for (const luachon of lua_chon) {
+                    if (luachon.length !== checkPhan.so_lua_chon) {
                         return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
                     }   
+
+                    for (const lc of luachon) {
+                        if (!lc.ky_tu_lua_chon || !lc.noi_dung) {
+                            return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                        }
+                    }
                 }
                 break;
             default:
@@ -212,7 +232,7 @@ module.exports.create = async (req, res) => {
                 const question = await NganHangCauHoi.create({
                     id_phan: id_phan,
                     id_doan_van: id_doan_van || null,
-                    noi_dung: noi_dung[i],
+                    noi_dung: striptags(noi_dung[i]),
                     dap_an_dung: dap_an_dung[i],
                     giai_thich: giai_thich[i] || null,
                     muc_do_kho: muc_do_kho,
@@ -236,7 +256,7 @@ module.exports.create = async (req, res) => {
             const question = await NganHangCauHoi.create({
                 id_phan: id_phan,
                 id_doan_van: id_doan_van || null,
-                noi_dung: noi_dung,
+                noi_dung: striptags(noi_dung),
                 dap_an_dung: dap_an_dung,
                 giai_thich: giai_thich || null,
                 muc_do_kho: muc_do_kho,

@@ -21,6 +21,18 @@ const DoanVan = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    thoi_gian_tao: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    thoi_gian_cap_nhat: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    da_xoa: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: "doan_van",

@@ -13,4 +13,7 @@ router.post("/create", authenticateUser, authorizeRole(["quan_tri_vien"]), contr
 // Chỉnh sửa đoạn văn
 router.put("/edit/:id_doan_van", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.edit);
 
+// Xóa đoạn văn
+router.delete("/delete/:id_doan_van", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.delete);
+
 module.exports = router;
