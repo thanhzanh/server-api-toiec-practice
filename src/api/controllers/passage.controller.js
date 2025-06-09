@@ -6,9 +6,53 @@ const { createPaginationQuery } = require('../../helpers/pagination');
 // [GET] /api/passages
 module.exports.index = async (req, res) => {
     try {        
+        const { page, limit, id_phan } = req.query;
+
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false
+        };
+        if (id_phan) where.id_phan = id_phan;
+
+        // Đếm tổng số bản ghi
+        const count = await DoanVan.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 7
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+        
+        // Danh sách câu hỏi theo bộ lọc phần, trạng thái, mức độ
+        const dsDoanVan = await DoanVan.findAll({
+            where,
+            attributes: [
+                'id_doan_van',
+                'tieu_de',
+                'noi_dung',
+                'id_phan',
+            ],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
         
         res.status(200).json({ 
             message: "Lấy danh sách đoạn văn thành công",
+            data: dsDoanVan,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            }
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
