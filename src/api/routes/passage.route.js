@@ -7,4 +7,7 @@ const { authenticateUser, authorizeRole } = require('../middlewares/auth.middlew
 // Lấy tất cả danh sách đoạn văn
 router.get("/", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.index);
 
+// Tạo đoạn văn mới
+router.post("/create", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.create);
+
 module.exports = router;

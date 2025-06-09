@@ -9,6 +9,10 @@ const DoanVan = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
+    tieu_de: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     noi_dung: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -16,10 +20,6 @@ const DoanVan = sequelize.define(
     id_phan: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    id_phuong_tien_am_thanh: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
     },
   },
   {

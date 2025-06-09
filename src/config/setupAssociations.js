@@ -29,7 +29,6 @@ const setupAssociations = () => {
 
     // DoanVan relationships
     DoanVan.belongsTo(PhanCauHoi, { foreignKey: 'id_phan', as: 'phan' });
-    DoanVan.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_hinh_anh', as: 'hinh_anh', targetKey: 'id_phuong_tien' });
 
     console.log('All model associations have been set up successfully!');
 };
