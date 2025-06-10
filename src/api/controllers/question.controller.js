@@ -30,7 +30,7 @@ module.exports.index = async (req, res) => {
         // Phân trang
         let initPagination = {
             currentPage: 1,
-            limitItem: 3
+            limitItem: 10
         }
         const pagination = createPaginationQuery(
             initPagination,
@@ -96,6 +96,9 @@ module.exports.create = async (req, res) => {
         data = JSON.parse(req.body.data);
         const { id_phan, id_doan_van, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, lua_chon } = data;
 
+        console.log("Lựa chọn: ", lua_chon);
+        
+
         // Validate cho Part
         const phandoanvan = {
             1: { co_hinh_anh: true, co_am_thanh: true, co_doan_van: false, so_lua_chon: 4 },
@@ -157,46 +160,78 @@ module.exports.create = async (req, res) => {
         switch(id_phan) {
             case 1:
             case 5:
-            case 2:
                 if (lua_chon.length !== checkPhan.so_lua_chon) {
                     return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
                 }   
 
                 // Kiểm tra phải nhập lựa chọn
                 for (const lc of lua_chon) {
-                    if (!lc.ky_tu_lua_chon || !lc.noi_dung) {
+                    if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
                         return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
                     }
+                }
+
+                // Kiểm tra đáp án đúng
+                if (!['A', 'B', 'C', 'D'].includes(dap_an_dung)) {
+                    return res.status(400).json({ message: "Phải chọn duy nhất một đáp án đúng A, B, C hoặc D!" });
+                }
+                break;
+            case 2:
+                // Kiểm tra phải nhập lựa chọn
+                for (const lc of lua_chon) {
+                    if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
+                        return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                    }
+                }
+
+                // Kiểm tra đáp án đúng
+                if (!['A', 'B', 'C', 'D'].includes(dap_an_dung)) {
+                    return res.status(400).json({ message: "Phải chọn duy nhất một đáp án đúng A, B, C hoặc D!" });
                 }
                 break;
             case 3:
             case 4:
-                if (noi_dung && noi_dung.length !== checkPhan.so_cau_hoi) {
+                if (!Array.isArray(noi_dung) && noi_dung && noi_dung.length !== checkPhan.so_cau_hoi) {
                     return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_cau_hoi} câu hỏi!` });
                 }
-                for (const luachon of lua_chon) {
-                    if (luachon.length !== checkPhan.so_lua_chon) {
+                for (let i = 0; i < checkPhan.so_cau_hoi; i++) {
+                    const luachon = lua_chon[i];
+                    if (!Array.isArray(luachon) && luachon.length !== checkPhan.so_lua_chon) {
                         return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
                     }   
 
                     for (const lc of luachon) {
-                        if (!lc.ky_tu_lua_chon || !lc.noi_dung) {
-                            return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                        if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
+                            return res.status(400).json({ message: `Bắt buộc phải nhập nội dung lựa chọn cho câu hỏi ${i + 1}!` });
                         }
+                    }
+
+                    // Kiểm tra đáp án đúng
+                    const dapAn = dap_an_dung[i];
+                    if (!['A', 'B', 'C', 'D'].includes(dapAn)) {
+                        return res.status(400).json({ message: ` Câu hỏi ${i + 1} phải chọn duy nhất một đáp án đúng A, B, C hoặc D!` });
                     }
                 }
                 break;
             case 6:
             case 7:
-                for (const luachon of lua_chon) {
-                    if (luachon.length !== checkPhan.so_lua_chon) {
-                        return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
+                for (let i = 0; i < noi_dung.length; i++) {
+                    const luachon = lua_chon[i];
+
+                    if (!Array.isArray(luachon) && luachon.length !== checkPhan.so_lua_chon) {
+                        return res.status(400).json({ message: `Câu hỏi ${i + 1} của Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
                     }   
 
                     for (const lc of luachon) {
-                        if (!lc.ky_tu_lua_chon || !lc.noi_dung) {
-                            return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                        if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
+                            return res.status(400).json({ message: `Bắt buộc phải nhập nội dung lựa chọn cho câu hỏi ${i + 1}!` });
                         }
+                    }
+
+                    // Kiểm tra đáp án đúng
+                    const dapAn = dap_an_dung[i];
+                    if (!['A', 'B', 'C', 'D'].includes(dapAn)) {
+                        return res.status(400).json({ message: ` Câu hỏi ${i + 1} phải chọn duy nhất một đáp án đúng A, B, C hoặc D!` });
                     }
                 }
                 break;
@@ -293,8 +328,7 @@ module.exports.create = async (req, res) => {
         );
                 
         res.status(200).json({ 
-            message: "Tạo câu hỏi thành công",
-            data: dataQuestion
+            message: "Tạo câu hỏi thành công"
         });
     } catch (error) {
         console.error(error.message);
