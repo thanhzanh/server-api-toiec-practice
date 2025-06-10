@@ -143,19 +143,6 @@ module.exports.create = async (req, res) => {
             }
         }
 
-        // Kiểm tra đáp án đúng
-        if (Array.isArray(dap_an_dung)) {
-            for (const dapAn of dap_an_dung) {
-                if (!['A', 'B', 'C', 'D'].includes(dapAn)) {
-                    return res.status(400).json({ message: "Đáp án chỉ có thể là A, B, C hoặc D!" });
-                }
-            }
-        } else {
-            if (!['A', 'B', 'C', 'D'].includes(dap_an_dung)) {
-                return res.status(400).json({ message: "Đáp án chỉ có thể là A, B, C hoặc D!" });
-            }
-        }
-
         // Validate cho Lua chon
         switch(id_phan) {
             case 1:
@@ -166,8 +153,8 @@ module.exports.create = async (req, res) => {
 
                 // Kiểm tra phải nhập lựa chọn
                 for (const lc of lua_chon) {
-                    if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
-                        return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                    if (!lc.noi_dung || !lc.noi_dung.trim()) {
+                        return res.status(400).json({ message: "Bắt buộc phải nhập nội dung lựa chọn!" });
                     }
                 }
 
@@ -179,8 +166,8 @@ module.exports.create = async (req, res) => {
             case 2:
                 // Kiểm tra phải nhập lựa chọn
                 for (const lc of lua_chon) {
-                    if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
-                        return res.status(400).json({ message: "Bắt buộc phải nhập ký tự và nội dung lựa chọn!" });
+                    if (!lc.noi_dung || !lc.noi_dung.trim()) {
+                        return res.status(400).json({ message: "Bắt buộc phải nhập nội dung lựa chọn!" });
                     }
                 }
 
