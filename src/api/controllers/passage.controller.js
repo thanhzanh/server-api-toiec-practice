@@ -101,8 +101,11 @@ module.exports.edit = async (req, res) => {
         }
 
         const updateData = {};
-        if (tieu_de !== doanvan.tieu_de) updateData.tieu_de = tieu_de || doanvan.tieu_de;
-        if (noi_dung !== doanvan.noi_dung) updateData.noi_dung = noi_dung || doanvan.noi_dung;
+        if (tieu_de !== doanvan.tieu_de && tieu_de !== undefined) updateData.tieu_de = tieu_de || doanvan.tieu_de;
+        if (noi_dung !== doanvan.noi_dung && noi_dung !== undefined) updateData.noi_dung = noi_dung || doanvan.noi_dung;
+
+        // Cập nhật thời gian
+        updateData.thoi_gian_cap_nhat = new Date();
 
         const data = await doanvan.update(updateData);        
 
@@ -138,6 +141,34 @@ module.exports.delete = async (req, res) => {
 
         res.status(200).json({ 
             message: "Đã xóa đoạn văn thành công!"
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/passages/detail/:id_doan_van
+module.exports.detail = async (req, res) => {
+    try {        
+        const { id_doan_van } = req.params;
+        
+        // Kiểm tra đoạn văn
+        const doanVan = await DoanVan.findByPk(id_doan_van);
+        if (!doanVan) {
+            return res.status(400).json({ message: "Đoạn văn không tồn tại!" });
+        }
+
+        const data = await DoanVan.findByPk(
+            id_doan_van,
+            {
+                attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'id_phan', 'thoi_gian_tao', 'thoi_gian_cap_nhat']
+            }
+        )
+
+        res.status(200).json({ 
+            message: "Lấy chi tiết đoạn văn thành công!",
+            data: data
         });
 
     } catch (error) {

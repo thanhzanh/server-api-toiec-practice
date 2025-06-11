@@ -16,4 +16,7 @@ router.put("/edit/:id_doan_van", authenticateUser, authorizeRole(["quan_tri_vien
 // Xóa đoạn văn
 router.delete("/delete/:id_doan_van", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.delete);
 
+// Xem chi tiết đoạn văn
+router.get("/detail/:id_doan_van", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.detail);
+
 module.exports = router;
