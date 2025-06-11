@@ -3,6 +3,7 @@ const PhanCauHoi = require("../../models/phanCauHoi.model");
 const DoanVan = require("../../models/doanVan.model");
 const PhuongTien = require("../../models/phuongTien.model");
 const LuaChon = require("../../models/luaChon.model");
+const CauHoiBaiThi = require("../../models/cauHoiBaiThi.model");
 
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
@@ -94,10 +95,7 @@ module.exports.create = async (req, res) => {
     try {
         let data;
         data = JSON.parse(req.body.data);
-        const { id_phan, id_doan_van, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, lua_chon } = data;
-
-        console.log("Lựa chọn: ", lua_chon);
-        
+        const { id_phan, id_doan_van, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, lua_chon } = data;        
 
         // Validate cho Part
         const phandoanvan = {
@@ -315,7 +313,8 @@ module.exports.create = async (req, res) => {
         );
                 
         res.status(200).json({ 
-            message: "Tạo câu hỏi thành công"
+            message: "Tạo câu hỏi thành công",
+            data: dataQuestion
         });
     } catch (error) {
         console.error(error.message);
@@ -323,7 +322,7 @@ module.exports.create = async (req, res) => {
     }
 };
 
-// [GET] /api/questions/detail
+// [GET] /api/questions/detail/:id_cau_hoi
 module.exports.detail = async (req, res) => {
     try {
         const { id_cau_hoi } = req.params;
@@ -360,6 +359,41 @@ module.exports.detail = async (req, res) => {
             data: questionDetail
         });
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [DELETE] /api/questions/delete/:id_cau_hoi
+module.exports.delete = async (req, res) => {
+    try {
+        
+        const { id_cau_hoi } = req.params;
+        
+        const question = await NganHangCauHoi.findByPk(id_cau_hoi);
+        if (!question) {
+            return res.status(400).json({ message: "Câu hỏi không tồn tại!" });
+        }
+
+        // Kiểm tra xem câu hỏi đã được sử dụng chưa
+        const daSuDung = await CauHoiBaiThi.findOne({
+            where: { id_cau_hoi: parseInt(id_cau_hoi) }
+        });
+        if (daSuDung) {
+            return res.status(400).json({ message: "Câu hỏi đã được sử dụng trong bài thi. Không được xóa!" });
+        }
+
+        // Xóa mềm trong database chuyển sang trạng thái lưu trữ
+        await question.update({ 
+            trang_thai: "luu_tru",
+            da_xoa: true
+        });
+
+        res.status(200).json({
+            message: "Đã xóa câu hỏi và chuyển sang kho lưu trữ!"
+        });
+
+    } catch (error) {
+        console.error(error.message);
         res.status(500).json({ message: error.message });
     }
 };

@@ -6,9 +6,11 @@ const LuaChon = require('../models/luaChon.model');
 const DoanVan = require('../models/doanVan.model');
 const PhuongTien = require('../models/phuongTien.model');
 const PhanCauHoi = require('../models/phanCauHoi.model');
+const CauHoiBaiThi = require('../models/cauHoiBaiThi.model');
+const BaiThi = require('../models/baiThi.model');
 
 const setupAssociations = () => {
-    console.log('Setting up model associations...');
+    console.log('Đang thiết lập mối quan hệ...');
     
     // HoSoNguoiDung relationships
     HoSoNguoiDung.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
@@ -30,7 +32,11 @@ const setupAssociations = () => {
     // DoanVan relationships
     DoanVan.belongsTo(PhanCauHoi, { foreignKey: 'id_phan', as: 'phan' });
 
-    console.log('All model associations have been set up successfully!');
+    // CauHoiBaiThi relationships
+    CauHoiBaiThi.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi', as: 'cau_hoi' });
+    CauHoiBaiThi.belongsTo(BaiThi, { foreignKey: 'id_bai_thi', as: 'bai_thi' });
+
+    console.log('Tất cả các mối quan hệ đã được thiết lập thành công!');
 };
 
 module.exports = setupAssociations;

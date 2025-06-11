@@ -18,4 +18,7 @@ router.post("/create",
 // Xem chi tiết 1 câu hỏi
 router.get("/detail/:id_cau_hoi", authenticateUser, authorizeRole(['quan_tri_vien']), controller.detail);
 
+// Xóa câu hỏi
+router.delete("/delete/:id_cau_hoi", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.delete);
+
 module.exports = router;
