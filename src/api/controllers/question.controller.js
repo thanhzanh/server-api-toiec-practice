@@ -145,10 +145,6 @@ module.exports.create = async (req, res) => {
         switch(id_phan) {
             case 1:
             case 5:
-                if (lua_chon.length !== checkPhan.so_lua_chon) {
-                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
-                }   
-
                 // Kiểm tra phải nhập lựa chọn
                 for (const lc of lua_chon) {
                     if (!lc.noi_dung || !lc.noi_dung.trim()) {
@@ -202,10 +198,6 @@ module.exports.create = async (req, res) => {
             case 7:
                 for (let i = 0; i < noi_dung.length; i++) {
                     const luachon = lua_chon[i];
-
-                    if (!Array.isArray(luachon) && luachon.length !== checkPhan.so_lua_chon) {
-                        return res.status(400).json({ message: `Câu hỏi ${i + 1} của Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
-                    }   
 
                     for (const lc of luachon) {
                         if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
@@ -390,6 +382,62 @@ module.exports.delete = async (req, res) => {
 
         res.status(200).json({
             message: "Đã xóa câu hỏi và chuyển sang kho lưu trữ!"
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [PUT] /api/questions/edit/:id_cau_hoi
+module.exports.edit = async (req, res) => {
+    try {
+        const { id_cau_hoi } = req.params;
+        console.log(id_cau_hoi);
+
+        let data = JSON.parse(req.body.data);
+        console.log("Data gui len: ", data);
+        
+        // Kiểm tra câu hỏi tồn tại không
+        const existingQuestion = await NganHangCauHoi.findByPk(id_cau_hoi);
+        if (!existingQuestion) {
+            return res.status(400).json({ message: "Câu hỏi không tồn tại!" });
+        }
+
+        // Cập nhật các trường cho câu hỏi
+        const dataUpdate = {
+            noi_dung: data.noi_dung ? striptags(noi_dung) : existingQuestion.noi_dung,
+            dap_an_dung: data.dap_an_dung || existingQuestion.dap_an_dung,
+            giai_thich: data.giai_thich ? striptags(giai_thich) : existingQuestion.giai_thich,
+            muc_do_kho: data.muc_do_kho || existingQuestion.muc_do_kho
+        };
+
+        // Cập nhật hình ảnh
+        if (req.body.url_am_thanh) {
+            const media = await PhuongTien.create({
+                url_phuong_tien: req.body.url_hinh_anh,
+                loai_phuong_tien: 'hinh_anh',
+                thoi_gian_tao: new Date()
+            });
+            dataUpdate.id_phuong_tien_am_thanh = media.id_phuong_tien;
+        }
+
+        // Cập nhật hình ảnh
+        if (req.body.url_am_thanh) {
+            const media = await PhuongTien.create({
+                url_phuong_tien: req.body.url_am_thanh,
+                loai_phuong_tien: 'am_thanh',
+                thoi_gian_tao: new Date()
+            });
+            dataUpdate.id_phuong_tien_am_thanh = media.id_phuong_tien;
+        }
+
+        // Cập nhật đoạn văn cho Part 6 và 7 (nếu có)
+        
+        
+        res.status(200).json({
+            message: "Đã chỉnh sửa câu hỏi!"
         });
 
     } catch (error) {

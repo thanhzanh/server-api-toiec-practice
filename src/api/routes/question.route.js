@@ -21,4 +21,12 @@ router.get("/detail/:id_cau_hoi", authenticateUser, authorizeRole(['quan_tri_vie
 // Xóa câu hỏi
 router.delete("/delete/:id_cau_hoi", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.delete);
 
+// Chỉnh sửa câu hỏi
+router.put("/edit/:id_cau_hoi", 
+    authenticateUser, 
+    authorizeRole(['quan_tri_vien']), 
+    uploadCloudinary([{ name: 'hinh_anh', type: 'image' }, { name: 'am_thanh', type: 'video' }]), 
+    controller.edit
+);
+
 module.exports = router;
