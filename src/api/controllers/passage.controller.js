@@ -75,6 +75,11 @@ module.exports.create = async (req, res) => {
             return res.status(400).json({ message: "Phần câu hỏi không tồn tại!" });
         }
 
+        // Kiểm tra phải có tiêu đề và nội dung
+        if (!tieu_de || !noi_dung) {
+            return res.status(400).json({ message: "Tiêu đề và nội dung đoạn văn không được để trống!" });
+        }
+
         // Lưu doan_van vào database
         const doanvan = await DoanVan.create({ tieu_de, noi_dung, id_phan });
 
