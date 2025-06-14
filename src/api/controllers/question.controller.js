@@ -8,6 +8,7 @@ const CauHoiBaiThi = require("../../models/cauHoiBaiThi.model");
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
 const striptags = require('striptags');
+const { where } = require("sequelize");
 
 // [GET] /api/questions
 module.exports.index = async (req, res) => {
@@ -401,43 +402,112 @@ module.exports.edit = async (req, res) => {
         
         // Kiểm tra câu hỏi tồn tại không
         const existingQuestion = await NganHangCauHoi.findByPk(id_cau_hoi);
+        console.log(existingQuestion);
+        
         if (!existingQuestion) {
             return res.status(400).json({ message: "Câu hỏi không tồn tại!" });
         }
 
-        // Cập nhật các trường cho câu hỏi
-        const dataUpdate = {
-            noi_dung: data.noi_dung ? striptags(noi_dung) : existingQuestion.noi_dung,
-            dap_an_dung: data.dap_an_dung || existingQuestion.dap_an_dung,
-            giai_thich: data.giai_thich ? striptags(giai_thich) : existingQuestion.giai_thich,
-            muc_do_kho: data.muc_do_kho || existingQuestion.muc_do_kho
-        };
+        // Lấy id_phan để kiểm tra dữ liệu khi cập nhật
+        const id_phan = existingQuestion.id_phan;
 
-        // Cập nhật hình ảnh
-        if (req.body.url_am_thanh) {
-            const media = await PhuongTien.create({
-                url_phuong_tien: req.body.url_hinh_anh,
-                loai_phuong_tien: 'hinh_anh',
-                thoi_gian_tao: new Date()
-            });
-            dataUpdate.id_phuong_tien_am_thanh = media.id_phuong_tien;
+        switch (id_phan) {
+            case 1:
+                // Kiểm tra hình ảnh và âm thanh gửi lên thì chặn lại
+                const coHinhAnh = existingQuestion.id_phuong_tien_hinh_anh ?
+                await PhuongTien.findByPk(existingQuestion.id_phuong_tien_hinh_anh) : null;
+                const coAmThanh = existingQuestion.id_phuong_tien_am_thanh ?
+                await PhuongTien.findByPk(existingQuestion.id_phuong_tien_am_thanh) : null;
+                
+                if (coHinhAnh && req.body.url_hinh_anh && coHinhAnh.url_phuong_tien !== req.body.url_hinh_anh) {
+                    return res.status(400).json({ message: "Không được phép cập nhật hình ảnh Part 1!" });
+                }
+
+                if (coAmThanh && req.body.url_am_thanh && coHinhAnh.url_phuong_tien !== req.body.url_am_thanh) {
+                    return res.status(400).json({ message: "Không được phép cập nhật âm thanh Part 1!" });
+                }
+                break;
+            case 2:
+                // Kiểm tra âm thanh gửi lên thì chặn lại
+                const coAmThanhP2 = existingQuestion.id_phuong_tien_am_thanh ?
+                await PhuongTien.findByPk(existingQuestion.id_phuong_tien_am_thanh) : null;
+                if (coAmThanhP2 && req.body.url_am_thanh && coAmThanhP2.url_phuong_tien !== req.body.url_am_thanh) {
+                    return res.status(400).json({ message: "Không được phép cập nhật âm thanh Part 2!" });
+                }
+                break;
+            case 3:
+            case 4:
+                // Kiểm tra hình ảnh và âm thanh gửi lên thì chặn lại
+                const coHinhAnhP34 = existingQuestion.id_phuong_tien_hinh_anh ?
+                await PhuongTien.findByPk(existingQuestion.id_phuong_tien_hinh_anh) : null;
+                const coAmThanhP34 = existingQuestion.id_phuong_tien_am_thanh ?
+                await PhuongTien.findByPk(existingQuestion.id_phuong_tien_am_thanh) : null;
+
+                if (coHinhAnhP34 && req.body.url_hinh_anh && coHinhAnhP34.url_phuong_tien !== req.body.url_hinh_anh) {
+                    return res.status(400).json({ message: `Không được phép cập nhật hình ảnh Part ${id_phan}!` });
+                }
+
+                if (coAmThanhP34 && req.body.url_am_thanh && coAmThanhP34.url_phuong_tien !== req.body.url_am_thanh) {
+                    return res.status(400).json({ message: `Không được phép cập nhật hình ảnh Part ${id_phan}!` });
+                }
+                break;
+            case 5:
+                break;
+            case 6:
+            case 7:
+                // Kiểm tra đoạn văn gửi lên thì chặn lại
+                if (existingQuestion.id_doan_van && req.body.id_doan_van && existingQuestion.id_doan_van !== req.body.id_doan_van) {
+                    return res.status(400).json({ message: `Không được phép cập nhật đoạn văn Part ${id_phan}!` });
+                }
+            default:
+                return res.status(400).json({ message: "Phần câu hỏi không hợp lệ!" });
         }
 
-        // Cập nhật hình ảnh
-        if (req.body.url_am_thanh) {
-            const media = await PhuongTien.create({
-                url_phuong_tien: req.body.url_am_thanh,
-                loai_phuong_tien: 'am_thanh',
-                thoi_gian_tao: new Date()
-            });
-            dataUpdate.id_phuong_tien_am_thanh = media.id_phuong_tien;
+        // Cập nhật các trường cho câu hỏi (Tùy trường nào nếu muốn)
+        const dataUpdate = {};
+        if (data.noi_dung !== existingQuestion.noi_dung && data.noi_dung !== undefined) dataUpdate.noi_dung = data.noi_dung || existingQuestion.noi_dung;
+        if (data.dap_an_dung !== existingQuestion.dap_an_dung && data.dap_an_dung !== undefined) dataUpdate.dap_an_dung = data.dap_an_dung || existingQuestion.dap_an_dung;
+        if (data.giai_thich !== existingQuestion.giai_thich && data.giai_thich !== undefined) dataUpdate.giai_thich = data.giai_thich || existingQuestion.giai_thich;
+        if (data.muc_do_kho !== existingQuestion.muc_do_kho && data.muc_do_kho !== undefined) dataUpdate.muc_do_kho = data.muc_do_kho || existingQuestion.muc_do_kho;
+        if (data.trang_thai !== existingQuestion.trang_thai && data.trang_thai !== undefined) dataUpdate.trang_thai = data.trang_thai || existingQuestion.trang_thai;
+
+        // Khi có thay đổi thì cập nhật
+        if (Object.keys(dataUpdate).length > 0) {
+            dataUpdate.thoi_gian_cap_nhat = new Date();
+
+            // Cập nhật table ngan_hang_cau_hoi
+            await NganHangCauHoi.update(
+                dataUpdate,
+                {
+                    where: { id_cau_hoi: id_cau_hoi }
+                }
+            );
         }
 
-        // Cập nhật đoạn văn cho Part 6 và 7 (nếu có)
-        
-        
+        // Cập nhật lựa chọn hủy lựa chọn cũ, thêm lựa chọn mới
+        if (data.lua_chon && Array.isArray(data.lua_chon))
+        {
+            await LuaChon.destroy({ where: { id_cau_hoi: id_cau_hoi } });
+            const luaChonDapAn = data.lua_chon.map((lc) => ({
+                id_cau_hoi: id_cau_hoi,
+                ky_tu_lua_chon: lc.ky_tu_lua_chon,
+                noi_dung: lc.noi_dung
+            }));
+            
+            // Lưu vào table lua_chon
+            await LuaChon.bulkCreate(luaChonDapAn);
+        }
+
+        // Lấy data cập nhật trả về
+        const dataUpdated = await NganHangCauHoi.findByPk(id_cau_hoi, {
+            include: [
+                { model: LuaChon, as: 'lua_chon', attributes: ['id_cau_hoi', 'ky_tu_lua_chon', 'noi_dung'] }
+            ],
+        });
+
         res.status(200).json({
-            message: "Đã chỉnh sửa câu hỏi!"
+            message: "Đã chỉnh sửa câu hỏi!",
+            data: dataUpdated
         });
 
     } catch (error) {
