@@ -8,7 +8,7 @@ const { createPaginationQuery } = require('../../helpers/pagination');
 const CauHoiBaiThi = require('../../models/cauHoiBaiThi.model');
 const { where } = require('sequelize');
 
-// Số lượng câu hỏi tối đa trong bài thi
+// Số lượng câu hỏi tối đa trong đề thi
 const MAX_QUESTION_TEST = 50;
 
 // Hàm tính điểm tối đa
@@ -137,7 +137,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
         const { ds_cau_hoi } = req.body;
         console.log("Request body: ", ds_cau_hoi);
         
-        // Kiểm tra bài thi tồn tại không
+        // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
             return res.status(404).json({ message: "Bài thi không tồn tại!" });
@@ -163,7 +163,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
         // Duyệt qua danh sách câu hỏi
         const questionsToAdd = [];
         for (const question of questions) {
-            // Kiểm tra câu hỏi trong bài thi đã tồn tại chưa
+            // Kiểm tra câu hỏi trong đề thi đã tồn tại chưa
             const existingQuestion = await CauHoiBaiThi.findOne({
                 where: {
                     id_bai_thi: id_bai_thi,
@@ -188,7 +188,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
         const muc_do_diem = `0-${diem_toi_da}`;
         const da_hoan_thien = tong_so_cau_hoi === MAX_QUESTION_TEST;
 
-        // Cập nhật bài thi với thông tin còn lại
+        // Cập nhật đề thi với thông tin còn lại
         await BaiThi.update(
             {
                 so_luong_cau_hoi: tong_so_cau_hoi,
@@ -225,7 +225,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
             ]
         });
 
-        console.log("Thông tin bài thi sau khi cập nhật:", examWithQuestions);
+        console.log("Thông tin đề thi sau khi cập nhật:", examWithQuestions);
         
         res.status(200).json({ 
             message: "Đã thêm câu hỏi và tạo bảng nháp!",
@@ -242,7 +242,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
 module.exports.getDraftExam = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
-        // Kiểm tra bài thi tồn tại không
+        // Kiểm tra đề thi tồn tại không
         const examWithDraft = await BaiThi.findByPk(id_bai_thi,{
             include: [
                 {
@@ -268,13 +268,43 @@ module.exports.getDraftExam = async (req, res) => {
         });
 
         if (!examWithDraft) {
-            return res.status(400).json({ message: "Bài thi không tồn tại hoặc chưa tạo bản nháp!" });
+            return res.status(400).json({ message: "Đề thi không tồn tại hoặc chưa tạo bản nháp!" });
         }
 
         res.status(200).json({ 
             message: "Lấy thông tin bản nháp thành công!",
             data: examWithDraft
         });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [POST] /api/exams/approve/:id_bai_thi
+module.exports.approveExam = async (req, res) => {
+    try {
+        const { id_bai_thi } = req.params;
+        // Kiểm tra bài thi tồn tại không
+        const exam = await BaiThi.findByPk(id_bai_thi);
+        if (!exam) {
+            return res.status(400).json({ message: "Đề thi không tồn tại!" });
+        }
+
+        if (exam.trang_thai !== 'nhap') {
+            return res.status(400).json({ message: "Chỉ duyệt đề thi ở trạng thái!" });
+        }
+
+        // Duyệt đề thi
+        await BaiThi.update(
+            {
+                trang_thai: 'da_xuat_ban',
+                thoi_gian_cap_nhat: new Date(),
+            },
+            { where: { id_bai_thi } }
+        );
+
+        res.status(200).json({ message: "Đã duyệt đề thi để xuất bản!"});
 
     } catch (error) {
         res.status(500).json({ message: error.message });
