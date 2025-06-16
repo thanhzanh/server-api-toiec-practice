@@ -18,24 +18,42 @@ const BaiThi = sequelize.define(
       allowNull: true,
     },
     so_luong_cau_hoi: {
-        type: DataTypes.INTEGER,
-        allowNull: true
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
     },
     muc_do_diem: {
-        type: DataTypes.STRING(255),
-        allowNull: true
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      defaultValue: '0-0'
+    },
+    diem_toi_da: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     },
     la_bai_thi_dau_vao: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     },
     trang_thai: {
-        type: DataTypes.ENUM('nhap', 'da_xuat_ban', 'luu_tru'),
-        defaultValue: 'nhap'
+      type: DataTypes.ENUM('nhap', 'da_xuat_ban', 'luu_tru'),
+      defaultValue: 'nhap'
     },
     ngay_luu_tru: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    nam_xuat_ban: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    da_hoan_thien: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    nguoi_tao: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     thoi_gian_tao: {
       type: DataTypes.DATE,
