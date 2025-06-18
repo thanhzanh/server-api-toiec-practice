@@ -3,6 +3,9 @@ const router = express.Router();
 const controller = require('../controllers/exam.controller');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
 
+// Hiển thị danh sách đề thi
+router.get("/", authenticateUser, authorizeRole("quan_tri_vien"), controller.index);
+
 // Tạo đề thi nháp (Bước 1)
 router.post("/create", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.createExam);
 

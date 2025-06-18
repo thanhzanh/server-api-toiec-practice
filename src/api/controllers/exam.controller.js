@@ -16,6 +16,86 @@ const calculateMaxScore = (tongSoCauHoi) => {
     return Math.round((tongSoCauHoi / MAX_QUESTION_TEST) * 990);
 };
 
+// [GET] /api/exams
+module.exports.index = async (req, res) => {
+    try {
+        const { page, limit, nam_xuat_ban, trang_thai, muc_do_diem } = req.query;
+        
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false
+        };
+        if (nam_xuat_ban) where.nam_xuat_ban = nam_xuat_ban;
+        if (trang_thai) where.trang_thai = trang_thai;
+        if (muc_do_diem) where.muc_do_diem = muc_do_diem;
+
+        // Đếm tổng số bản ghi
+        const count = await BaiThi.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        };
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy danh sách trạng thái
+        const dsTrangThai = BaiThi.rawAttributes.trang_thai.values;
+        // Lấy danh sách mức độ điểm
+        const dsMucDoDiem = BaiThi.rawAttributes.muc_do_diem.values;
+        // Lấy danh sách năm xuất bản
+        const dsNamXuatBan = await BaiThi.findAll({ attributes: ['nam_xuat_ban'] });
+
+        // Lấy danh sách đề thi theo bộ lọc
+        const exams = await BaiThi.findAll({
+            where,
+            include: [
+                { model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi', 'id_bai_thi', 'id_cau_hoi'] }
+            ],
+            attributes: [
+                'id_bai_thi',
+                'ten_bai_thi',
+                'mo_ta',
+                'la_bai_thi_dau_vao',
+                'nam_xuat_ban',
+                'trang_thai',
+                'so_luong_cau_hoi',
+                'diem_toi_da',
+                'muc_do_diem',
+                'da_hoan_thien',
+                'nguoi_tao',
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
+            ],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
+
+        res.status(200).json({
+            message: "Đã lấy danh sách đề thi thành công!",
+            data: exams,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+            dsTrangThai,
+            dsMucDoDiem,
+            dsNamXuatBan
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [POST] /api/exams/create
 module.exports.createExam = async (req, res) => {
     try {

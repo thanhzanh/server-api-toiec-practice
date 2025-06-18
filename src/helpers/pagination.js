@@ -1,4 +1,3 @@
-
 const createPaginationQuery = (objectPagination, query, countRecords) => {
     if (query.page) {
         objectPagination.currentPage = parseInt(query.page);

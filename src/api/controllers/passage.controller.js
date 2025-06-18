@@ -2,6 +2,7 @@ const PhanCauHoi = require('../../models/phanCauHoi.model');
 const DoanVan = require('../../models/doanVan.model');
 const NganHangCauHoi = require('../../models/nganHangCauHoi.model');
 const { createPaginationQuery } = require('../../helpers/pagination');
+const striptags = require('striptags');
 
 // [GET] /api/passages
 module.exports.index = async (req, res) => {
@@ -81,7 +82,11 @@ module.exports.create = async (req, res) => {
         }
 
         // Lưu doan_van vào database
-        const doanvan = await DoanVan.create({ tieu_de, noi_dung, id_phan });
+        const doanvan = await DoanVan.create({ 
+            tieu_de,
+            noi_dung: striptags(noi_dung),
+            id_phan,
+        });
 
         res.status(200).json({ 
             message: "Tạo đoạn văn thành công",
@@ -107,7 +112,7 @@ module.exports.edit = async (req, res) => {
 
         const updateData = {};
         if (tieu_de !== doanvan.tieu_de && tieu_de !== undefined) updateData.tieu_de = tieu_de || doanvan.tieu_de;
-        if (noi_dung !== doanvan.noi_dung && noi_dung !== undefined) updateData.noi_dung = noi_dung || doanvan.noi_dung;
+        if (noi_dung !== doanvan.noi_dung && noi_dung !== undefined) updateData.noi_dung = striptags(noi_dung) || doanvan.noi_dung;
 
         // Cập nhật thời gian
         updateData.thoi_gian_cap_nhat = new Date();
