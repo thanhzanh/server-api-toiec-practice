@@ -44,8 +44,12 @@ const BaiThi = sequelize.define(
       defaultValue: DataTypes.NOW,
     },
     nam_xuat_ban: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      type: DataTypes.INTEGER,
+    },
+    thoi_gian_bai_thi: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
     da_hoan_thien: {
       type: DataTypes.BOOLEAN,

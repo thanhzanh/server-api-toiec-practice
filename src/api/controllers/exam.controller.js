@@ -51,7 +51,12 @@ module.exports.index = async (req, res) => {
         // Lấy danh sách mức độ điểm
         const dsMucDoDiem = BaiThi.rawAttributes.muc_do_diem.values;
         // Lấy danh sách năm xuất bản
-        const dsNamXuatBan = await BaiThi.findAll({ attributes: ['nam_xuat_ban'] });
+        const dsNamXuatBan = await BaiThi.findAll({ 
+            attributes: ['nam_xuat_ban'],
+            where: { da_xoa: false },
+            group: ['nam_xuat_ban'],
+            order: [['nam_xuat_ban', 'ASC']]
+        });
 
         // Lấy danh sách đề thi theo bộ lọc
         const exams = await BaiThi.findAll({
@@ -99,19 +104,27 @@ module.exports.index = async (req, res) => {
 // [POST] /api/exams/create
 module.exports.createExam = async (req, res) => {
     try {
+        const { ten_bai_thi, mo_ta, la_bai_thi_dau_vao, thoi_gian_bai_thi, nam_xuat_ban } = req.body;
 
-        console.log("Request body:", req.body);
-        console.log("User from request:", req.user);
-        const { ten_bai_thi, mo_ta, la_bai_thi_dau_vao, nam_xuat_ban } = req.body;
-
-        if (!ten_bai_thi || !mo_ta || !nam_xuat_ban || typeof la_bai_thi_dau_vao !== 'boolean') {
+        if (!ten_bai_thi || !mo_ta || !thoi_gian_bai_thi || !nam_xuat_ban || typeof la_bai_thi_dau_vao !== 'boolean') {
             return res.status(400).json({ message: "Cần nhập đủ thông tin bài thi!" });
+        }
+
+        if (thoi_gian_bai_thi <= 0) {
+            return res.status(400).json({ message: "Thời gian bài thi phải lớn hơn 0!" });
+        }
+
+        // Kiểm tra nam xuất bản
+        const currentYear = new Date().getFullYear();
+        if (nam_xuat_ban < 2000 || nam_xuat_ban > currentYear){
+            return res.status(400).json({ message: "Năm xuất bản không hợp lệ!" });
         }
 
         // Lưu vào database
         const examCreated = await BaiThi.create({ 
             ten_bai_thi,
             mo_ta,
+            thoi_gian_bai_thi,
             la_bai_thi_dau_vao,
             nam_xuat_ban,
             trang_thai: "nhap",
