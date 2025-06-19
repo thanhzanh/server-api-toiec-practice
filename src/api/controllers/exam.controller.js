@@ -226,9 +226,7 @@ module.exports.getQuestions = async (req, res) => {
 module.exports.addQuestionsToExam = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
-        console.log("ID bài thi: ", id_bai_thi);
         const { ds_cau_hoi } = req.body;
-        console.log("Request body: ", ds_cau_hoi);
         
         // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
@@ -251,7 +249,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
         if (questions.length !== ds_cau_hoi.length) {
             return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi!" });
         }
-        console.log("Danh sách câu hỏi:", questions);
         
         // Duyệt qua danh sách câu hỏi
         const questionsToAdd = [];
@@ -276,7 +273,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
 
         // Cập nhật thông tin đề thi
         const tong_so_cau_hoi = ds_cau_hoi.length;
-        console.log("Tổng số câu hỏi trong bài thi:", tong_so_cau_hoi);
         const diem_toi_da = calculateMaxScore(tong_so_cau_hoi);
         const muc_do_diem = `0-${diem_toi_da}`;
         const da_hoan_thien = tong_so_cau_hoi === MAX_QUESTION_TEST;

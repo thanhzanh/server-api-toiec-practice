@@ -44,6 +44,13 @@ module.exports.index = async (req, res) => {
             offset: pagination.skip,
             limit: pagination.limitItem
         });
+
+        // Lấy danh sách phần câu hỏi
+        const dsPhanCauHoi = await PhanCauHoi.findAll({
+                where: { id_phan : [6, 7] },
+                order: [['id_phan', 'ASC']],
+                attributes: ['id_phan', 'ten_phan']
+        });
         
         res.status(200).json({ 
             message: "Lấy danh sách đoạn văn thành công",
@@ -53,7 +60,8 @@ module.exports.index = async (req, res) => {
                 limit: pagination.limitItem,
                 total: count,
                 totalPages: pagination.totalPages
-            }
+            },
+            dsPhanCauHoi
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
