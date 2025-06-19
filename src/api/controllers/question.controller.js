@@ -66,8 +66,13 @@ module.exports.index = async (req, res) => {
                 'giai_thich',
                 'muc_do_kho',
                 'trang_thai',
+                'id_phuong_tien_hinh_anh',
+                'id_phuong_tien_am_thanh',
+                'id_phan',
+                'id_doan_van',
                 'nguon_goc',
-                'thoi_gian_tao'
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
             ],
             offset: pagination.skip,
             limit: pagination.limitItem
@@ -465,9 +470,9 @@ module.exports.edit = async (req, res) => {
 
         // Cập nhật các trường cho câu hỏi (Tùy trường nào nếu muốn)
         const dataUpdate = {};
-        if (data.noi_dung !== existingQuestion.noi_dung && data.noi_dung !== undefined) dataUpdate.noi_dung = data.noi_dung || existingQuestion.noi_dung;
+        if (data.noi_dung !== existingQuestion.noi_dung && data.noi_dung !== undefined) dataUpdate.noi_dung = striptags(data.noi_dung) || existingQuestion.noi_dung;
         if (data.dap_an_dung !== existingQuestion.dap_an_dung && data.dap_an_dung !== undefined) dataUpdate.dap_an_dung = data.dap_an_dung || existingQuestion.dap_an_dung;
-        if (data.giai_thich !== existingQuestion.giai_thich && data.giai_thich !== undefined) dataUpdate.giai_thich = data.giai_thich || existingQuestion.giai_thich;
+        if (data.giai_thich !== existingQuestion.giai_thich && data.giai_thich !== undefined) dataUpdate.giai_thich = striptags(data.giai_thich) || existingQuestion.giai_thich;
         if (data.muc_do_kho !== existingQuestion.muc_do_kho && data.muc_do_kho !== undefined) dataUpdate.muc_do_kho = data.muc_do_kho || existingQuestion.muc_do_kho;
         if (data.trang_thai !== existingQuestion.trang_thai && data.trang_thai !== undefined) dataUpdate.trang_thai = data.trang_thai || existingQuestion.trang_thai;
 
@@ -496,7 +501,7 @@ module.exports.edit = async (req, res) => {
             
             // Lưu vào table lua_chon
             await LuaChon.bulkCreate(luaChonDapAn);
-        }
+        }   
 
         // Lấy data cập nhật trả về
         const dataUpdated = await NganHangCauHoi.findByPk(id_cau_hoi, {
