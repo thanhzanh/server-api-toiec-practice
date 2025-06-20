@@ -347,7 +347,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
         
         res.status(200).json({ 
             message: "Đã thêm câu hỏi và tạo bảng nháp!",
-            examUpdatedInfo: examUpdatedInfo,
             data: examWithQuestions        
         });
 
@@ -488,7 +487,7 @@ module.exports.editExam = async (req, res) => {
             return res.status(404).json({ message: "Đề thi không tồn tại!" });
         }
 
-
+        
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
