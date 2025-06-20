@@ -30,4 +30,7 @@ router.post("/approve/:id_bai_thi", authenticateUser, authorizeRole(["quan_tri_v
 // Xóa đề thi
 router.delete("/delete/:id_bai_thi", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.deleteExam);
 
+// Sửa đề thi
+router.put("/edit/:id_bai_thi", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.editExam);
+
 module.exports = router;

@@ -221,8 +221,13 @@ module.exports.getQuestions = async (req, res) => {
                 'giai_thich',
                 'muc_do_kho',
                 'trang_thai',
+                'id_phuong_tien_hinh_anh',
+                'id_phuong_tien_am_thanh',
+                'id_phan',
+                'id_doan_van',
                 'nguon_goc',
-                'thoi_gian_tao'
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
             ],
             offset: pagination.skip,
             limit: pagination.limitItem
@@ -424,12 +429,11 @@ module.exports.approveExam = async (req, res) => {
     }
 };
 
-// [DELETE] /api/exams/:id_bai_thi
+// [DELETE] /api/exams/delete/:id_bai_thi
 module.exports.deleteExam = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
-        console.log("Xóa đề thi với ID:", id_bai_thi);
-        
+
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
             return res.status(404).json({ message: "Đề thi không tồn tại!" });
@@ -446,14 +450,31 @@ module.exports.deleteExam = async (req, res) => {
         // Xóa đề thi (xóa mềm)
         await BaiThi.update({
             da_xoa: true,
+            trang_thai: 'luu_tru',
             thoi_gian_cap_nhat: new Date()
         }, {
             where: { id_bai_thi }
         });
 
-        res.status(200).json({ message: "Đã xóa đề thi!" });
+        res.status(200).json({ message: "Đã xóa đề thi chuyển vào kho lưu trữ!" });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+// [PUT] /api/exams/edit/:id_bai_thi
+module.exports.editExam = async (req, res) => {
+    try {
+        const { id_bai_thi } = req.params;
+
+        const exam = await BaiThi.findByPk(id_bai_thi);
+        if (!exam) {
+            return res.status(404).json({ message: "Đề thi không tồn tại!" });
+        }
+
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
     }
 };
