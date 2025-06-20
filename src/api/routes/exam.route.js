@@ -21,4 +21,7 @@ router.get("/draft/:id_bai_thi", authenticateUser, authorizeRole(["quan_tri_vien
 // Duyệt đề thi chuyển trạng thái da_xuat_ban (Bước 5)
 router.post("/approve/:id_bai_thi", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.approveExam);
 
+// Xóa đề thi
+router.delete("/delete/:id_bai_thi", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.deleteExam);
+
 module.exports = router;

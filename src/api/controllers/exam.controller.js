@@ -4,9 +4,11 @@ const PhanCauHoi= require('../../models/phanCauHoi.model');
 const DoanVan = require('../../models/doanVan.model');
 const PhuongTien = require('../../models/phuongTien.model');
 const LuaChon = require('../../models/luaChon.model');
-const { createPaginationQuery } = require('../../helpers/pagination');
 const CauHoiBaiThi = require('../../models/cauHoiBaiThi.model');
+const BaiLamNguoiDung = require('../../models/baiLamNguoiDung.model');
+const { createPaginationQuery } = require('../../helpers/pagination');
 const { where } = require('sequelize');
+const striptags = require('striptags');
 
 // Số lượng câu hỏi tối đa trong đề thi
 const MAX_QUESTION_TEST = 50;
@@ -121,9 +123,9 @@ module.exports.createExam = async (req, res) => {
         }
 
         // Lưu vào database
-        const examCreated = await BaiThi.create({ 
+        const examDraft = await BaiThi.create({ 
             ten_bai_thi,
-            mo_ta,
+            mo_ta: striptags(mo_ta),
             thoi_gian_bai_thi,
             la_bai_thi_dau_vao,
             nam_xuat_ban,
@@ -131,8 +133,30 @@ module.exports.createExam = async (req, res) => {
             nguoi_tao: req.user.id_nguoi_dung
         });
 
+        // Trả về thông tin đề thi đã tạo
+        const examCreated = await BaiThi.findByPk(
+            examDraft.id_bai_thi,
+            {
+                attributes: [
+                    'id_bai_thi',
+                    'ten_bai_thi',
+                    'mo_ta',
+                    'la_bai_thi_dau_vao',
+                    'thoi_gian_bai_thi',
+                    'nam_xuat_ban',
+                    'trang_thai',
+                    'so_luong_cau_hoi',
+                    'diem_toi_da',
+                    'muc_do_diem',
+                    'da_hoan_thien',
+                    'nguoi_tao',
+                    'thoi_gian_tao',
+                    'thoi_gian_cap_nhat'
+                ]
+        });
+
         res.status(200).json({ 
-            message: "Tạo đề thi thành công!",
+            message: "Đã tạo đề thi nháp!",
             data: examCreated
         });
     } catch (error) {
@@ -394,6 +418,40 @@ module.exports.approveExam = async (req, res) => {
         );
 
         res.status(200).json({ message: "Đã duyệt đề thi để xuất bản!"});
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [DELETE] /api/exams/:id_bai_thi
+module.exports.deleteExam = async (req, res) => {
+    try {
+        const { id_bai_thi } = req.params;
+        console.log("Xóa đề thi với ID:", id_bai_thi);
+        
+        const exam = await BaiThi.findByPk(id_bai_thi);
+        if (!exam) {
+            return res.status(404).json({ message: "Đề thi không tồn tại!" });
+        }
+
+        // Kiểm tra đề thi đã có người dùng làm chưa
+        const coNguoiLam = await BaiLamNguoiDung.findOne({
+            where: { id_bai_thi: id_bai_thi }
+        });
+        if (coNguoiLam) {
+            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không xóa được!" });
+        }
+
+        // Xóa đề thi (xóa mềm)
+        await BaiThi.update({
+            da_xoa: true,
+            thoi_gian_cap_nhat: new Date()
+        }, {
+            where: { id_bai_thi }
+        });
+
+        res.status(200).json({ message: "Đã xóa đề thi!" });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
