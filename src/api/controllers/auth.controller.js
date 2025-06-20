@@ -84,10 +84,13 @@ module.exports.login = async(req, res) => {
             }
         );
 
+        // Gán req.user để log
+        req.user = { id_nguoi_dung: user.id_nguoi_dung };
+
         res.status(200).json({
             message: "Đăng nhập thành công",
             token,
-            vai_tro: user.vai_tro
+            vai_tro: user.vai_tro,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

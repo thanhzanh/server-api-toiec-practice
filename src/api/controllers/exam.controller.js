@@ -112,8 +112,8 @@ module.exports.createExam = async (req, res) => {
             return res.status(400).json({ message: "Cần nhập đủ thông tin bài thi!" });
         }
 
-        if (thoi_gian_bai_thi <= 0) {
-            return res.status(400).json({ message: "Thời gian bài thi phải lớn hơn 0!" });
+        if (thoi_gian_bai_thi <= 45 && thoi_gian_bai_thi > 120) {
+            return res.status(400).json({ message: "Thời gian làm bài thi không hợp lệ!" });
         }
 
         // Kiểm tra nam xuất bản

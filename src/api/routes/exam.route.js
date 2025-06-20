@@ -2,9 +2,15 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/exam.controller');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const logAction = require('../middlewares/log.middleware');
 
 // Hiển thị danh sách đề thi
-router.get("/", authenticateUser, authorizeRole("quan_tri_vien"), controller.index);
+router.get("/", 
+    authenticateUser, 
+    authorizeRole("quan_tri_vien"), 
+    logAction('Xem danh sách đề thi'), 
+    controller.index
+);
 
 // Tạo đề thi nháp (Bước 1)
 router.post("/create", authenticateUser, authorizeRole(["quan_tri_vien"]), controller.createExam);

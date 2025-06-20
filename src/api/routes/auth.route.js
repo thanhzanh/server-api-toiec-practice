@@ -4,12 +4,17 @@ const router = express.Router();
 const controller = require('../controllers/auth.controller');
 const validate = require('../middlewares/validate.middleware');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const logAction = require('../middlewares/log.middleware');
 
 // Đăng ký tài khoản
 router.post("/register", validate.registerValidation, controller.register);
 
 // Đăng nhập
-router.post("/login", validate.loginValidation, controller.login);
+router.post("/login", 
+    validate.loginValidation, 
+    logAction('Đăng nhập', (req) => `Đăng nhập với identifier: ${req.body.identifier}`), 
+    controller.login
+);
 
 // Quên mật khẩu (nhập email)
 router.post("/forgot-password", validate.forgotPasswordValidation, controller.forgotPassword);
