@@ -81,6 +81,7 @@ module.exports.index = async (req, res) => {
                 'thoi_gian_tao',
                 'thoi_gian_cap_nhat'
             ],
+            order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem
         });
@@ -112,8 +113,8 @@ module.exports.createExam = async (req, res) => {
             return res.status(400).json({ message: "Cần nhập đủ thông tin bài thi!" });
         }
 
-        if (thoi_gian_bai_thi <= 45 && thoi_gian_bai_thi > 120) {
-            return res.status(400).json({ message: "Thời gian làm bài thi không hợp lệ!" });
+        if (thoi_gian_bai_thi <= 45 || thoi_gian_bai_thi > 120) {
+            return res.status(400).json({ message: "Thời gian làm bài thi không hợp lệ. Nẳm trong khoảng 45 đến 120p!" });
         }
 
         // Kiểm tra nam xuất bản
@@ -256,6 +257,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
         const { ds_cau_hoi } = req.body;
+        console.log("Danh sách câu hỏi: ", ds_cau_hoi);
         
         // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
@@ -278,6 +280,37 @@ module.exports.addQuestionsToExam = async (req, res) => {
         if (questions.length !== ds_cau_hoi.length) {
             return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi!" });
         }
+
+        // Kiểm tra số câu đúng câu trúc của từng Part
+        const cauTrucToiec = { 1: 6, 2: 25, 3: 39, 4: 30, 5: 30, 6: 16, 7: 54 };
+
+        // Đếm số câu theo Part
+        const demSoCauTheoPart = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+
+        for (let i = 0; i < ds_cau_hoi.length; i++) {        
+            const cauHoi = await NganHangCauHoi.findByPk(ds_cau_hoi[i]);   
+            
+            const part = cauHoi.id_phan;
+            if (demSoCauTheoPart[part] !== undefined) {
+                demSoCauTheoPart[part]++;
+            }
+            console.log(`Câu hỏi ${ds_cau_hoi[i]} - Part ${part}`);
+        }
+
+        let thongBaoLoi = [];
+        for (const part in cauTrucToiec) {
+            const soCauThucTe = demSoCauTheoPart[part];
+            const soCauChuanPart = cauTrucToiec[part];
+
+            if (soCauThucTe !== soCauChuanPart) {
+                thongBaoLoi.push(`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi!`);
+            }
+        }
+
+        if (thongBaoLoi.length > 0) {
+            return res.status(400).json({ message: thongBaoLoi.join('\n') });
+        }
+        // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
         
         // Duyệt qua danh sách câu hỏi
         const questionsToAdd = [];
@@ -347,7 +380,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
         
         res.status(200).json({ 
             message: "Đã thêm câu hỏi và tạo bảng nháp!",
-            data: examWithQuestions        
+            dataa: examWithQuestions
         });
 
     } catch (error) {
@@ -465,6 +498,7 @@ module.exports.deleteExam = async (req, res) => {
         await BaiThi.update({
             da_xoa: true,
             trang_thai: 'luu_tru',
+            thoi_gian_luu_tru: new Date(),
             thoi_gian_cap_nhat: new Date()
         }, {
             where: { id_bai_thi }
@@ -480,13 +514,25 @@ module.exports.deleteExam = async (req, res) => {
 // [PUT] /api/exams/edit/:id_bai_thi
 module.exports.editExam = async (req, res) => {
     try {
+        // Dữ liệu nhận được
         const { id_bai_thi } = req.params;
-
+        const { ten_bai_thi, mo_ta, nam_xuat_ban, thoi_gian_bai_thi, ds_cau_hoi } = req.body;
+        console.log("Data request: ", req.body);
+        
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
             return res.status(404).json({ message: "Đề thi không tồn tại!" });
         }
 
+        // Kiểm tra đề thi đã có người dùng làm chưa
+        const coNguoiLam = await BaiLamNguoiDung.findOne({
+            where: { id_bai_thi: id_bai_thi }
+        });
+        if (coNguoiLam) {
+            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không thể chỉnh sửa trực tiếp!" });
+        }
+
+        res.status(200).json({ message: "Đã chỉnh sửa!" });
         
     } catch (error) {
         return res.status(500).json({ message: error.message });
