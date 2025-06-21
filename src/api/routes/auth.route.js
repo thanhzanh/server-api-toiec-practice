@@ -7,7 +7,11 @@ const { authenticateUser, authorizeRole } = require('../middlewares/auth.middlew
 const logAction = require('../middlewares/log.middleware');
 
 // Đăng ký tài khoản
-router.post("/register", validate.registerValidation, controller.register);
+router.post("/register", 
+    validate.registerValidation, 
+    logAction('Đăng ký tài khoản', (req) => `Đăng ký tài khoản với email: ${req.body.email}`),
+    controller.register
+);
 
 // Đăng nhập
 router.post("/login", 
