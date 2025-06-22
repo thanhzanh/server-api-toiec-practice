@@ -9,6 +9,8 @@ const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
 const striptags = require('striptags');
 const { where } = require("sequelize");
+const xlsx = require('xlsx');
+const fs = require('fs');
 
 // [GET] /api/questions
 module.exports.index = async (req, res) => {
@@ -250,7 +252,7 @@ module.exports.create = async (req, res) => {
                 const question = await NganHangCauHoi.create({
                     id_phan: id_phan,
                     id_doan_van: id_doan_van || null,
-                    noi_dung: striptags(noi_dung[i]),
+                    noi_dung: striptags(noi_dung[i]) || null,
                     dap_an_dung: dap_an_dung[i],
                     giai_thich: striptags(giai_thich[i]) || null,
                     muc_do_kho: muc_do_kho,
@@ -274,7 +276,7 @@ module.exports.create = async (req, res) => {
             const question = await NganHangCauHoi.create({
                 id_phan: id_phan,
                 id_doan_van: id_doan_van || null,
-                noi_dung: striptags(noi_dung),
+                noi_dung: striptags(noi_dung) || null,
                 dap_an_dung: dap_an_dung,
                 giai_thich: striptags(giai_thich) || null,
                 muc_do_kho: muc_do_kho,
@@ -317,6 +319,106 @@ module.exports.create = async (req, res) => {
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: error.message });
+    }
+};
+
+// [POST] /api/questions/import-excel
+module.exports.importExcel = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "Vui lòng tải lên tệp Excel!" });
+        }
+
+        const workbook = xlsx.read(req.file.buffer);
+        const sheetName = workbook.SheetNames[0];
+        const workSheet= workbook.Sheets[sheetName];
+        const results = xlsx.utils.sheet_to_json(workSheet);
+
+        console.log("Data parse xlsx to json: ", results);
+
+        const questionToAdd = [];
+        for (const row of results) {
+            const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
+
+            const part = parseInt(id_phan);
+            if (part < 1 || part > 7) {
+                return res.status(400).json({ message: "Part phải từ 1 đến 7!" });
+            }
+
+            const newQuestion = {
+                id_phan: part,
+                noi_dung: striptags(noi_dung) || null,
+                dap_an_dung: dap_an_dung,
+                giai_thich: striptags(giai_thich) || null,
+                muc_do_kho: muc_do_kho,
+                trang_thai: trang_thai,
+                nguon_goc: 'nhap_excel',
+                thoi_gian_tao: new Date(),
+                da_xoa: false
+            };
+
+            // Xử lý đoạn văn
+            if (tieu_de_doan_van && noi_dung_doan_van) {
+                const [doanVan, created] = await DoanVan.findOrCreate({
+                    where: { tieu_de: tieu_de_doan_van, noi_dung: noi_dung_doan_van },
+                    defaults: {
+                        thoi_gian_tao: new Date(),
+                    },
+                });
+                newQuestion.id_doan_van = doanVan.id_doan_van;
+            }
+
+            // Xử lý hình ảnh
+            if (req.body.url_hinh_anh) {
+                const media = await PhuongTien.create({
+                    url_phuong_tien: req.body.url_hinh_anh,
+                    loai_phuong_tien: 'hinh_anh',
+                    thoi_gian_tao: new Date()
+                });
+                newQuestion.id_phuong_tien_hinh_anh = media.id_phuong_tien;
+            }
+
+            // Xử lý âm thanh
+            if (req.body.url_am_thanh) {
+                const media = await PhuongTien.create({
+                    url_phuong_tien: req.body.url_am_thanh,
+                    loai_phuong_tien: 'am_thanh',
+                    thoi_gian_tao: new Date()
+                });
+                newQuestion.id_phuong_tien_am_thanh = media.id_phuong_tien;
+            }
+
+            // Xử lý lựa chọn
+            const luaChon = [
+                { ky_tu_lua_chon: 'A', noi_dung: lua_chon_A },
+                { ky_tu_lua_chon: 'B', noi_dung: lua_chon_B },
+                { ky_tu_lua_chon: 'C', noi_dung: lua_chon_C },
+                { ky_tu_lua_chon: 'D', noi_dung: lua_chon_D },
+            ].filter(lc => lc.noi_dung);
+
+            // Lưu vào bảng ngan_hang_cau_hoi
+            const saveQuestions = await NganHangCauHoi.create(newQuestion);
+
+            if (luaChon.length > 0) {
+                // Lưu id_cau_hoi vào bảng lua_chon
+                const luaChonWithIdCauHoi = luaChon.map((lc) => ({
+                    ...lc,
+                    id_cau_hoi: saveQuestions.id_cau_hoi
+                }));
+                await LuaChon.bulkCreate(luaChonWithIdCauHoi);
+            }
+
+            questionToAdd.push(saveQuestions);
+        }
+
+        res.status(200).json({ 
+            message: "Import câu hỏi từ excel thành công!",
+            data: questionToAdd
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
     }
 };
 

@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { uploadCloudinary } = require('../middlewares/upload.middleware');
 const controller = require('../controllers/question.controller');
+const { uploadCloudinary } = require('../middlewares/upload.middleware');
+const upLoadExcel = require('../middlewares/uploadExcel.middleware');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
 const logAction = require('../middlewares/log.middleware');
 
@@ -20,6 +21,14 @@ router.post("/create",
     uploadCloudinary([{ name: 'hinh_anh', type: 'image' }, { name: 'am_thanh', type: 'video' }]), 
     logAction('Tạo câu hỏi thủ công bằng tay'),
     controller.create
+);
+
+// Import câu hỏi bằng file excel
+router.post("/import-excel",
+    authenticateUser,
+    authorizeRole(['quan_tri_vien']),
+    upLoadExcel.single('file'),
+    controller.importExcel
 );
 
 // Xem chi tiết 1 câu hỏi
