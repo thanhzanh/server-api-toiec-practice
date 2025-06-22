@@ -7,10 +7,11 @@ const CauHoiBaiThi = require("../../models/cauHoiBaiThi.model");
 
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
+const { streamUpload } = require('../middlewares/uploadCloud.middleware')
 const striptags = require('striptags');
 const { where } = require("sequelize");
 const xlsx = require('xlsx');
-const fs = require('fs');
+const axios = require("axios");
 
 // [GET] /api/questions
 module.exports.index = async (req, res) => {
@@ -369,24 +370,42 @@ module.exports.importExcel = async (req, res) => {
             }
 
             // Xử lý hình ảnh
-            if (req.body.url_hinh_anh) {
+            let hinhAnhId = null;
+            if (url_hinh_anh) {
+                const fileId = url_hinh_anh.match(/\/d\/(.*?)\//)?.[1];
+                const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+                const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                const buffer = Buffer.from(response.data);
+
+                const result = await streamUpload(buffer, 'image');
                 const media = await PhuongTien.create({
-                    url_phuong_tien: req.body.url_hinh_anh,
+                    url_phuong_tien: result.secure_url,
                     loai_phuong_tien: 'hinh_anh',
                     thoi_gian_tao: new Date()
                 });
-                newQuestion.id_phuong_tien_hinh_anh = media.id_phuong_tien;
+                hinhAnhId = media.id_phuong_tien;
             }
+            if (hinhAnhId) newQuestion.id_phuong_tien_hinh_anh = hinhAnhId;
 
             // Xử lý âm thanh
-            if (req.body.url_am_thanh) {
+            let amThanhId = null;
+            if (url_am_thanh) {
+                const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
+                const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+                const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                const buffer = Buffer.from(response.data);
+
+                const result = await streamUpload(buffer, 'video');
                 const media = await PhuongTien.create({
-                    url_phuong_tien: req.body.url_am_thanh,
+                    url_phuong_tien: result.secure_url,
                     loai_phuong_tien: 'am_thanh',
                     thoi_gian_tao: new Date()
                 });
-                newQuestion.id_phuong_tien_am_thanh = media.id_phuong_tien;
+                amThanhId = media.id_phuong_tien;
             }
+            if (hinhAnhId) newQuestion.id_phuong_tien_am_thanh = amThanhId;
 
             // Xử lý lựa chọn
             const luaChon = [
