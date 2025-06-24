@@ -328,7 +328,7 @@ module.exports.importExcel = async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "Vui lòng tải lên tệp Excel!" });
-        }
+        }        
 
         const workbook = xlsx.read(req.file.buffer);
         const sheetName = workbook.SheetNames[0];
@@ -338,6 +338,11 @@ module.exports.importExcel = async (req, res) => {
         console.log("Data parse xlsx to json: ", results);
 
         const questionToAdd = [];
+
+        // Cache để lưu id_phuong_tien hoặc id_doan_van chung
+        const phuongTienCache = new Map(); // Map URL -> id_phuong_tien
+        const doanVanCache = new Map(); // Map {tieu_de, noi_dung} -> id_doan_van
+
         for (const row of results) {
             const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
 
@@ -360,52 +365,76 @@ module.exports.importExcel = async (req, res) => {
 
             // Xử lý đoạn văn
             if (tieu_de_doan_van && noi_dung_doan_van) {
-                const [doanVan, created] = await DoanVan.findOrCreate({
-                    where: { tieu_de: tieu_de_doan_van, noi_dung: noi_dung_doan_van },
-                    defaults: {
-                        thoi_gian_tao: new Date(),
-                    },
-                });
-                newQuestion.id_doan_van = doanVan.id_doan_van;
+                // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
+                const keyTieuDoanVan = `${tieu_de_doan_van}|${noi_dung_doan_van}`;
+                console.log("Key tieu doan van: ", keyTieuDoanVan);
+                
+                let id_doan_van = doanVanCache.get(keyTieuDoanVan);
+                console.log("ID doan van cache: ", id_doan_van);
+                
+                if (!id_doan_van) {
+                    const [doanVan, created] = await DoanVan.findOrCreate({
+                        where: { tieu_de: tieu_de_doan_van, noi_dung: noi_dung_doan_van },
+                        defaults: {
+                            thoi_gian_tao: new Date(),
+                        },
+                    });
+                    newQuestion.id_doan_van = doanVan.id_doan_van;
+                    doanVanCache.set(keyTieuDoanVan, id_doan_van);
+                }
+                newQuestion.id_doan_van = id_doan_van;
             }
 
             // Xử lý hình ảnh
             let hinhAnhId = null;
             if (url_hinh_anh) {
-                const fileId = url_hinh_anh.match(/\/d\/(.*?)\//)?.[1];
-                const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
-                const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
-                const buffer = Buffer.from(response.data);
-
-                const result = await streamUpload(buffer, 'image');
-                const media = await PhuongTien.create({
-                    url_phuong_tien: result.secure_url,
-                    loai_phuong_tien: 'hinh_anh',
-                    thoi_gian_tao: new Date()
-                });
-                hinhAnhId = media.id_phuong_tien;
+                let id_phuong_tien = phuongTienCache.get(url_hinh_anh);
+                console.log("ID phuong tien hinh anh cache: ", id_phuong_tien);
+                if (!id_phuong_tien) {
+                    const fileId = url_hinh_anh.match(/\/d\/(.*?)\//)?.[1];
+                    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    
+                    const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                    const buffer = Buffer.from(response.data);
+    
+                    const result = await streamUpload(buffer, 'image');
+                    const media = await PhuongTien.create({
+                        url_phuong_tien: result.secure_url,
+                        loai_phuong_tien: 'hinh_anh',
+                        thoi_gian_tao: new Date()
+                    });
+                    id_phuong_tien = media.id_phuong_tien;
+                    phuongTienCache.set(url_hinh_anh, id_phuong_tien);
+                }
+                hinhAnhId = id_phuong_tien;
             }
             if (hinhAnhId) newQuestion.id_phuong_tien_hinh_anh = hinhAnhId;
 
             // Xử lý âm thanh
             let amThanhId = null;
             if (url_am_thanh) {
-                const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
-                const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
-                const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
-                const buffer = Buffer.from(response.data);
-
-                const result = await streamUpload(buffer, 'video');
-                const media = await PhuongTien.create({
-                    url_phuong_tien: result.secure_url,
-                    loai_phuong_tien: 'am_thanh',
-                    thoi_gian_tao: new Date()
-                });
-                amThanhId = media.id_phuong_tien;
+                let id_phuong_tien = phuongTienCache.get(url_am_thanh);
+                console.log("ID phuong tien am thanh cache: ", id_phuong_tien);
+                
+                if (!id_phuong_tien) {
+                    const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
+                    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    
+                    const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                    const buffer = Buffer.from(response.data);
+    
+                    const result = await streamUpload(buffer, 'video');
+                    const media = await PhuongTien.create({
+                        url_phuong_tien: result.secure_url,
+                        loai_phuong_tien: 'am_thanh',
+                        thoi_gian_tao: new Date()
+                    });
+                    id_phuong_tien = media.id_phuong_tien;
+                    phuongTienCache.set(url_am_thanh, id_phuong_tien);
+                }
+                amThanhId = id_phuong_tien;
             }
-            if (hinhAnhId) newQuestion.id_phuong_tien_am_thanh = amThanhId;
+            if (amThanhId) newQuestion.id_phuong_tien_am_thanh = amThanhId;
 
             // Xử lý lựa chọn
             const luaChon = [
