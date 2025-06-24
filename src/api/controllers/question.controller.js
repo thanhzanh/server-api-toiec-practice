@@ -56,8 +56,8 @@ module.exports.index = async (req, res) => {
         const questions = await NganHangCauHoi.findAll({
             where,
             include: [
-                { model: PhanCauHoi, as: 'phan', attributes: ['ten_phan', 'loai_phan', 'co_hinh_anh', 'co_am_thanh', 'co_doan_van'] },
-                { model: DoanVan, as: 'doan_van', attributes: ['noi_dung'] },
+                { model: PhanCauHoi, as: 'phan', attributes: ['id_phan','ten_phan', 'loai_phan', 'co_hinh_anh', 'co_am_thanh', 'co_doan_van'] },
+                { model: DoanVan, as: 'doan_van', attributes: ['id_doan_van', 'tieu_de','noi_dung', 'id_phan'] },
                 { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien','url_phuong_tien'] },
                 { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien','url_phuong_tien'] },
                 { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
@@ -77,6 +77,7 @@ module.exports.index = async (req, res) => {
                 'thoi_gian_tao',
                 'thoi_gian_cap_nhat'
             ],
+            order: ['DESC'],
             offset: pagination.skip,
             limit: pagination.limitItem
         });
@@ -376,10 +377,11 @@ module.exports.importExcel = async (req, res) => {
                     const [doanVan, created] = await DoanVan.findOrCreate({
                         where: { tieu_de: tieu_de_doan_van, noi_dung: noi_dung_doan_van },
                         defaults: {
+                            id_phan: newQuestion.id_phan,
                             thoi_gian_tao: new Date(),
                         },
                     });
-                    newQuestion.id_doan_van = doanVan.id_doan_van;
+                    id_doan_van = doanVan.id_doan_van;
                     doanVanCache.set(keyTieuDoanVan, id_doan_van);
                 }
                 newQuestion.id_doan_van = id_doan_van;

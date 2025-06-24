@@ -516,9 +516,11 @@ module.exports.editExam = async (req, res) => {
     try {
         // Dữ liệu nhận được
         const { id_bai_thi } = req.params;
-        const { ten_bai_thi, mo_ta, nam_xuat_ban, thoi_gian_bai_thi, ds_cau_hoi } = req.body;
+        const { ds_cau_hoi } = req.body;
+        console.log("ID de thi: ", id_bai_thi);
         console.log("Data request: ", req.body);
         
+        // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
             return res.status(404).json({ message: "Đề thi không tồn tại!" });
@@ -532,7 +534,34 @@ module.exports.editExam = async (req, res) => {
             return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không thể chỉnh sửa trực tiếp!" });
         }
 
-        res.status(200).json({ message: "Đã chỉnh sửa!" });
+        // Cập nhật thông tin đề thi
+        const dataUpdateExam = {};
+        if (req.body.ten_bai_thi) dataUpdateExam.ten_bai_thi = req.body.ten_bai_thi;
+        if (req.body.mo_ta) dataUpdateExam.mo_ta = striptags(req.body.mo_ta);
+        if (req.body.thoi_gian_bai_thi) dataUpdateExam.thoi_gian_bai_thi = thoi_gian_bai_thi;
+        if (req.body.nam_xuat_ban) dataUpdateExam.nam_xuat_ban = nam_xuat_ban;
+        
+        if (Object.keys(dataUpdateExam) > 0) {
+            dataUpdateExam.thoi_gian_cap_nhat = new Date();
+            // Cập nhật bảng bai_thi
+            await BaiThi.update(
+                dataUpdateExam,
+                {
+                    where: { id_bai_thi: id_bai_thi }
+                }
+            );
+        }
+
+        // Xử lý cập nhật thay đổi câu hỏi khác
+         
+
+        
+
+
+        res.status(200).json({ 
+            message: "Đã chỉnh sửa đề thi thành ông!",
+            data: examUpdated
+        });
         
     } catch (error) {
         return res.status(500).json({ message: error.message });
