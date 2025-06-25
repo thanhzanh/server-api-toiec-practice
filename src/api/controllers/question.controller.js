@@ -4,7 +4,7 @@ const DoanVan = require("../../models/doanVan.model");
 const PhuongTien = require("../../models/phuongTien.model");
 const LuaChon = require("../../models/luaChon.model");
 const CauHoiBaiThi = require("../../models/cauHoiBaiThi.model");
-
+const DoanVanPhuongTien = require("../../models/doanVanPhuongTien.model");
 const { createPaginationQuery } = require('../../helpers/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
 const { streamUpload } = require('../middlewares/uploadCloud.middleware')
@@ -77,7 +77,7 @@ module.exports.index = async (req, res) => {
                 'thoi_gian_tao',
                 'thoi_gian_cap_nhat'
             ],
-            order: [['id_cau_hoi', 'DESC']],
+            order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem
         });
@@ -365,52 +365,87 @@ module.exports.importExcel = async (req, res) => {
             };
 
             // Xử lý đoạn văn
-            if (tieu_de_doan_van && noi_dung_doan_van) {
+            let id_doan_van = null;
+            if (tieu_de_doan_van || noi_dung_doan_van) {
+                const whereDoanVan = {};
+                if (tieu_de_doan_van) whereDoanVan.tieu_de = tieu_de_doan_van;
+                if (noi_dung_doan_van) whereDoanVan.noi_dung = noi_dung_doan_van;
                 // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
-                const keyTieuDoanVan = `${tieu_de_doan_van}|${noi_dung_doan_van}`;
+                const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}`;
                 console.log("Key tieu doan van: ", keyTieuDoanVan);
                 
-                let id_doan_van = doanVanCache.get(keyTieuDoanVan);
+                id_doan_van = doanVanCache.get(keyTieuDoanVan);
                 console.log("ID doan van cache: ", id_doan_van);
                 
                 if (!id_doan_van) {
                     const [doanVan, created] = await DoanVan.findOrCreate({
-                        where: { tieu_de: tieu_de_doan_van, noi_dung: noi_dung_doan_van },
+                        where: whereDoanVan,
                         defaults: {
                             id_phan: newQuestion.id_phan,
+                            tieu_de: tieu_de_doan_van,
+                            noi_dung: noi_dung_doan_van || null,
                             thoi_gian_tao: new Date(),
                         },
                     });
                     id_doan_van = doanVan.id_doan_van;
                     doanVanCache.set(keyTieuDoanVan, id_doan_van);
                 }
+                
+            }
+            // Gán id_doan_van cho Part 6, 7
+            if (id_doan_van && [6, 7].includes(part)) {
                 newQuestion.id_doan_van = id_doan_van;
             }
 
             // Xử lý hình ảnh
-            let hinhAnhId = null;
             if (url_hinh_anh) {
-                let id_phuong_tien = phuongTienCache.get(url_hinh_anh);
-                console.log("ID phuong tien hinh anh cache: ", id_phuong_tien);
-                if (!id_phuong_tien) {
-                    const fileId = url_hinh_anh.match(/\/d\/(.*?)\//)?.[1];
-                    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    
-                    const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
-                    const buffer = Buffer.from(response.data);
-    
-                    const result = await streamUpload(buffer, 'image');
-                    const media = await PhuongTien.create({
-                        url_phuong_tien: result.secure_url,
-                        loai_phuong_tien: 'hinh_anh',
-                        thoi_gian_tao: new Date()
-                    });
-                    id_phuong_tien = media.id_phuong_tien;
-                    phuongTienCache.set(url_hinh_anh, id_phuong_tien);
+                // Duyệt qua từng hình ảnh ngăn cách bởi ;
+                const dsHinhAnh = url_hinh_anh.split(";").map(url => url.trim());
+                console.log("Danh sach hinh anh: ", dsHinhAnh);
+                
+                for (const url of dsHinhAnh) {
+                    let id_phuong_tien = phuongTienCache.get(url);
+                    console.log("ID phuong tien hinh anh cache: ", id_phuong_tien);
+
+                    if (!id_phuong_tien) {
+                        const fileId = url.match(/\/d\/(.*?)\//)?.[1];
+                        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        
+                        const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                        const buffer = Buffer.from(response.data);
+        
+                        const result = await streamUpload(buffer, 'image');
+                        const media = await PhuongTien.create({
+                            url_phuong_tien: result.secure_url,
+                            loai_phuong_tien: 'hinh_anh',
+                            thoi_gian_tao: new Date()
+                        });
+                        id_phuong_tien = media.id_phuong_tien;
+                        phuongTienCache.set(url, id_phuong_tien);
+                    }
+
+                    // Lưu vào bảng doan_van_phuong_tien
+                    if (newQuestion.id_doan_van) {
+                        const existed = await DoanVanPhuongTien.findOne({
+                            where: {
+                                id_doan_van: newQuestion.id_doan_van,
+                                id_phuong_tien: id_phuong_tien
+                            }
+                        });
+                        if (!existed) {
+                            await DoanVanPhuongTien.create({
+                                id_doan_van: newQuestion.id_doan_van,
+                                id_phuong_tien: id_phuong_tien
+                            });
+                        }
+                    }
+
+                    // Lưu id_phuong_tien_hinh_anh cho từng câu hỏi cho trường hợp không phải Part 7
+                    if (part !== 7 && !newQuestion.id_phuong_tien_hinh_anh) {
+                        newQuestion.id_phuong_tien_hinh_anh = id_phuong_tien;
+                    }
                 }
-                hinhAnhId = id_phuong_tien;
             }
-            if (hinhAnhId) newQuestion.id_phuong_tien_hinh_anh = hinhAnhId;
 
             // Xử lý âm thanh
             let amThanhId = null;

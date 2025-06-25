@@ -43,7 +43,11 @@ module.exports.index = async (req, res) => {
                 'tieu_de',
                 'noi_dung',
                 'id_phan',
+                'loai_doan_van',
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
             ],
+            order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem
         });
@@ -137,7 +141,6 @@ module.exports.create = async (req, res) => {
 
         console.log("Dữ liệu đoạn văn đã thêm: ", dataCreated);
         
-
         res.status(200).json({ 
             message: "Tạo đoạn văn thành công",
             data: dataCreated
