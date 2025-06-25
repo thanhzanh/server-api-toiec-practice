@@ -15,6 +15,11 @@ const DoanVan = sequelize.define(
     },
     noi_dung: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    loai_doan_van: {
+      type: DataTypes.ENUM('single', 'double', 'triple'),
+      defaultValue: 'single',
       allowNull: false,
     },
     id_phan: {

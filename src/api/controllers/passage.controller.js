@@ -3,6 +3,9 @@ const DoanVan = require('../../models/doanVan.model');
 const NganHangCauHoi = require('../../models/nganHangCauHoi.model');
 const { createPaginationQuery } = require('../../helpers/pagination');
 const striptags = require('striptags');
+const PhuongTien = require('../../models/phuongTien.model');
+const { streamUpload } = require('../middlewares/uploadCloud.middleware');
+const DoanVanPhuongTien = require('../../models/doanVanPhuongTien.model');
 
 // [GET] /api/passages
 module.exports.index = async (req, res) => {
@@ -71,7 +74,8 @@ module.exports.index = async (req, res) => {
 // [POST] /api/passages/create
 module.exports.create = async (req, res) => {
     try {        
-        const { tieu_de, noi_dung, id_phan } = req.body;
+        const { tieu_de, noi_dung, id_phan, loai_doan_van } = req.body;
+        console.log("Data request: ", req.body);
 
         // Kiểm tra phần tồn tại không
         const phan = await PhanCauHoi.findByPk(id_phan);
@@ -85,20 +89,58 @@ module.exports.create = async (req, res) => {
         }
 
         // Kiểm tra phải có tiêu đề và nội dung
-        if (!tieu_de || !noi_dung) {
-            return res.status(400).json({ message: "Tiêu đề và nội dung đoạn văn không được để trống!" });
+        if (!tieu_de) {
+            return res.status(400).json({ message: "Tiêu đề đoạn văn không được để trống!" });
         }
 
         // Lưu doan_van vào database
-        const doanvan = await DoanVan.create({ 
+        const doanVan = await DoanVan.create({ 
             tieu_de,
-            noi_dung: striptags(noi_dung),
-            id_phan,
+            noi_dung: noi_dung ? striptags(noi_dung) : null,
+            id_phan: parseInt(id_phan),
+            loai_doan_van,
         });
+
+        // Xử lý lưu hình ảnh
+        if (req.files?.hinh_anh?.length > 0) {
+            for (const file of req.files.hinh_anh) {
+                const result = await streamUpload(file.buffer, 'image');
+
+                // Lưu vào bảng phuong_tien
+                const media = await PhuongTien.create({
+                    url_phuong_tien: result.secure_url,
+                    loai_phuong_tien: 'hinh_anh',
+                    thoi_gian_tao: new Date()
+                });
+
+                // Lưu vào bảng doan_van_phuong_tien
+                await DoanVanPhuongTien.create({
+                    id_doan_van: doanVan.id_doan_van,
+                    id_phuong_tien: media.id_phuong_tien
+                });
+            }
+        }
+
+        // Lấy dữ liệu trả về
+        const dataCreated = await DoanVan.findByPk(doanVan.id_doan_van, {
+            include: [
+                {
+                    model: PhuongTien,
+                    as: 'danh_sach_phuong_tien',
+                    attributes: ['id_phuong_tien', 'url_phuong_tien'],
+                    through: { attributes: [] }, // Loại bỏ dữ liệu trung gian
+                    where: { loai_phuong_tien: 'hinh_anh' },
+                    required: false // loại bỏ lỗi nếu chưa có hình
+                }
+            ]
+        });
+
+        console.log("Dữ liệu đoạn văn đã thêm: ", dataCreated);
+        
 
         res.status(200).json({ 
             message: "Tạo đoạn văn thành công",
-            data: doanvan
+            data: dataCreated
         });
     } catch (error) {
         console.error("Lỗi tạo đoạn văn:", error);
@@ -110,7 +152,7 @@ module.exports.create = async (req, res) => {
 module.exports.edit = async (req, res) => {
     try {        
         const { id_doan_van } = req.params;
-        const { tieu_de, noi_dung } = req.body;
+        const { tieu_de, noi_dung, loai_doan_van } = req.body;
 
         // Kiểm tra phần tồn tại không
         const doanvan = await DoanVan.findByPk(id_doan_van);
@@ -121,6 +163,7 @@ module.exports.edit = async (req, res) => {
         const updateData = {};
         if (tieu_de !== doanvan.tieu_de && tieu_de !== undefined) updateData.tieu_de = tieu_de || doanvan.tieu_de;
         if (noi_dung !== doanvan.noi_dung && noi_dung !== undefined) updateData.noi_dung = striptags(noi_dung) || doanvan.noi_dung;
+        if (loai_doan_van !== doanvan.loai_doan_van && loai_doan_van !== undefined) updateData.loai_doan_van = loai_doan_van || doanvan.loai_doan_van;
 
         // Cập nhật thời gian
         updateData.thoi_gian_cap_nhat = new Date();
@@ -180,9 +223,19 @@ module.exports.detail = async (req, res) => {
         const data = await DoanVan.findByPk(
             id_doan_van,
             {
-                attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'id_phan', 'thoi_gian_tao', 'thoi_gian_cap_nhat']
+                attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'id_phan', 'thoi_gian_tao', 'thoi_gian_cap_nhat'],
+                include: [
+                    {
+                        model: PhuongTien,
+                        as: 'danh_sach_phuong_tien',
+                        attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'],
+                        where: { loai_phuong_tien: 'hinh_anh' },
+                        through: { attributes: [] },
+                        required: false
+                    }
+                ]
             }
-        )
+        );
 
         res.status(200).json({ 
             message: "Lấy chi tiết đoạn văn thành công!",

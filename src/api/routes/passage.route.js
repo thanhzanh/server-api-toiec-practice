@@ -3,6 +3,7 @@ const router = express.Router();
 
 const controller = require('../controllers/passage.controller');
 const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const { uploadCloudinary } = require('../middlewares/upload.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // Lấy tất cả danh sách đoạn văn
@@ -17,6 +18,7 @@ router.get("/",
 router.post("/create", 
     authenticateUser, 
     authorizeRole(["quan_tri_vien"]), 
+    uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
     logAction('Tạo đoạn văn mới'),
     controller.create
 );

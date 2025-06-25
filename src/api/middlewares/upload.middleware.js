@@ -21,7 +21,7 @@ const upload = multer({
 // Ví dụ: [{ name: 'avatar', type: 'image' }, { name: 'audio', type: 'video' }]
 
 const uploadCloudinary = (fields) => {
-    const multerFields = fields.map(f => ({ name: f.name, maxCount: 1 }));
+    const multerFields = fields.map(f => ({ name: f.name, maxCount: f.maxCount || 10 })); // Cho phép upload nhiều ảnh
     const uploadHandler = upload.fields(multerFields);
 
     return (req, res, next) => {
