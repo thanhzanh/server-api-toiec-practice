@@ -77,7 +77,7 @@ module.exports.index = async (req, res) => {
                 'thoi_gian_tao',
                 'thoi_gian_cap_nhat'
             ],
-            order: ['DESC'],
+            order: [['id_cau_hoi', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem
         });
