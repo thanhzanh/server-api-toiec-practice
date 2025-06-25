@@ -8,6 +8,7 @@ const PhuongTien = require('../models/phuongTien.model');
 const PhanCauHoi = require('../models/phanCauHoi.model');
 const CauHoiBaiThi = require('../models/cauHoiBaiThi.model');
 const BaiThi = require('../models/baiThi.model');
+const DoanVanPhuongTien = require('../models/doanVanPhuongTien.model');
 
 const setupAssociations = () => {
     console.log('Đang thiết lập mối quan hệ...');
@@ -39,6 +40,10 @@ const setupAssociations = () => {
     // CauHoiBaiThi relationships
     CauHoiBaiThi.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi', as: 'cau_hoi' });
     CauHoiBaiThi.belongsTo(BaiThi, { foreignKey: 'id_bai_thi', as: 'bai_thi_toiec' });
+
+    // DoanVanPhuongTien relationships
+    DoanVan.belongsToMany(PhuongTien, { through: DoanVanPhuongTien, foreignKey: 'id_doan_van', otherKey: 'id_phuong_tien', as: 'danh_sach_phuong_tien'  });
+    PhuongTien.belongsToMany(DoanVan, { through: DoanVanPhuongTien, foreignKey: 'id_phuong_tien', otherKey: 'id_doan_van', as: 'danh_sach_doan_van'  });
   
     console.log('Tất cả các mối quan hệ đã được thiết lập thành công!');
 };
