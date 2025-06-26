@@ -456,11 +456,8 @@ module.exports.importExcel = async (req, res) => {
                 console.log("ID phuong tien am thanh cache: ", id_phuong_tien);
                 
                 if (!id_phuong_tien) {
-                    const extractDriveFileId = (url) => {
-                        const match = url.match(/(?:\/d\/|id=)([a-zA-Z0-9_-]{10,})/);
-                        return match ? match[1] : null;
-                    };
-                    const fileId = extractDriveFileId(url_am_thanh);
+                    
+                    const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
                     const downloadUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
     
                     const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
