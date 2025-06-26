@@ -35,7 +35,7 @@ module.exports.index = async (req, res) => {
         // Phân trang
         let initPagination = {
             currentPage: 1,
-            limitItem: 10
+            limitItem: 20
         }
         const pagination = createPaginationQuery(
             initPagination,
@@ -450,6 +450,8 @@ module.exports.importExcel = async (req, res) => {
             // Xử lý âm thanh
             let amThanhId = null;
             if (url_am_thanh) {
+                console.log("Đang tải âm thanh từ: ", url_am_thanh);
+                
                 let id_phuong_tien = phuongTienCache.get(url_am_thanh);
                 console.log("ID phuong tien am thanh cache: ", id_phuong_tien);
                 
