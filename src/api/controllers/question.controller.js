@@ -461,7 +461,7 @@ module.exports.importExcel = async (req, res) => {
                         return match ? match[1] : null;
                     };
                     const fileId = extractDriveFileId(url_am_thanh);
-                    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                    const downloadUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
     
                     const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
                     console.log("Response axios: ", response);
