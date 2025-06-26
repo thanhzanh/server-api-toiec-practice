@@ -68,4 +68,12 @@ router.put("/edit/:id_bai_thi",
     controller.editExam
 );
 
+// Làm bài thi
+router.post("/submit-exam",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]),
+    logAction('Nộp bài thi'),
+    controller.submitExam
+);
+
 module.exports = router;
