@@ -11,7 +11,7 @@ const { where } = require('sequelize');
 const striptags = require('striptags');
 
 // Số lượng câu hỏi tối đa trong đề thi
-const MAX_QUESTION_TEST = 50;
+const MAX_QUESTION_TEST = 200;
 
 // Hàm tính điểm tối đa
 const calculateMaxScore = (tongSoCauHoi) => {
@@ -267,7 +267,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
 
         // Kiểm tra danh sách câu hỏi có hợp lệ không
         if (ds_cau_hoi.length > MAX_QUESTION_TEST) {
-            return res.status(400).json({ message: `Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} trong giai đoạn test!` });
+            return res.status(400).json({ message: `Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu!` });
         }
 
         // Kiểm tra danh sách câu hỏi
