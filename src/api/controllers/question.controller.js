@@ -538,9 +538,21 @@ module.exports.detail = async (req, res) => {
             {
                 include: [
                     { model: PhanCauHoi, as: 'phan', attributes: ['id_phan', 'ten_phan', 'loai_phan', 'mo_ta'] },
-                    { model: DoanVan, as: 'doan_van', attributes: ['tieu_de', 'noi_dung', 'id_phan'] },
-                    { model: PhuongTien, as: 'hinh_anh', attributes: ['url_phuong_tien'] },
-                    { model: PhuongTien, as: 'am_thanh', attributes: ['url_phuong_tien'] },
+                { 
+                    model: DoanVan, 
+                    as: 'doan_van', 
+                    attributes: ['id_doan_van', 'tieu_de','noi_dung', 'loai_doan_van', 'id_phan'],
+                    include: [
+                        { 
+                            model: PhuongTien,
+                            as: 'danh_sach_phuong_tien',
+                            attributes: ['id_phuong_tien', 'loai_phuong_tien', 'url_phuong_tien']
+                        }
+                    ]
+
+                },
+                    { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien','url_phuong_tien'] },
+                    { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien','url_phuong_tien'] },
                     { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
                 ],
                 attributes: [
