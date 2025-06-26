@@ -456,10 +456,16 @@ module.exports.importExcel = async (req, res) => {
                 console.log("ID phuong tien am thanh cache: ", id_phuong_tien);
                 
                 if (!id_phuong_tien) {
-                    const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
+                    const extractDriveFileId = (url) => {
+                        const match = url.match(/(?:\/d\/|id=)([a-zA-Z0-9_-]{10,})/);
+                        return match ? match[1] : null;
+                    };
+                    const fileId = extractDriveFileId(url_am_thanh);
                     const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
     
                     const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                    console.log("Response axios: ", response);
+                    
                     const buffer = Buffer.from(response.data);
     
                     const result = await streamUpload(buffer, 'video');
