@@ -38,6 +38,7 @@ const setupAssociations = () => {
     // BaiThi relationships
     BaiThi.belongsTo(NguoiDung, { foreignKey: 'nguoi_tao', targetKey: 'id_nguoi_dung', as: 'nguoi_tao_bai_thi' });
     BaiThi.hasMany(CauHoiBaiThi, { foreignKey: 'id_bai_thi', as: 'cau_hoi_cua_bai_thi' });
+    BaiThi.hasMany(BaiLamNguoiDung, { foreignKey: 'id_bai_thi', as: 'bai_lam' });
 
     // CauHoiBaiThi relationships
     CauHoiBaiThi.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi', as: 'cau_hoi' });
@@ -52,6 +53,8 @@ const setupAssociations = () => {
     BaiLamNguoiDung.belongsTo(BaiThi, { foreignKey: 'id_bai_thi', as: 'bai_thi_nguoi_dung' });
     BaiLamNguoiDung.hasMany(CauTraLoiNguoiDung, { foreignKey: 'id_bai_lam_nguoi_dung', as: 'cau_tra_loi' });
 
+    // CauTraLoiNguoiDung realationships
+    CauTraLoiNguoiDung.belongsTo(BaiLamNguoiDung, { foreignKey: 'id_bai_lam_nguoi_dung', as: 'bai_lam_cau_hoi' });
   
     console.log('Tất cả các mối quan hệ đã được thiết lập thành công!');
 };

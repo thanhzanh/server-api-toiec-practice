@@ -108,14 +108,21 @@ module.exports.index = async (req, res) => {
 // [POST] /api/exams/create
 module.exports.createExam = async (req, res) => {
     try {
-        const { ten_bai_thi, mo_ta, la_bai_thi_dau_vao, thoi_gian_bai_thi, nam_xuat_ban } = req.body;
+        const { ten_bai_thi, mo_ta, la_bai_thi_dau_vao, thoi_gian_bai_thi, nam_xuat_ban, loai_bai_thi } = req.body;
 
         if (!ten_bai_thi || !mo_ta || !thoi_gian_bai_thi || !nam_xuat_ban || typeof la_bai_thi_dau_vao !== 'boolean') {
             return res.status(400).json({ message: "Cần nhập đủ thông tin bài thi!" });
         }
 
-        if (thoi_gian_bai_thi <= 45 || thoi_gian_bai_thi > 120) {
-            return res.status(400).json({ message: "Thời gian làm bài thi không hợp lệ. Nẳm trong khoảng 45 đến 120p!" });
+        if (loai_bai_thi === 'chuan') {
+            if (parseInt(thoi_gian_bai_thi) !== 120) {
+                return res.status(400).json({ message: "Đề thi ETS TOIEC chuẩn cần thời gian phải là 120p!" });
+            }
+        } else if (loai_bai_thi === 'tu_do') {
+            const thoiGian = parseInt(thoi_gian_bai_thi);
+            if (thoiGian < 15 || thoiGian > 120) {
+                return res.status(400).json({ message: "Thời gian cho đề thi tự do nằm trong khoảng 15 đến 120 phút!" });
+            }
         }
 
         // Kiểm tra nam xuất bản
@@ -131,6 +138,7 @@ module.exports.createExam = async (req, res) => {
             thoi_gian_bai_thi,
             la_bai_thi_dau_vao,
             nam_xuat_ban,
+            loai_bai_thi: loai_bai_thi,
             trang_thai: "nhap",
             nguoi_tao: req.user.id_nguoi_dung
         });
@@ -146,6 +154,7 @@ module.exports.createExam = async (req, res) => {
                     'la_bai_thi_dau_vao',
                     'thoi_gian_bai_thi',
                     'nam_xuat_ban',
+                    'loai_bai_thi',
                     'trang_thai',
                     'so_luong_cau_hoi',
                     'diem_toi_da',
@@ -281,36 +290,54 @@ module.exports.addQuestionsToExam = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi!" });
         }
 
+        // Loại đề thi
+        const loaiDeThi = exam.loai_bai_thi;
+
         // Kiểm tra số câu đúng câu trúc của từng Part
         const cauTrucToiec = { 1: 6, 2: 25, 3: 39, 4: 30, 5: 30, 6: 16, 7: 54 };
 
-        // Đếm số câu theo Part
-        const demSoCauTheoPart = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
-
-        for (let i = 0; i < ds_cau_hoi.length; i++) {        
-            const cauHoi = await NganHangCauHoi.findByPk(ds_cau_hoi[i]);   
-            
-            const part = cauHoi.id_phan;
-            if (demSoCauTheoPart[part] !== undefined) {
-                demSoCauTheoPart[part]++;
-            }
-            console.log(`Câu hỏi ${ds_cau_hoi[i]} - Part ${part}`);
-        }
-
         let thongBaoLoi = [];
-        for (const part in cauTrucToiec) {
-            const soCauThucTe = demSoCauTheoPart[part];
-            const soCauChuanPart = cauTrucToiec[part];
-
-            if (soCauThucTe !== soCauChuanPart) {
-                thongBaoLoi.push(`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi!`);
+        if (loaiDeThi === 'chuan') {
+            // Đếm số câu theo Part
+            const demSoCauTheoPart = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+    
+            for (let i = 0; i < ds_cau_hoi.length; i++) {        
+                const cauHoi = await NganHangCauHoi.findByPk(ds_cau_hoi[i]);   
+                
+                const part = cauHoi.id_phan;
+                if (demSoCauTheoPart[part] !== undefined) {
+                    demSoCauTheoPart[part]++;
+                }
+                console.log(`Câu hỏi ${ds_cau_hoi[i]} - Part ${part}`);
             }
+    
+            for (const part in cauTrucToiec) {
+                const soCauThucTe = demSoCauTheoPart[part];
+                const soCauChuanPart = cauTrucToiec[part];
+    
+                if (soCauThucTe !== soCauChuanPart) {
+                    thongBaoLoi.push(`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi!`);
+                }
+            }
+    
+            // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
+        } else if (loaiDeThi === 'tu_do') {
+            if (ds_cau_hoi.length > MAX_QUESTION_TEST) {
+                thongBaoLoi.push({ message: `Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu!` });
+            }
+
+            for (const part in cauTrucToiec) {
+                if (cauTrucToiec[part] === 0) {
+                    thongBaoLoi.push({ message: `Part ${part} yêu cầu ít nhất 1 câu!` });
+                }
+            }
+        } else {
+            return res.status(400).json({ message: `Loại bài thi không hợp lệ: ${loaiDeThi}!` });
         }
 
         if (thongBaoLoi.length > 0) {
-            return res.status(400).json({ message: thongBaoLoi.join('\n') });
+            return res.status(400).json({ message: thongBaoLoi });
         }
-        // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
         
         // Duyệt qua danh sách câu hỏi
         const questionsToAdd = [];
@@ -337,7 +364,13 @@ module.exports.addQuestionsToExam = async (req, res) => {
         const tong_so_cau_hoi = ds_cau_hoi.length;
         const diem_toi_da = calculateMaxScore(tong_so_cau_hoi);
         const muc_do_diem = `0-${diem_toi_da}`;
-        const da_hoan_thien = tong_so_cau_hoi === MAX_QUESTION_TEST;
+
+        let da_hoan_thien = false;
+        if (loaiDeThi === 'chuan') {
+            da_hoan_thien = tong_so_cau_hoi === MAX_QUESTION_TEST;
+        } else if (loaiDeThi === 'tu_do') {
+            da_hoan_thien = true;
+        }
 
         // Cập nhật đề thi với thông tin còn lại
         await BaiThi.update(
@@ -364,9 +397,20 @@ module.exports.addQuestionsToExam = async (req, res) => {
                             attributes: ['id_cau_hoi', 'noi_dung', 'dap_an_dung', 'giai_thich', 'muc_do_kho', 'trang_thai'],
                             include: [
                                 { model: PhanCauHoi, as: 'phan', attributes: ['id_phan', 'ten_phan', 'loai_phan', 'mo_ta'] },
-                                { model: DoanVan, as: 'doan_van', attributes: ['id_doan_van', 'tieu_de', 'noi_dung'] },
-                                { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien'] },
-                                { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien'] },
+                                { 
+                                    model: DoanVan, 
+                                    as: 'doan_van', 
+                                    attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'id_phan', 'thoi_gian_tao'],
+                                    include: [
+                                        {
+                                            model: PhuongTien,
+                                            as: 'danh_sach_phuong_tien',
+                                            attributes: ['id_phuong_tien', 'loai_phuong_tien', 'url_phuong_tien']
+                                        }
+                                    ] 
+                                },
+                                { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
+                                { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
                                 { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
                             ]
                         }

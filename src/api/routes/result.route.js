@@ -20,4 +20,12 @@ router.get("/",
     controller.index
 );
 
+// Xem chi tiết kết quả làm bài thi
+router.get("/detail/:id_bai_lam_nguoi_dung", 
+    authenticateUser, 
+    authorizeRole(["quan_tri_vien"]), 
+    logAction('Xem chi tiết kết quả làm bài thi'),
+    controller.detail
+);
+
 module.exports = router;

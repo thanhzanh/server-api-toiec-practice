@@ -200,3 +200,33 @@ module.exports.index = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+// [GET] /api/results/detail/:id_bai_lam_nguoi_dung
+module.exports.detail = async (req, res) => {
+    try {
+        const { id_bai_lam_nguoi_dung } = req.params;
+
+        const baiLam = await BaiLamNguoiDung.findByPk(id_bai_lam_nguoi_dung, {
+            include: [
+                { 
+                    model: NguoiDung, as: 'nguoi_dung_lam_bai', attributes: ['email', 'ten_dang_nhap'],
+                    include: [
+                        { model: HoSoNguoiDung, as: 'ho_so', attributes: ['ho_ten'] }
+                    ],
+                },
+                
+            ]
+        });
+        if (!baiLam) {
+            return res.status(400).json({ message: 'Bài làm người dùng không tồn tại!' });
+        }
+
+        res.status(200).json({ 
+            message: 'Danh sách bài làm người dùng',
+            data: baiLam
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
