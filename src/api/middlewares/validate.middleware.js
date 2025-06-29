@@ -55,7 +55,6 @@ const loginValidation = [
 const forgotPasswordValidation = [
     body('email')
         .isEmail().withMessage('Email không hợp lệ')
-        .notEmpty().withMessage('Email là bắt buộc')
         .custom(async (value) => {
             const existingUser = await NguoiDung.findOne({ where: { email: value } });
             if (existingUser) {
@@ -68,8 +67,7 @@ const forgotPasswordValidation = [
 // Validation cho xác thực mã otp
 const vertifyOtpValidation = [
     body('email')
-        .isEmail().withMessage('Email không hợp lệ')
-        .notEmpty().withMessage('Email là bắt buộc'),
+        .isEmail().withMessage('Email không hợp lệ'),
     body('otp_code')
         .isLength({ min: 6, max: 6 }).withMessage('Mã OTP phải có đủ 6 chữ số')
         .matches(/^\d{6}$/).withMessage('Mã OTP chỉ được là số')
@@ -79,8 +77,7 @@ const vertifyOtpValidation = [
 // Validation cho lấy lại mật khẩu
 const resetPasswordValidation = [
     body('email')
-        .isEmail().withMessage('Email không hợp lệ')
-        .notEmpty().withMessage('Email là bắt buộc'),
+        .isEmail().withMessage('Email không hợp lệ'),
     body('mat_khau_moi')
         .isLength({ min: 8 }).withMessage('Mật khẩu phải ít nhất ký tự')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/).withMessage('Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt')

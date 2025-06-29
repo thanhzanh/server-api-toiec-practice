@@ -1,6 +1,6 @@
 const NguoiDung = require("../../models/nguoiDung.model");
-const MaXacMinhEmail = require("../../models/nguoiDung.model");
-const HoSoNguoiDung = require("../../models/nguoiDung.model");
+const MaXacMinhEmail = require("../../models/maXacMinhEmail.model");
+const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const generateHelper = require("../../utils/generate");
 const sendMailHelper = require("../../utils/sendMail");
 const { Sequelize } = require('sequelize');
@@ -118,7 +118,7 @@ module.exports.forgotPassword = async(req, res) => {
         await MaXacMinhEmail.create({
             id_nguoi_dung: user.id_nguoi_dung,
             otp_code: otp,
-            thoi_gian_het_han: Date.now() + thoi_gian * 60 * 1000
+            thoi_gian_het_han: new Date(Date.now() + thoi_gian * 60 * 1000)
         });
         
         // Gửi OTP qua email cho người dùng
@@ -135,6 +135,7 @@ module.exports.forgotPassword = async(req, res) => {
             message: "Mã OTP đã được gửi đến email của bạn"
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: error.message });
     }
 };

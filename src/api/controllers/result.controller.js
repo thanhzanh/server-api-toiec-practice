@@ -4,9 +4,12 @@ const NganHangCauHoi = require("../../models/nganHangCauHoi.model");
 const PhanCauHoi = require("../../models/phanCauHoi.model");
 const CauTraLoiNguoiDung = require("../../models/cauTraLoiNguoiDung.model");
 const LuaChon = require("../../models/luaChon.model");
+const NguoiDung = require("../../models/nguoiDung.model");
+const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicScoreTable');
+const { createPaginationQuery } = require('../../utils/pagination');
 
-// [POST] /api/exams/submit-exam
+// [POST] /api/results/submit-exam
 module.exports.submitExam = async (req, res) => {
     try {      
         const { id_nguoi_dung, id_bai_thi, answers } = req.body;    
@@ -138,6 +141,61 @@ module.exports.submitExam = async (req, res) => {
                 readingScore
             }
         });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/results/index
+module.exports.index = async (req, res) => {
+    try {
+        const { page, limit, id_nguoi_dung, id_bai_thi } = req.query;
+
+        const where = {};
+        // Điều kiện lọc
+        if (id_nguoi_dung) where.id_nguoi_dung = id_nguoi_dung;  
+        if (id_bai_thi) where.id_bai_thi = id_bai_thi;
+
+        // Đếm tổng số bài làm người dùng
+        const count = await BaiLamNguoiDung.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 20
+        };
+
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy tất cả bài làm người dùng
+        const records = await BaiLamNguoiDung.findAll({
+            where,
+            include: [
+                { 
+                    model: NguoiDung, as: 'nguoi_dung_lam_bai', attributes: ['email', 'ten_dang_nhap'],
+                    include: [
+                        { model: HoSoNguoiDung, as: 'ho_so', attributes: ['ho_ten'] }
+                    ],
+                }
+            ],
+            attributes: ['id_bai_lam_nguoi_dung', 'id_nguoi_dung', 'id_bai_thi', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'diem_nghe', 'diem_doc', 'tong_diem', 'da_hoan_thanh'],
+            order: [['thoi_gian_ket_thuc', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
+
+        res.status(200).json({ 
+            message: 'Danh sách bài làm người dùng',
+            data: records
+        });
+
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

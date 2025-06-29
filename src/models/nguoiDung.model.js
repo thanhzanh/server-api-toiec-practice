@@ -11,7 +11,7 @@ const NguoiDung = sequelize.define(
     },
     email: {
       type: DataTypes.STRING(100),
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     ten_dang_nhap: {
@@ -21,7 +21,7 @@ const NguoiDung = sequelize.define(
     },
     mat_khau: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     id_google: {
       type: DataTypes.STRING(100),
