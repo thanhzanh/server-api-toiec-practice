@@ -1,7 +1,7 @@
 const PhanCauHoi = require('../../models/phanCauHoi.model');
 const DoanVan = require('../../models/doanVan.model');
 const NganHangCauHoi = require('../../models/nganHangCauHoi.model');
-const { createPaginationQuery } = require('../../helpers/pagination');
+const { createPaginationQuery } = require('../../utils/pagination');
 const striptags = require('striptags');
 const PhuongTien = require('../../models/phuongTien.model');
 const { streamUpload } = require('../middlewares/uploadCloud.middleware');

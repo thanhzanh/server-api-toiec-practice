@@ -5,7 +5,7 @@ const PhuongTien = require("../../models/phuongTien.model");
 const LuaChon = require("../../models/luaChon.model");
 const CauHoiBaiThi = require("../../models/cauHoiBaiThi.model");
 const DoanVanPhuongTien = require("../../models/doanVanPhuongTien.model");
-const { createPaginationQuery } = require('../../helpers/pagination');
+const { createPaginationQuery } = require('../../utils/pagination');
 const { upload } = require('../middlewares/uploadCloud.middleware');
 const { streamUpload } = require('../middlewares/uploadCloud.middleware')
 const striptags = require('striptags');
@@ -357,7 +357,7 @@ module.exports.importExcel = async (req, res) => {
         const doanVanCache = new Map(); // Map {tieu_de, noi_dung} -> id_doan_van
 
         for (const row of results) {
-            const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
+            const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, loai_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
 
             const part = parseInt(id_phan);
             if (part < 1 || part > 7) {
@@ -382,6 +382,7 @@ module.exports.importExcel = async (req, res) => {
                 const whereDoanVan = {};
                 if (tieu_de_doan_van) whereDoanVan.tieu_de = tieu_de_doan_van;
                 if (noi_dung_doan_van) whereDoanVan.noi_dung = noi_dung_doan_van;
+                if (loai_doan_van) whereDoanVan.loai_doan_van = loai_doan_van;
                 // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
                 const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}`;
                 console.log("Key tieu doan van: ", keyTieuDoanVan);
@@ -396,6 +397,7 @@ module.exports.importExcel = async (req, res) => {
                             id_phan: newQuestion.id_phan,
                             tieu_de: tieu_de_doan_van,
                             noi_dung: noi_dung_doan_van || null,
+                            loai_doan_van: loai_doan_van,
                             thoi_gian_tao: new Date(),
                         },
                     });

@@ -7,7 +7,7 @@ const LuaChon = require('../../models/luaChon.model');
 const CauHoiBaiThi = require('../../models/cauHoiBaiThi.model');
 const BaiLamNguoiDung = require('../../models/baiLamNguoiDung.model');
 const DoanVanPhuongTien = require('../../models/doanVanPhuongTien.model');
-const { createPaginationQuery } = require('../../helpers/pagination');
+const { createPaginationQuery } = require('../../utils/pagination');
 const { where } = require('sequelize');
 const striptags = require('striptags');
 
@@ -258,7 +258,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
         const { ds_cau_hoi } = req.body;
-        console.log("Danh sách câu hỏi: ", ds_cau_hoi);
         
         // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
@@ -424,7 +423,7 @@ module.exports.getDraftExam = async (req, res) => {
                                 { 
                                     model: DoanVan, 
                                     as: 'doan_van', 
-                                    attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'thoi_gian_tao'],
+                                    attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'id_phan', 'thoi_gian_tao'],
                                     include: [
                                         {
                                             model: PhuongTien,

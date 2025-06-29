@@ -1,7 +1,7 @@
 const NguoiDung = require("../../models/nguoiDung.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
-const { createPaginationQuery } = require('../../helpers/pagination');
-const { createSearchQuery } = require('../../helpers/search');
+const { createPaginationQuery } = require('../../utils/pagination');
+const { createSearchQuery } = require('../../utils/search');
 const dayjs = require('dayjs');
 const { Op, where } = require('sequelize');
 

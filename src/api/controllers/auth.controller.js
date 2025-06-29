@@ -1,8 +1,8 @@
 const NguoiDung = require("../../models/nguoiDung.model");
 const MaXacMinhEmail = require("../../models/nguoiDung.model");
 const HoSoNguoiDung = require("../../models/nguoiDung.model");
-const generateHelper = require("../../helpers/generate");
-const sendMailHelper = require("../../helpers/sendMail");
+const generateHelper = require("../../utils/generate");
+const sendMailHelper = require("../../utils/sendMail");
 const { Sequelize } = require('sequelize');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require("bcrypt");

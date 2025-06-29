@@ -35,6 +35,10 @@ const BaiThi = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    loai_bai_thi: {
+      type: DataTypes.ENUM('tu_do', 'chuan'),
+      defaultValue: 'chuan'
+    },
     trang_thai: {
       type: DataTypes.ENUM('nhap', 'da_xuat_ban', 'luu_tru'),
       defaultValue: 'nhap'
