@@ -77,6 +77,7 @@ module.exports.index = async (req, res) => {
                 'so_luong_cau_hoi',
                 'diem_toi_da',
                 'muc_do_diem',
+                'loai_bai_thi',
                 'da_hoan_thien',
                 'nguoi_tao',
                 'thoi_gian_tao',
@@ -620,5 +621,83 @@ module.exports.editExam = async (req, res) => {
         
     } catch (error) {
         return res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/get-all-exam-public
+module.exports.getExamTest = async (req, res) => {
+    try {
+        const { page, limit, nam_xuat_ban } = req.query;
+        
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false,
+            trang_thai: 'da_xuat_ban',
+            la_bai_thi_dau_vao: false
+        };
+        if (nam_xuat_ban) where.nam_xuat_ban = nam_xuat_ban;
+
+        // Đếm tổng số bản ghi
+        const count = await BaiThi.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        };
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy danh sách năm xuất bản
+        const dsNamXuatBan = await BaiThi.findAll({ 
+            attributes: ['nam_xuat_ban'],
+            where: { da_xoa: false },
+            group: ['nam_xuat_ban'],
+            order: [['nam_xuat_ban', 'ASC']]
+        });
+
+        // Lấy danh sách đề thi theo bộ lọc
+        const exams = await BaiThi.findAll({
+            where,
+            attributes: [
+                'id_bai_thi',
+                'ten_bai_thi',
+                'mo_ta',
+                'la_bai_thi_dau_vao',
+                'nam_xuat_ban',
+                'trang_thai',
+                'so_luong_cau_hoi',
+                'diem_toi_da',
+                'muc_do_diem',
+                'loai_bai_thi',
+                'da_hoan_thien',
+                'nguoi_tao',
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
+            ],
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
+
+        res.status(200).json({
+            message: "Đã lấy danh sách đề thi thành công!",
+            data: exams,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+            dsNamXuatBan
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
