@@ -450,6 +450,7 @@ module.exports.getDraftExam = async (req, res) => {
                 'la_bai_thi_dau_vao',
                 'nam_xuat_ban',
                 'diem_toi_da',
+                'loai_bai_thi',
                 'trang_thai',
                 'nguoi_tao',
                 'thoi_gian_tao',
@@ -699,6 +700,76 @@ module.exports.getExamTest = async (req, res) => {
             },
             dsNamXuatBan
         });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/exams/detail-exam-public/:id_bai_thi
+module.exports.detailExamTest = async (req, res) => {
+    try {
+        const { id_bai_thi } = req.params;
+        // Kiểm tra đề thi tồn tại không
+        const detailExamTest = await BaiThi.findByPk(id_bai_thi,{
+            attributes: [
+                'id_bai_thi',
+                'ten_bai_thi',
+                'mo_ta',
+                'so_luong_cau_hoi',
+                'muc_do_diem',
+                'thoi_gian_bai_thi',
+                'la_bai_thi_dau_vao',
+                'nam_xuat_ban',
+                'diem_toi_da',
+                'loai_bai_thi',
+                'trang_thai',
+                'nguoi_tao',
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
+            ],
+            include: [
+                {
+                    model: CauHoiBaiThi,
+                    as: 'cau_hoi_cua_bai_thi',
+                    include: [
+                        {
+                            model: NganHangCauHoi,
+                            as: 'cau_hoi',
+                            attributes: ['id_cau_hoi', 'noi_dung', 'dap_an_dung', 'giai_thich', 'muc_do_kho', 'trang_thai', 'id_phuong_tien_hinh_anh', 'id_phuong_tien_am_thanh', 'id_phan', 'id_doan_van', 'nguon_goc', 'thoi_gian_tao', 'thoi_gian_cap_nhat'],
+                            include: [
+                                { model: PhanCauHoi, as: 'phan', attributes: ['id_phan', 'ten_phan', 'loai_phan', 'mo_ta'] },
+                                { 
+                                    model: DoanVan, 
+                                    as: 'doan_van', 
+                                    attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'id_phan', 'thoi_gian_tao'],
+                                    include: [
+                                        {
+                                            model: PhuongTien,
+                                            as: 'danh_sach_phuong_tien',
+                                            attributes: ['id_phuong_tien', 'loai_phuong_tien', 'url_phuong_tien']
+                                        }
+                                    ] 
+                                },
+                                { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
+                                { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
+                                { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
+                            ]
+                        }
+                    ], 
+                    attributes: ['id_cau_hoi', 'id_bai_thi']
+                }
+            ]
+        });
+
+        if (!detailExamTest) {
+            return res.status(400).json({ message: "Đề thi không tồn tại!" });
+        }
+
+        res.status(200).json({ 
+            message: "Lấy thông tin chi tiết đề thi thành công!",
+            data: detailExamTest
+        });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

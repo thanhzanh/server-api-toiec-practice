@@ -68,7 +68,10 @@ router.put("/edit/:id_bai_thi",
     controller.editExam
 );
 
-// Hiển thị danh sách đề thi ngoài user
-router.get("/get-all-exam-public", controller.getExamTest);
+// Hiển thị danh sách đề thi ngoài người dùng
+router.get("/get-all-exam-public", logAction('Hiển thị danh sách đề thi ngoài người dùng'), controller.getExamTest);
+
+// Xem chi tiết đề thi ngoài người dùng
+router.get("/detail-exam-public/:id_bai_thi", logAction('Xem chi tiết đề thi ngoài người dùng'), controller.detailExamTest);
 
 module.exports = router;
