@@ -7,7 +7,7 @@ const logAction = require('../middlewares/log.middleware');
 // Làm bài thi
 router.post("/submit-exam",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]),
+    authorizeRole(["quan_tri_vien", "nguoi_dung"]), 
     logAction('Nộp bài thi'),
     controller.submitExam
 );
@@ -15,7 +15,7 @@ router.post("/submit-exam",
 // Lấy danh sách kết quả làm bài thi
 router.get("/", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizeRole(["quan_tri_vien", "nguoi_dung"]), 
     logAction('Lấy danh sách kết quả làm bài thi'),
     controller.index
 );
@@ -23,7 +23,7 @@ router.get("/",
 // Xem chi tiết kết quả làm bài thi
 router.get("/detail/:id_bai_lam_nguoi_dung", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizeRole(["quan_tri_vien", "nguoi_dung"]), 
     logAction('Xem chi tiết kết quả làm bài thi'),
     controller.detail
 );
