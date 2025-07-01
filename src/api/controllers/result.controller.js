@@ -17,6 +17,8 @@ const { createPaginationQuery } = require('../../utils/pagination');
 module.exports.submitExam = async (req, res) => {
     try {      
         const { id_nguoi_dung, id_bai_thi, answers } = req.body;    
+        console.log("Data request: ", req.body);
+        
     
         // Kiểm tra đề thi
         const exam = await BaiThi.findByPk(id_bai_thi, {
@@ -112,18 +114,18 @@ module.exports.submitExam = async (req, res) => {
         }
     
         // Quy đổi điểm thi từng phần
-        let listeningScore, readingScore;
+        let listeningScore = 0, readingScore = 0;
         if (loai_bai_thi === 'chuan' && so_luong_cau_hoi === 200) {
-            listeningScore = listeningScoreTable[correctListening];
-            readingScore = listeningScoreTable[correctReading];
+            listeningScore = listeningScoreTable[correctListening] || 5;
+            readingScore = listeningScoreTable[correctReading] || 5;
         } else {
             // Tỉ lệ câu đúng quy về thang 100
-            const tiLeCauDungListening = Math.round((correctListening / maxListeningQuestion) * 100);
-            const tiLeCauDungReading = Math.round((correctReading / maxReadingQuestion) * 100);
+            const tiLeCauDungListening = maxListeningQuestion > 0 ? Math.round((correctListening / maxListeningQuestion) * 100) : 0;
+            const tiLeCauDungReading = maxReadingQuestion > 0 ? Math.round((correctReading / maxReadingQuestion) * 100) : 0;
     
             // Tính dựa trên thang điểm
-            listeningScore = listeningScoreTable[tiLeCauDungListening];
-            readingScore = readingScoreTable[tiLeCauDungReading];
+            listeningScore = listeningScoreTable[tiLeCauDungListening] || 5;
+            readingScore = readingScoreTable[tiLeCauDungReading] || 5;
         }
     
         // Tổng điểm Reading và Listening

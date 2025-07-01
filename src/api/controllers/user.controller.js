@@ -213,7 +213,7 @@ module.exports.editUser = async(req, res) => {
             if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai === "" ? null : so_dien_thoai;
             if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien ===  "" ? null : url_hinh_dai_dien;
             if (dia_chi !== undefined) updateData.dia_chi = dia_chi === "" ? null : dia_chi;
-            if (ngay_sinh !== undefined) updateData.ngay_sinh = parseDate(ngay_sinh);
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh === "" ? null : parseDate(ngay_sinh);
             if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu === "" ? null : gioi_thieu;
 
             // Chỉ update nếu có dữ liệu thay đổi
@@ -330,7 +330,7 @@ module.exports.updateProfile = async(req, res) => {
             if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai === "" ? null : so_dien_thoai;
             if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien ===  "" ? null : url_hinh_dai_dien;
             if (dia_chi !== undefined) updateData.dia_chi = dia_chi === "" ? null : dia_chi;
-            if (ngay_sinh !== undefined) updateData.ngay_sinh = parseDate(ngay_sinh);
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh === "" ? null : parseDate(ngay_sinh);
             if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu === "" ? null : gioi_thieu;
 
             // Chỉ update nếu có dữ liệu thay đổi

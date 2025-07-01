@@ -125,8 +125,13 @@ const updateProfileValidation = [
         }),
     body('url_hinh_dai_dien')
         .optional()
-        .isURL().withMessage('URL hình đại diện không hợp lệ')
-        .matches(/\.(png|jpg|jpeg|gif)$/i).withMessage('Hình đại diện phải có dạng .png .jpg .jpeg .gif'),
+        .custom((value) => {
+            if (!value) return true;
+            // Kiểm tra URL đúng định dạng
+            const isUrl = /^https?:\/\/.+\.(png|jpg|jpeg)$/i.test(value);
+            if (!isUrl) throw new Error('Hình đại diện phải là URL hợp lệ và có đuôi bằng .png, .jpg, .jpeg');
+            return true;
+        }),
     body('dia_chi')
         .optional()
         .isLength({ max: 255 }).withMessage('Địa chỉ không được vượt quá 255 ký tự'),

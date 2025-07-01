@@ -7,7 +7,7 @@ const logAction = require('../middlewares/log.middleware');
 // Làm bài thi
 router.post("/submit-exam",
     authenticateUser,
-    authorizeRole(["quan_tri_vien", "nguoi_dung"]), 
+    authorizeRole(["nguoi_dung"]), 
     logAction('Nộp bài thi'),
     controller.submitExam
 );
