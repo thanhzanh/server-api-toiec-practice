@@ -7,54 +7,15 @@ const LuaChon = require('../../models/luaChon.model');
 const CauHoiBaiThi = require('../../models/cauHoiBaiThi.model');
 const BaiLamNguoiDung = require('../../models/baiLamNguoiDung.model');
 const DoanVanPhuongTien = require('../../models/doanVanPhuongTien.model');
+const MucDoToiec = require('../../models/mucDoToiec');
 const { createPaginationQuery } = require('../../utils/pagination');
 const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicScoreTable');
-const { where } = require('sequelize');
+const { layMucDoDiemToiecTuDiemToiDa, calculateDiemToiDaTheoDoKho } = require('../../utils/toeicUtils');
+const { where, Op } = require('sequelize');
 const striptags = require('striptags');
 
 // Số lượng câu hỏi tối đa trong đề thi
 const MAX_QUESTION_TEST = 200;
-
-// Hàm tính điểm tối đa
-const calculateMaxScore = async (ds_cau_hoi) => {
-    const questions = await NganHangCauHoi.findAll({
-        include: [ { model: PhanCauHoi, as: 'phan', attributes: ['loai_phan'] } ],
-        where: {
-            id_cau_hoi: ds_cau_hoi.map(cauHoi => cauHoi.id_cau_hoi),
-            da_xoa: false
-        }
-    });
-
-    const count = { listening: 0, reading: 0 };
-
-    questions.forEach(question => {
-        if (question.phan.loai_phan === 'listening') count.listening++;
-        if (question.phan.loai_phan === 'reading') count.reading++;
-    });
-
-    // Tổng số câu Listening và Reading
-    const totalListening = count.listening;
-    const totalReading = count.reading;
-    const totalListeningReading = 0;
-    totalListeningReading = totalListening + totalReading;
-
-    if (totalListeningReading === 0) return 0;
-
-    // Tỉ lệ số câu đúng
-    const tiLeCauDungListening = totalListening > 0 ? 1 : 0;
-    const tiLeCauDungReading = totalReading > 0 ? 1 : 0;
-
-    // Quy về 100
-    const scaledListeningCorrect = Math.round(tiLeCauDungListening * 100);
-    const scaledReadingCorrect = Math.round(tiLeCauDungReading * 100);
-
-    // Tính dựa trên thang điểm
-    let listeningScore = 0, readingScore = 0;
-    listeningScore = listeningScoreTable[scaledListeningCorrect] || 5;
-    readingScore = readingScoreTable[scaledReadingCorrect] || 5;
-
-    return listeningScore + readingScore;
-};
 
 // [GET] /api/exams
 module.exports.index = async (req, res) => {
@@ -401,8 +362,10 @@ module.exports.addQuestionsToExam = async (req, res) => {
 
         // Cập nhật thông tin đề thi
         const tong_so_cau_hoi = ds_cau_hoi.length;
-        const diem_toi_da = calculateMaxScore(tong_so_cau_hoi);
-        const muc_do_diem = `0-${diem_toi_da}`;
+        const diem_toi_da = await calculateDiemToiDaTheoDoKho(ds_cau_hoi);
+        const muc_do_info = await layMucDoDiemToiecTuDiemToiDa(diem_toi_da);
+        const muc_do_diem = `${muc_do_info.range[0]}-${muc_do_info.range[1]}`;
+        const id_muc_do = muc_do_info.id_muc_do;
 
         let da_hoan_thien = false;
         if (loaiDeThi === 'chuan') {
@@ -417,6 +380,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
                 so_luong_cau_hoi: tong_so_cau_hoi,
                 diem_toi_da: diem_toi_da,
                 muc_do_diem: muc_do_diem,
+                id_muc_do: id_muc_do,
                 da_hoan_thien: da_hoan_thien,
                 thoi_gian_cap_nhat: new Date()
             },
@@ -488,6 +452,7 @@ module.exports.getDraftExam = async (req, res) => {
                 'nam_xuat_ban',
                 'diem_toi_da',
                 'loai_bai_thi',
+                'id_muc_do',
                 'trang_thai',
                 'nguoi_tao',
                 'thoi_gian_tao',
