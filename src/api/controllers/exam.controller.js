@@ -8,6 +8,7 @@ const CauHoiBaiThi = require('../../models/cauHoiBaiThi.model');
 const BaiLamNguoiDung = require('../../models/baiLamNguoiDung.model');
 const DoanVanPhuongTien = require('../../models/doanVanPhuongTien.model');
 const { createPaginationQuery } = require('../../utils/pagination');
+const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicScoreTable');
 const { where } = require('sequelize');
 const striptags = require('striptags');
 
@@ -15,8 +16,44 @@ const striptags = require('striptags');
 const MAX_QUESTION_TEST = 200;
 
 // Hàm tính điểm tối đa
-const calculateMaxScore = (tongSoCauHoi) => {
-    return Math.round((tongSoCauHoi / MAX_QUESTION_TEST) * 990);
+const calculateMaxScore = async (ds_cau_hoi) => {
+    const questions = await NganHangCauHoi.findAll({
+        include: [ { model: PhanCauHoi, as: 'phan', attributes: ['loai_phan'] } ],
+        where: {
+            id_cau_hoi: ds_cau_hoi.map(cauHoi => cauHoi.id_cau_hoi),
+            da_xoa: false
+        }
+    });
+
+    const count = { listening: 0, reading: 0 };
+
+    questions.forEach(question => {
+        if (question.phan.loai_phan === 'listening') count.listening++;
+        if (question.phan.loai_phan === 'reading') count.reading++;
+    });
+
+    // Tổng số câu Listening và Reading
+    const totalListening = count.listening;
+    const totalReading = count.reading;
+    const totalListeningReading = 0;
+    totalListeningReading = totalListening + totalReading;
+
+    if (totalListeningReading === 0) return 0;
+
+    // Tỉ lệ số câu đúng
+    const tiLeCauDungListening = totalListening > 0 ? 1 : 0;
+    const tiLeCauDungReading = totalReading > 0 ? 1 : 0;
+
+    // Quy về 100
+    const scaledListeningCorrect = Math.round(tiLeCauDungListening * 100);
+    const scaledReadingCorrect = Math.round(tiLeCauDungReading * 100);
+
+    // Tính dựa trên thang điểm
+    let listeningScore = 0, readingScore = 0;
+    listeningScore = listeningScoreTable[scaledListeningCorrect] || 5;
+    readingScore = readingScoreTable[scaledReadingCorrect] || 5;
+
+    return listeningScore + readingScore;
 };
 
 // [GET] /api/exams

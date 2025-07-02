@@ -160,7 +160,7 @@ module.exports.deleteUser = async(req, res) => {
     }
 };
 
-// [PUT] /api/users/edit/:id_nguoi_dung
+// [PATCH] /api/users/edit/:id_nguoi_dung
 module.exports.editUser = async(req, res) => {
     try {
         const { ten_dang_nhap, ho_ten, so_dien_thoai, url_hinh_dai_dien, dia_chi, ngay_sinh, gioi_thieu, trang_thai } = req.body;        
@@ -279,7 +279,7 @@ module.exports.changeStatus = async(req, res) => {
     }
 };
 
-// [PUT] /api/users/update-profile
+// [PATCH] /api/users/update-profile
 module.exports.updateProfile = async(req, res) => {
     try {
         

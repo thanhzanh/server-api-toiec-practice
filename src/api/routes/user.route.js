@@ -33,7 +33,7 @@ router.delete("/delete/:id_nguoi_dung",
 );
 
 // Sửa tài khoản người dùng (quản trị viên)
-router.put("/edit/:id_nguoi_dung", 
+router.patch("/edit/:id_nguoi_dung", 
     authenticateUser, 
     authorizeRole(["quan_tri_vien"]), 
     uploadCloudinary([{ name: 'hinh_dai_dien', type: 'image' }]),
@@ -59,7 +59,7 @@ router.get("/me",
 );
 
 // Cập nhật thông tin cá nhân người dùng 
-router.put("/update-profile",
+router.patch("/update-profile",
     authenticateUser,
     authorizeRole(["nguoi_dung"]),
     uploadCloudinary([{ name: 'hinh_dai_dien', type: 'image' }]),

@@ -17,9 +17,7 @@ const { createPaginationQuery } = require('../../utils/pagination');
 module.exports.submitExam = async (req, res) => {
     try {      
         const { id_nguoi_dung, id_bai_thi, answers } = req.body;    
-        console.log("Data request: ", req.body);
-        
-    
+            
         // Kiểm tra đề thi
         const exam = await BaiThi.findByPk(id_bai_thi, {
             attributes: ['diem_toi_da', 'so_luong_cau_hoi', 'loai_bai_thi']
