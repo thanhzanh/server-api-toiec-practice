@@ -384,7 +384,7 @@ module.exports.importExcel = async (req, res) => {
                 if (noi_dung_doan_van) whereDoanVan.noi_dung = noi_dung_doan_van;
                 if (loai_doan_van) whereDoanVan.loai_doan_van = loai_doan_van;
                 // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
-                const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}`;
+                const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}|${loai_doan_van || ''}`;
                 console.log("Key tieu doan van: ", keyTieuDoanVan);
                 
                 id_doan_van = doanVanCache.get(keyTieuDoanVan);
@@ -397,7 +397,7 @@ module.exports.importExcel = async (req, res) => {
                             id_phan: newQuestion.id_phan,
                             tieu_de: tieu_de_doan_van,
                             noi_dung: noi_dung_doan_van || null,
-                            loai_doan_van: loai_doan_van,
+                            loai_doan_van: loai_doan_van || null,
                             thoi_gian_tao: new Date(),
                         },
                     });

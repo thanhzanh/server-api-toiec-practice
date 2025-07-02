@@ -11,6 +11,7 @@ const BaiThi = require('../models/baiThi.model');
 const DoanVanPhuongTien = require('../models/doanVanPhuongTien.model');
 const BaiLamNguoiDung = require('../models/baiLamNguoiDung.model');
 const CauTraLoiNguoiDung = require('../models/cauTraLoiNguoiDung.model');
+const MucDoToiec = require('../models/mucDoToiec');
 
 const setupAssociations = () => {
     console.log('Đang thiết lập mối quan hệ...');
@@ -39,6 +40,7 @@ const setupAssociations = () => {
     BaiThi.belongsTo(NguoiDung, { foreignKey: 'nguoi_tao', targetKey: 'id_nguoi_dung', as: 'nguoi_tao_bai_thi' });
     BaiThi.hasMany(CauHoiBaiThi, { foreignKey: 'id_bai_thi', as: 'cau_hoi_cua_bai_thi' });
     BaiThi.hasMany(BaiLamNguoiDung, { foreignKey: 'id_bai_thi', as: 'bai_lam' });
+    BaiThi.belongsTo(MucDoToiec, { foreignKey: 'id_muc_do', as: 'muc_do' });
 
     // CauHoiBaiThi relationships
     CauHoiBaiThi.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi', as: 'cau_hoi' });

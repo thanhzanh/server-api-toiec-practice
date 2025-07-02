@@ -39,6 +39,10 @@ const BaiThi = sequelize.define(
       type: DataTypes.ENUM('tu_do', 'chuan'),
       defaultValue: 'chuan'
     },
+    id_muc_do: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     trang_thai: {
       type: DataTypes.ENUM('nhap', 'da_xuat_ban', 'luu_tru'),
       defaultValue: 'nhap'

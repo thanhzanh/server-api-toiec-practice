@@ -20,7 +20,7 @@ const DoanVan = sequelize.define(
     loai_doan_van: {
       type: DataTypes.ENUM('single', 'double', 'triple'),
       defaultValue: 'single',
-      allowNull: false,
+      allowNull: true,
     },
     id_phan: {
       type: DataTypes.INTEGER,

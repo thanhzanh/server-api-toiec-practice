@@ -11,6 +11,7 @@ const MucDoToiec = require('../../models/mucDoToiec');
 const { createPaginationQuery } = require('../../utils/pagination');
 const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicScoreTable');
 const { layMucDoDiemToiecTuDiemToiDa, calculateDiemToiDaTheoDoKho } = require('../../utils/toeicUtils');
+const { kiemTraNhomCauHoiTheoPart3_4, kiemTraNhomCauHoiTheoPart6_7 } = require('../../utils/toeicQuestionUtils');
 const { where, Op } = require('sequelize');
 const striptags = require('striptags');
 
@@ -290,13 +291,19 @@ module.exports.addQuestionsToExam = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi!" });
         }
 
+        // Kiểm tra Part 3&4, Part 6&7 những câu hỏi khi thêm vào đề thi phải đi cùng nhau
+        const thongBaoLoiPart3_4 = await kiemTraNhomCauHoiTheoPart3_4(ds_cau_hoi);
+        if (thongBaoLoiPart3_4) return res.status(400).json({ message: thongBaoLoiPart3_4 });
+
+        const thongBaoLoiPart6_7 = await kiemTraNhomCauHoiTheoPart6_7(ds_cau_hoi);
+        if (thongBaoLoiPart6_7) return res.status(400).json({ message: thongBaoLoiPart6_7 });
+
         // Loại đề thi
         const loaiDeThi = exam.loai_bai_thi;
 
         // Kiểm tra số câu đúng câu trúc của từng Part
         const cauTrucToiec = { 1: 6, 2: 25, 3: 39, 4: 30, 5: 30, 6: 16, 7: 54 };
 
-        let thongBaoLoi = [];
         if (loaiDeThi === 'chuan') {
             // Đếm số câu theo Part
             const demSoCauTheoPart = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
@@ -316,27 +323,23 @@ module.exports.addQuestionsToExam = async (req, res) => {
                 const soCauChuanPart = cauTrucToiec[part];
     
                 if (soCauThucTe !== soCauChuanPart) {
-                    thongBaoLoi.push(`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi!`);
+                    return res.status(400).json({ message:`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi!` });
                 }
             }
     
-            // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
+        // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
         } else if (loaiDeThi === 'tu_do') {
             if (ds_cau_hoi.length > MAX_QUESTION_TEST) {
-                thongBaoLoi.push({ message: `Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu!` });
+                return res.status(400).json({ message:`Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu!` });
             }
 
             for (const part in cauTrucToiec) {
                 if (cauTrucToiec[part] === 0) {
-                    thongBaoLoi.push({ message: `Part ${part} yêu cầu ít nhất 1 câu!` });
+                    return res.status(400).json({ message:`Part ${part} yêu cầu ít nhất 1 câu!` });
                 }
             }
         } else {
             return res.status(400).json({ message: `Loại bài thi không hợp lệ: ${loaiDeThi}!` });
-        }
-
-        if (thongBaoLoi.length > 0) {
-            return res.status(400).json({ message: thongBaoLoi });
         }
         
         // Duyệt qua danh sách câu hỏi
@@ -426,7 +429,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
         console.log("Thông tin đề thi sau khi cập nhật:", examWithQuestions);
         
         res.status(200).json({ 
-            message: "Đã thêm câu hỏi và tạo bảng nháp!",
+            message: "Đã thêm câu hỏi vào đề thi và tạo bảng nháp!",
             dataa: examWithQuestions
         });
 
