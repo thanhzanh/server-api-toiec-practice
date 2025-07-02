@@ -376,6 +376,22 @@ module.exports.importExcel = async (req, res) => {
                 da_xoa: false
             };
 
+            
+            // Kiểm tra câu hỏi đã tồn tại chưa, nếu tồn tại rồi thì bỏ qua
+            const existingQuestion = await NganHangCauHoi.findOne({
+                where: {
+                    id_phan: newQuestion.id_phan,
+                    noi_dung: newQuestion.noi_dung,
+                    dap_an_dung: newQuestion.dap_an_dung,
+                    muc_do_kho: newQuestion.muc_do_kho,
+                    da_xoa: false,
+                    trang_thai: newQuestion.trang_thai
+                }
+            });
+            if (existingQuestion) {
+                continue;
+            }
+
             // Xử lý đoạn văn
             let id_doan_van = null;
             if (tieu_de_doan_van || noi_dung_doan_van) {
