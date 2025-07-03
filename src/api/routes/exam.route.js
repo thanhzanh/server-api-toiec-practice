@@ -69,15 +69,31 @@ router.put("/edit/:id_bai_thi",
 );
 
 // Hiển thị danh sách đề thi ngoài người dùng
-router.get("/get-all-exam-public", logAction('Hiển thị danh sách đề thi ngoài người dùng'), controller.getExamTest);
+router.get("/get-all-exam-public", 
+    logAction('Hiển thị danh sách đề thi ngoài người dùng'), 
+    controller.getExamTest
+);
 
 // Xem chi tiết đề thi ngoài người dùng
-router.get("/detail-exam-public/:id_bai_thi", logAction('Xem chi tiết đề thi ngoài người dùng'), controller.detailExamTest);
+router.get("/detail-exam-public/:id_bai_thi", 
+    logAction('Xem chi tiết đề thi ngoài người dùng'), 
+    controller.detailExamTest
+);
 
 // Lấy danh sách bài thi đầu vào
-router.get("/get-exam-dau-vao", authenticateUser, authorizeRole(['quan_tri_vien']), logAction('Lấy danh sách bài thi đầu vào'), controller.getExamDauVao);
+router.get("/get-exam-dau-vao", 
+    authenticateUser, 
+    authorizeRole(['quan_tri_vien']), 
+    logAction('Lấy danh sách bài thi đầu vào'), 
+    controller.getExamDauVao
+);
 
 // Gỡ bài thi đầu vào
-router.patch("/unset-entry-exam/:id_bai_thi", authenticateUser, authorizeRole(['quan_tri_vien']), logAction('Gỡ bài thi đầu vào'), controller.unsetEntryExam);
+router.patch("/unset-entry-exam/:id_bai_thi", 
+    authenticateUser, 
+    authorizeRole(['quan_tri_vien']), 
+    logAction('Gỡ bài thi đầu vào'), 
+    controller.unsetEntryExam
+);
 
 module.exports = router;

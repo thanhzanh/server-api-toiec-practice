@@ -4,6 +4,7 @@ const questionRoutes = require("./question.route");
 const passageRoutes = require("./passage.route");
 const examRoutes = require("./exam.route");
 const resultRoutes = require("./result.route");
+const roleRoutes = require("./role.route");
 
 module.exports = (app) => {
     const version = "/api";
@@ -19,5 +20,7 @@ module.exports = (app) => {
     app.use(version + "/exams", examRoutes);
 
     app.use(version + "/results", resultRoutes);
+
+    app.use(version + "/roles", roleRoutes);
 
 };

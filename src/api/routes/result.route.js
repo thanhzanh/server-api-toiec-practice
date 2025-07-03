@@ -15,7 +15,7 @@ router.post("/submit-exam",
 // Lấy danh sách kết quả làm bài thi
 router.get("/", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien", "nguoi_dung"]), 
+    authorizeRole(["quan_tri_vien"]), 
     logAction('Lấy danh sách kết quả làm bài thi'),
     controller.index
 );
