@@ -132,6 +132,20 @@ module.exports.createExam = async (req, res) => {
             return res.status(400).json({ message: "Năm xuất bản không hợp lệ!" });
         }
 
+        // Kiểm tra chỉ có một bài thi đầu vào thôi
+        if (la_bai_thi_dau_vao === true) {
+            const exam = await BaiThi.findOne({
+                where: {
+                    la_bai_thi_dau_vao: true,
+                    da_xoa: false,
+                    trang_thai: 'da_xuat_ban'
+                }
+            });
+            if (exam) {
+                return res.status(400).json({ message: "Hiện tại đã có bài thi đầu vào cho hệ thống!" });
+            }
+        }
+
         // Lưu vào database
         const examDraft = await BaiThi.create({ 
             ten_bai_thi,
@@ -774,6 +788,66 @@ module.exports.detailExamTest = async (req, res) => {
             message: "Lấy thông tin chi tiết đề thi thành công!",
             data: detailExamTest
         });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/exams/get-exam-dau-vao
+module.exports.getExamDauVao = async (req, res) => {
+    try {
+        const examDauVao = await BaiThi.findAll({
+            where: {
+                la_bai_thi_dau_vao: true,
+                da_xoa: false,
+                trang_thai: 'da_xuat_ban'
+            },
+            attributes: [
+                'id_bai_thi',
+                'ten_bai_thi',
+                'mo_ta',
+                'la_bai_thi_dau_vao',
+                'nam_xuat_ban',
+                'trang_thai',
+                'so_luong_cau_hoi',
+                'diem_toi_da',
+                'muc_do_diem',
+                'loai_bai_thi',
+                'thoi_gian_bai_thi',
+                'id_muc_do',
+                'da_hoan_thien',
+                'nguoi_tao',
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat'
+            ],
+        });
+
+        res.status(200).json({ 
+            message: "Đã lấy bài thi đầu vào!",
+            data: examDauVao
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [PATCH] /api/exams/unset-entry-exam/:id_bai_thi
+module.exports.unsetEntryExam = async (req, res) => {
+    try {
+        const { id_bai_thi } = req.params;
+
+        const exam = await BaiThi.findByPk(id_bai_thi);
+        if (!exam || exam.da_xoa || !exam.la_bai_thi_dau_vao) {
+            return res.status(404).json({ message: 'Bài thi không tồn tại hoặc không phải bài thi đầu vào!' });
+        }
+
+        // Gỡ bài thi đầu vào, thay đổi la_bai_thi_dau_vao
+        exam.la_bai_thi_dau_vao = false;
+        await exam.save();
+
+        res.status(200).json({ message: "Đã gỡ bài thi đầu vào. Hãy thêm mới 1 bài thi đầu vào mới!" });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
