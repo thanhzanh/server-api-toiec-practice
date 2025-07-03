@@ -9,7 +9,15 @@ router.get("/",
     authenticateUser,
     authorizeRole(["quan_tri_vien"]), 
     logAction('Lấy danh sách vai trò'),
-    controller.getAllRoles
+    controller.index
+);
+
+// Tạo vai trò mới
+router.post("/create",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]),
+    logAction('Tạo vai trò mới'),
+    controller.createRole
 );
 
 module.exports = router;
