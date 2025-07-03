@@ -85,6 +85,21 @@ module.exports.updateRole = async (req, res) => {
     }
 };
 
+// [GET] /api/roles/detail/id_vai_tro
+module.exports.detailRole = async (req, res) => {
+    try {
+        const { id_vai_tro } = req.params;
+        const role = await VaiTro.findByPk(id_vai_tro);
+        if (!role) {
+            return res.status(400).json({ message: 'Vai trò không hợp lệ' });
+        }
+
+        res.status(200).json({ message: 'Thông tin chi tiết vai trò', data: role });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [PATCH] /api/roles/delete/:id_vai_tro
 module.exports.deleteRole = async (req, res) => {
     try {

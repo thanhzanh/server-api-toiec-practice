@@ -14,7 +14,7 @@ const NhatKyNguoiDung = sequelize.define(
         allowNull: false,
     },
     hanh_dong: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     dia_chi_ip: {

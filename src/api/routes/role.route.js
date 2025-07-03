@@ -28,12 +28,12 @@ router.patch("/update/:id_vai_tro",
     controller.updateRole
 );
 
-// Cập nhật vai trò
-router.patch("/update/:id_vai_tro",
+// Xem chi tiết vai trò
+router.get("/detail/:id_vai_tro",
     authenticateUser,
     authorizeRole(["quan_tri_vien"]),
-    logAction('Cập nhật vai trò'),
-    controller.updateRole
+    logAction('Xem chi tiết vai trò'),
+    controller.detailRole
 );
 
 // Xóa vai trò
