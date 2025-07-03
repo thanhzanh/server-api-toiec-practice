@@ -65,7 +65,8 @@ module.exports.updateRole = async (req, res) => {
         // Cập nhật trong database
         await VaiTro.update({ 
             ten_vai_tro: ten_vai_tro,
-            mo_ta: mo_ta
+            mo_ta: mo_ta,
+            thoi_gian_cap_nhat: new Date()
         }, {
             where: {
                 id_vai_tro: id_vai_tro
@@ -79,6 +80,37 @@ module.exports.updateRole = async (req, res) => {
             message: 'Cập nhật vai trò thành công!', 
             data: updatedRole 
         });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [PATCH] /api/roles/delete/:id_vai_tro
+module.exports.deleteRole = async (req, res) => {
+    try {
+        const { id_vai_tro } = req.params;
+
+        // Kiểm tra vai trò có chưa
+        const role = await VaiTro.findByPk(id_vai_tro);
+        if (!role) {
+            return res.status(400).json({ message: 'Vai trò không tồn tại!' });
+        }
+
+        // Chặn nếu xóa là vai trò 'quan_tri_vien
+        if (role?.ten_vai_tro === 'quan_tri_vien') {
+            return res.status(400).json({ message: 'Không thể xóa vai trò quản trị viên!' });
+        }
+
+        // Cập nhật trong database
+        await VaiTro.update({ 
+            da_xoa: true
+        }, {
+            where: {
+                id_vai_tro: id_vai_tro
+            }
+        });
+
+        res.status(200).json({ message: 'Đã xóa vai trò thành công!' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

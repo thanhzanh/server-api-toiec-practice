@@ -28,4 +28,20 @@ router.patch("/update/:id_vai_tro",
     controller.updateRole
 );
 
+// Cập nhật vai trò
+router.patch("/update/:id_vai_tro",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]),
+    logAction('Cập nhật vai trò'),
+    controller.updateRole
+);
+
+// Xóa vai trò
+router.delete("/delete/:id_vai_tro",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]),
+    logAction('Xóa vai trò'),
+    controller.deleteRole
+);
+
 module.exports = router;
