@@ -41,3 +41,45 @@ module.exports.createRole = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// [PATCH] /api/roles/update/:id_vai_tro
+module.exports.updateRole = async (req, res) => {
+    try {
+        const { id_vai_tro } = req.params;
+        const { ten_vai_tro, mo_ta } = req.body;        
+
+        // Kiểm tra vai trò có chưa
+        const role = await VaiTro.findByPk(id_vai_tro);
+        if (!role) {
+            return res.status(400).json({ message: 'Vai trò không tồn tại!' });
+        }
+
+        if (role?.ten_vai_tro === 'quan_tri_vien') {
+            return res.status(400).json({ message: 'Không thể sửa vai trò quản trị viên!' });
+        }
+
+        if (ten_vai_tro?.toLowerCase() === 'quan_tri_vien') {
+            return res.status(400).json({ message: 'Tên vai trò "quan_tri_vien" đã tồn tại!' });
+        }
+
+        // Cập nhật trong database
+        await VaiTro.update({ 
+            ten_vai_tro: ten_vai_tro,
+            mo_ta: mo_ta
+        }, {
+            where: {
+                id_vai_tro: id_vai_tro
+            }
+        });
+
+        // Trả về dữ liệu sau khi cập nhật
+        const updatedRole = await VaiTro.findByPk(id_vai_tro);
+
+        res.status(200).json({ 
+            message: 'Cập nhật vai trò thành công!', 
+            data: updatedRole 
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

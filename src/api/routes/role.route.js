@@ -20,4 +20,12 @@ router.post("/create",
     controller.createRole
 );
 
+// Cập nhật vai trò
+router.patch("/update/:id_vai_tro",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]),
+    logAction('Cập nhật vai trò'),
+    controller.updateRole
+);
+
 module.exports = router;

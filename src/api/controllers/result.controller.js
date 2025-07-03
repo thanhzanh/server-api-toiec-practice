@@ -115,7 +115,7 @@ module.exports.submitExam = async (req, res) => {
         let listeningScore = 0, readingScore = 0;
         if (loai_bai_thi === 'chuan' && so_luong_cau_hoi === 200) {
             listeningScore = listeningScoreTable[correctListening] || 5;
-            readingScore = listeningScoreTable[correctReading] || 5;
+            readingScore = readingScoreTable[correctReading] || 5;
         } else {
             // Tỉ lệ câu đúng quy về thang 100
             const tiLeCauDungListening = maxListeningQuestion > 0 ? Math.round((correctListening / maxListeningQuestion) * 100) : 0;
