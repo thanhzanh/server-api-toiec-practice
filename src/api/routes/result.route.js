@@ -12,6 +12,13 @@ router.post("/submit-exam",
     controller.submitExam
 );
 
+router.post("/submit-from-fe-react",
+    authenticateUser,
+    authorizeRole(["nguoi_dung"]), 
+    logAction('Nộp bài thi'),
+    controller.submitExamFromFE
+);
+
 // Lấy danh sách kết quả làm bài thi
 router.get("/", 
     authenticateUser, 

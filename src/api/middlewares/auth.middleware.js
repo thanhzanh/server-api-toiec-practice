@@ -23,8 +23,11 @@ const authenticateUser = (req, res, next) => {
 };
 
 const authorizeRole = (roles) => {
-    return (req, res, next) => {        
+    return (req, res, next) => {     
+        console.log("Vai trò người dùng:", req.user.vai_tro);
+        console.log("Vai trò được phép:", roles);   
         if(!roles.includes(req.user.vai_tro)) {
+            console.log("Vai trò không hợp lệ:", req.user.vai_tro);
             return res.status(403).json({ message: "Bạn không có quyền truy cập" })
         }
         next();

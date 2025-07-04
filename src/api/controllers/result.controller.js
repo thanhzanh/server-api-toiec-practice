@@ -13,6 +13,9 @@ const PhuongTien = require("../../models/phuongTien.model");
 const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicScoreTable');
 const { createPaginationQuery } = require('../../utils/pagination');
 
+const { Sequelize } = require('sequelize'); // nếu chưa import
+const sequelize = require('../../config/database'); // đường dẫn config Sequelize
+
 // [POST] /api/results/submit-exam
 module.exports.submitExam = async (req, res) => {
     try {      
@@ -272,5 +275,148 @@ module.exports.detail = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({ message: error.message });
+    }
+};
+
+// module.exports.detail = async (req, res) => {
+//     try {
+//         const { id_bai_lam_nguoi_dung } = req.params;
+
+//         // 1. Lấy bài làm người dùng + câu trả lời
+//         const baiLam = await BaiLamNguoiDung.findByPk(id_bai_lam_nguoi_dung, {
+//             include: [
+//                 {
+//                     model: NguoiDung,
+//                     as: 'nguoi_dung_lam_bai',
+//                     attributes: ['email', 'ten_dang_nhap'],
+//                     include: [
+//                         {
+//                             model: HoSoNguoiDung,
+//                             as: 'ho_so',
+//                             attributes: ['ho_ten']
+//                         }
+//                     ]
+//                 },
+//                 {
+//                     model: CauTraLoiNguoiDung,
+//                     as: 'cau_tra_loi',
+//                     attributes: ['id_cau_hoi', 'lua_chon_da_chon', 'la_dung', 'da_tra_loi']
+//                 },
+//                 {
+//                     model: BaiThi,
+//                     as: 'bai_thi_nguoi_dung',
+//                     attributes: ['id_bai_thi', 'ten_bai_thi', 'mo_ta', 'so_luong_cau_hoi', 'muc_do_diem', 'thoi_gian_bai_thi', 'nam_xuat_ban']
+//                 }
+//             ]
+//         });
+
+//         if (!baiLam) {
+//             return res.status(404).json({ message: 'Không tìm thấy bài làm người dùng' });
+//         }
+
+//         const id_bai_thi = baiLam.bai_thi_nguoi_dung.id_bai_thi;
+
+//         // 2. Lấy riêng danh sách câu hỏi chi tiết
+//         const baiThi = await BaiThi.findByPk(id_bai_thi, {
+//             attributes: ['id_bai_thi'],
+//             include: [
+//                 {
+//                     model: CauHoiBaiThi,
+//                     as: 'cau_hoi_cua_bai_thi',
+//                     attributes: ['id_cau_hoi_bai_thi', 'id_cau_hoi'],
+//                     include: [
+//                         {
+//                             model: NganHangCauHoi,
+//                             as: 'cau_hoi',
+//                             attributes: ['id_cau_hoi', 'noi_dung', 'dap_an_dung', 'giai_thich', 'id_phan', 'id_doan_van', 'id_phuong_tien_hinh_anh', 'id_phuong_tien_am_thanh'],
+//                             include: [
+//                                 { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] },
+//                                 { model: PhanCauHoi, as: 'phan', attributes: ['loai_phan', 'ten_phan'] },
+//                                 {
+//                                     model: DoanVan,
+//                                     as: 'doan_van',
+//                                     attributes: ['tieu_de', 'noi_dung', 'loai_doan_van'],
+//                                     include: [
+//                                         {
+//                                             model: PhuongTien,
+//                                             as: 'danh_sach_phuong_tien',
+//                                             attributes: ['url_phuong_tien', 'loai_phuong_tien']
+//                                         }
+//                                     ]
+//                                 },
+//                                 { model: PhuongTien, as: 'hinh_anh', attributes: ['url_phuong_tien', 'loai_phuong_tien'] },
+//                                 { model: PhuongTien, as: 'am_thanh', attributes: ['url_phuong_tien', 'loai_phuong_tien'] }
+//                             ]
+//                         }
+//                     ]
+//                 }
+//             ],
+//             order: [
+//                 [{ model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi' }, 'id_cau_hoi_bai_thi', 'ASC']
+//             ]
+//         });
+
+//         return res.status(200).json({
+//             message: 'Chi tiết bài làm người dùng',
+//             data: {
+//                 baiLam,
+//                 baiThi
+//             }
+//         });
+
+//     } catch (error) {
+//         console.error('Lỗi API detail:', error);
+//         return res.status(500).json({ message: 'Lỗi server: ' + error.message });
+//     }
+// };
+
+// [POST] /api/results/submit-from-fe-react
+module.exports.submitExamFromFE = async (req, res) => {
+    try {
+        const {
+            id_nguoi_dung,
+            id_bai_thi,
+            diem_nghe,
+            diem_doc,
+            tong_diem,
+            chi_tiet_cau_tra_loi
+        } = req.body;
+
+        // 1. Tạo bài làm người dùng
+        const submit = await BaiLamNguoiDung.create({
+            id_nguoi_dung,
+            id_bai_thi,
+            thoi_gian_bat_dau: new Date(),
+            thoi_gian_ket_thuc: new Date(),
+            diem_nghe,
+            diem_doc,
+            tong_diem,
+            da_hoan_thanh: true
+        });
+
+        // 2. Ghi câu trả lời
+        const dataInsert = chi_tiet_cau_tra_loi.map(item => ({
+            id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
+            id_cau_hoi: item.id_cau_hoi,
+            lua_chon_da_chon: item.lua_chon_da_chon || null,
+            la_dung: item.la_dung,
+            da_tra_loi: item.da_tra_loi,
+            thoi_gian_tra_loi: new Date()
+        }));
+
+        await CauTraLoiNguoiDung.bulkCreate(dataInsert);
+
+        return res.status(200).json({
+            message: "Lưu bài làm từ frontend thành công!",
+            data: {
+                id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
+                diem_nghe,
+                diem_doc,
+                tong_diem
+            }
+        });
+    } catch (err) {
+        console.error('Lỗi submit-from-fe:', err);
+        return res.status(500).json({ message: "Lỗi khi lưu bài làm: " + err.message });
     }
 };

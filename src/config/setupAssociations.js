@@ -32,6 +32,7 @@ const setupAssociations = () => {
     NganHangCauHoi.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_hinh_anh', as: 'hinh_anh', targetKey: 'id_phuong_tien' });
     NganHangCauHoi.belongsTo(PhuongTien, { foreignKey: 'id_phuong_tien_am_thanh', as: 'am_thanh', targetKey: 'id_phuong_tien' });
     NganHangCauHoi.hasMany(LuaChon, { foreignKey: 'id_cau_hoi', as: 'lua_chon' });
+    NganHangCauHoi.hasMany(CauTraLoiNguoiDung, { foreignKey: 'id_cau_hoi', as: 'cau_tra_loi' });
 
     // LuaChon relationships
     LuaChon.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi', as: 'cau_hoi' });
@@ -60,6 +61,7 @@ const setupAssociations = () => {
 
     // CauTraLoiNguoiDung realationships
     CauTraLoiNguoiDung.belongsTo(BaiLamNguoiDung, { foreignKey: 'id_bai_lam_nguoi_dung', as: 'bai_lam_cau_hoi' });
+    CauTraLoiNguoiDung.belongsTo(NganHangCauHoi, { foreignKey: 'id_cau_hoi', as: 'cau_hoi' });
 
     // VaiTro relationships
     VaiTro.belongsToMany(Quyen, { through: PhanQuyenVaiTro, foreignKey: 'id_vai_tro', otherKey: 'id_quyen', as: 'ds_quyen' });
