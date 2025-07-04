@@ -200,7 +200,74 @@ module.exports.index = async (req, res) => {
 
         res.status(200).json({ 
             message: 'Danh sách bài làm người dùng',
-            data: records
+            data: records,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/results/get-all-exam-submit
+module.exports.getAllExamSubmit = async (req, res) => {
+    try {
+        const { id_nguoi_dung } = req.params;
+        const { page, limit } = req.query;
+        const nguoiDung = await NguoiDung.findByPk(id_nguoi_dung);
+        if (!nguoiDung) {
+            return res.status(400).json({ message: 'Người dùng không tồn tại!' });
+        }
+
+        // Đếm tổng số bài làm người dùng
+        const count = await BaiLamNguoiDung.count({
+            where: { id_nguoi_dung },
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 20
+        };
+
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy tất cả bài làm người dùng
+        const records = await BaiLamNguoiDung.findAll({
+            where: { id_nguoi_dung },
+            include: [
+                { 
+                    model: NguoiDung, as: 'nguoi_dung_lam_bai', attributes: ['email', 'ten_dang_nhap'],
+                    include: [
+                        { model: HoSoNguoiDung, as: 'ho_so', attributes: ['ho_ten'] }
+                    ],
+                }
+            ],
+            attributes: ['id_bai_lam_nguoi_dung', 'id_nguoi_dung', 'id_bai_thi', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'diem_nghe', 'diem_doc', 'tong_diem', 'da_hoan_thanh'],
+            order: [['thoi_gian_ket_thuc', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
+
+        res.status(200).json({ 
+            message: 'Danh sách bài làm của người dùng',
+            data: records,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
         });
 
     } catch (error) {

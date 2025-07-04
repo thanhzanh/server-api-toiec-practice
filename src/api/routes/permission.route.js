@@ -12,4 +12,36 @@ router.get("/",
     controller.index
 );
 
+// Thêm quyền
+router.post("/create",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]), 
+    logAction('Thêm quyền'),
+    controller.createPermission
+);
+
+// Cập nhật quyền
+router.patch("/update/:id_quyen",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]), 
+    logAction('Cập nhật quyền'),
+    controller.updatePermission
+);
+
+// Xóa quyền
+router.delete("/delet/:id_quyen",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]), 
+    logAction('Xóa quyền'),
+    controller.deletePermission
+);
+
+// Xem chi tiết quyền quyền
+router.get("/detail/:id_quyen",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]), 
+    logAction('Xem chi tiết quyền quyền'),
+    controller.detailPermission
+);
+
 module.exports = router;

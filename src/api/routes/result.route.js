@@ -27,6 +27,14 @@ router.get("/",
     controller.index
 );
 
+// Lấy danh sách tất cả kết quả làm bài thi của người dùng
+router.get("/get-all-exam-submit/:id_nguoi_dung", 
+    authenticateUser, 
+    authorizeRole(["nguoi_dung"]), 
+    logAction('Lấy danh sách tất cả kết quả làm bài thi của người dùng'),
+    controller.getAllExamSubmit
+);
+
 // Xem chi tiết kết quả làm bài thi
 router.get("/detail/:id_bai_lam_nguoi_dung", 
     authenticateUser, 
