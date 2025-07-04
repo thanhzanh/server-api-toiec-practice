@@ -72,7 +72,7 @@ module.exports.deletePermission = async (req, res) => {
     try {
         const { id_quyen } = req.params;
         // Kiểm tra trong phan_quyen_vai_tro
-        const usedPermission = await Quyen.findOne({ where: { id_quyen } });
+        const usedPermission = await PhanQuyenVaiTro.findOne({ where: { id_quyen } });
         if (usedPermission) {
             return res.status(400).json({ message: "Không thể xóa quyền đang được gán cho vai trò!" });
         }

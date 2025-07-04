@@ -1,12 +1,17 @@
 const VaiTro = require("../../models/vaiTro.model");
+const Quyen = require("../../models/quyen.model");
+const PhanQuyenVaiTro = require("../../models/phanQuyenVaiTro.model");
+const { Op } = require("sequelize");
 
 // [GET] /api/roles/
 module.exports.index = async (req, res) => {
     try {
         const roles = await VaiTro.findAll({
             where: {
-                da_xoa: false
-            }
+                da_xoa: false,
+                ten_vai_tro: { [Op.ne]: 'nguoi_dung' } // [Op.ne]: loại bỏ (khác)
+            },
+            order: [['thoi_gian_tao', 'ASC']]
         });
 
         res.status(200).json({ message: 'Danh sách nhóm quyền', data: roles });
@@ -126,6 +131,57 @@ module.exports.deleteRole = async (req, res) => {
         });
 
         res.status(200).json({ message: 'Đã xóa vai trò thành công!' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [POST] /api/roles/permissions/:id_vai_tro
+module.exports.updateRolePermission = async (req, res) => {
+    try {
+        const { id_vai_tro } = req.params;
+        const { ds_ma_quyen } = req.body;
+
+        const role = await VaiTro.findByPk(id_vai_tro);
+        if (!role) {
+            return res.status(404).json({ message: "Vai trò không tồn tại!" });
+        }
+
+        // Kiểm tra ds mảng mã quyền
+        if (!Array.isArray(ds_ma_quyen) || ds_ma_quyen.length === 0) {
+            return res.status(400).json({ message: "Danh sách mảng quyền không hợp lệ!" });
+        }
+
+        // quan_tri_vien toàn quyền nên không cho sửa quyền cửa quan_tri_vien
+        if (role.ten_vai_tro === 'quan_tri_vien') {
+            return res.status(400).json({ message: "Quản trị viên toàn quyền. Không thể cập nhật quyền cho quản trị viên!" });
+        }
+
+        // Tìm kiếm quyền trong table quyen
+        const permissions = await Quyen.findAll({
+            where: {
+                ma_quyen: { [Op.in]: ds_ma_quyen } // [Op.in]: In (thuộc danh sách)
+            },
+            attributes: ['id_quyen']
+        });
+
+        if (permissions.length === 0) {
+            return res.status(400).json({ message: "Không tìm thấy quyền trong danh sách quyền!" });
+        }
+
+        // Xóa quyền cũ trong PhanQuyenPhanQuyen
+        await PhanQuyenVaiTro.destroy({ where: { id_vai_tro } });
+
+        const newPermissions = permissions.map(quyen => ({
+            id_vai_tro,
+            id_quyen: quyen.id_quyen
+        }));
+
+        // Thêm quyền mới vào database
+        await PhanQuyenVaiTro.bulkCreate(newPermissions);
+
+        res.status(200).json({ message: `Đã cập nhật quyền cho vai trò ${role.ten_vai_tro}!` });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

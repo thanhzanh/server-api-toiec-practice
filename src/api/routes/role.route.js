@@ -44,4 +44,12 @@ router.delete("/delete/:id_vai_tro",
     controller.deleteRole
 );
 
+// Cập nhật quyền cho vai trò
+router.post("/permissions/:id_vai_tro",
+    authenticateUser,
+    authorizeRole(["quan_tri_vien"]),
+    logAction('Cập nhật quyền cho vai trò'),
+    controller.updateRolePermission
+)
+
 module.exports = router;
