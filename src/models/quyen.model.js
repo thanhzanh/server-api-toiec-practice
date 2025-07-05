@@ -18,6 +18,18 @@ const Quyen = sequelize.define(
       allowNull: false,
       unique: true
     },
+        thoi_gian_tao: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    thoi_gian_cap_nhat: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    da_xoa: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: "quyen",

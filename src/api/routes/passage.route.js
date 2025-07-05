@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 
 const controller = require('../controllers/passage.controller');
-const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const { authenticateUser } = require('../middlewares/auth.middleware');
+const { authorizePermission } = require('../middlewares/permission.middleware');
 const { uploadCloudinary } = require('../middlewares/upload.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // Lấy tất cả danh sách đoạn văn
 router.get("/", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PASSAGE_VIEW"),
     logAction('Xem danh sách đoạn văn'),
     controller.index
 );
@@ -17,7 +18,7 @@ router.get("/",
 // Tạo đoạn văn mới
 router.post("/create", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PASSAGE_CREATE"), 
     uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
     logAction('Tạo đoạn văn mới'),
     controller.create
@@ -26,7 +27,7 @@ router.post("/create",
 // Chỉnh sửa đoạn văn
 router.put("/edit/:id_doan_van", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PASSAGE_UPDATE"), 
     logAction('Chỉnh sửa đoạn văn'),
     controller.edit
 );
@@ -34,7 +35,7 @@ router.put("/edit/:id_doan_van",
 // Xóa đoạn văn
 router.delete("/delete/:id_doan_van", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PASSAGE_DELETE"), 
     logAction('Xóa đoạn văn'),
     controller.delete
 );
@@ -42,7 +43,7 @@ router.delete("/delete/:id_doan_van",
 // Xem chi tiết đoạn văn
 router.get("/detail/:id_doan_van", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PASSAGE_DETAIL"), 
     logAction('Xem chi tiết 1 đoạn văn'),
     controller.detail
 );

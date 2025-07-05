@@ -7,8 +7,8 @@ module.exports.index = async (req, res) => {
         const permissions = await Quyen.findAll({
             where: {
                 da_xoa: false
-            }
-        });
+            },
+        });        
 
         res.status(200).json({ message: 'Danh sách nhóm quyền', data: permissions });
     } catch (error) {
@@ -20,20 +20,21 @@ module.exports.index = async (req, res) => {
 module.exports.createPermission = async (req, res) => {
     try {
         const { ten_quyen, ma_quyen } = req.body;
+        const uppercaseMaQuyen = ma_quyen.toUpperCase();
 
-        if (!ten_quyen || !ma_quyen) {
+        if (!ten_quyen || !uppercaseMaQuyen) {
             return res.status(400).json({ message: "Vui lòng nhập đủ thông tin tên quyền và mã quyền!" });
         }
 
-        const existed = await Quyen.findOne({ where: { ma_quyen } });
+        const existed = await Quyen.findOne({ where: { ma_quyen: uppercaseMaQuyen } });
         if (existed) {
             return res.status(400).json({ message: "Mã quyền đã tồn tại!" });
         }
 
         // Lưu vào database
-        const permission = await Quyen.create({ ten_quyen, ma_quyen });
+        const permission = await Quyen.create({ ten_quyen, ma_quyen: uppercaseMaQuyen });
 
-        res.status(200).json({ message: 'Danh sách nhóm quyền', data: permission });
+        res.status(200).json({ message: 'Đã tạo quyền thành công!', data: permission });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

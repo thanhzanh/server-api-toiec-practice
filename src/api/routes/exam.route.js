@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/exam.controller');
-const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const { authenticateUser } = require('../middlewares/auth.middleware');
+const { authorizePermission } = require('../middlewares/permission.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // Hiển thị danh sách đề thi
 router.get("/", 
     authenticateUser, 
-    authorizeRole("quan_tri_vien"), 
+    authorizePermission("EXAM_VIEW"),
     logAction('Xem danh sách đề thi'), 
     controller.index
 );
@@ -15,7 +16,7 @@ router.get("/",
 // Tạo đề thi nháp (Bước 1)
 router.post("/create", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("USER_CREATE"),
     logAction('Tạo đề thi nháp'), 
     controller.createExam
 );
@@ -23,7 +24,7 @@ router.post("/create",
 // Lấy ngân hàng câu hỏi của đề thi (Bước 2)
 router.get("/questions", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("QUESTION_VIEW"),
     logAction('Mở ngân hàng câu hỏi để thêm câu hỏi vào đề thi'), 
     controller.getQuestions
 );
@@ -31,7 +32,7 @@ router.get("/questions",
 // Thêm câu hỏi vào bài thi (Bước 3)
 router.post("/questions/add-questions/:id_bai_thi", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]),
+    authorizePermission("EXAM_UPDATE"), 
     logAction('Thêm câu hỏi vào đề thi'), 
     controller.addQuestionsToExam
 );
@@ -39,7 +40,7 @@ router.post("/questions/add-questions/:id_bai_thi",
 // Xem bản nháp thông tin đề thi và tất cả câu hỏi của đề thi (Bước 4)
 router.get("/draft/:id_bai_thi", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("EXAM_VIEW"),
     logAction('Xem bản nháp thông tin đề thi và tất cả câu hỏi của đề thi'),
     controller.getDraftExam
 );
@@ -47,7 +48,7 @@ router.get("/draft/:id_bai_thi",
 // Duyệt đề thi chuyển trạng thái da_xuat_ban (Bước 5)
 router.post("/approve/:id_bai_thi", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("EXAM_APPROVE"),
     logAction('Duyệt đề thi chuyển sang trạng thái da_xuat_ban'),
     controller.approveExam
 );
@@ -55,7 +56,7 @@ router.post("/approve/:id_bai_thi",
 // Xóa đề thi
 router.delete("/delete/:id_bai_thi", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("EXAM_DELETE"),
     logAction('Xóa đề thi chuyển trạng thái da_xuat_ban sang luu_tru'),
     controller.deleteExam
 );
@@ -63,7 +64,7 @@ router.delete("/delete/:id_bai_thi",
 // Sửa đề thi
 router.put("/edit/:id_bai_thi", 
     authenticateUser, 
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("EXAM_UPDATE"), 
     logAction('Sửa đề thi'),
     controller.editExam
 );
@@ -83,7 +84,7 @@ router.get("/detail-exam-public/:id_bai_thi",
 // Lấy danh sách bài thi đầu vào
 router.get("/get-exam-dau-vao", 
     authenticateUser, 
-    authorizeRole(['quan_tri_vien']), 
+    authorizePermission("EXAM_VIEW"), 
     logAction('Lấy danh sách bài thi đầu vào'), 
     controller.getExamDauVao
 );
@@ -91,7 +92,7 @@ router.get("/get-exam-dau-vao",
 // Gỡ bài thi đầu vào
 router.patch("/unset-entry-exam/:id_bai_thi", 
     authenticateUser, 
-    authorizeRole(['quan_tri_vien']), 
+    authorizePermission("EXAM_UPDATE"),  
     logAction('Gỡ bài thi đầu vào'), 
     controller.unsetEntryExam
 );

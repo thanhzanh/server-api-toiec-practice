@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/permission.controller');
-const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const { authenticateUser } = require('../middlewares/auth.middleware');
+const { authorizePermission } = require('../middlewares/permission.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // Lấy danh sách quyền
 router.get("/",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PERMISSION_VIEW"), 
     logAction('Lấy danh sách quyền'),
     controller.index
 );
@@ -15,7 +16,7 @@ router.get("/",
 // Thêm quyền
 router.post("/create",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PERMISSION_CREATE"), 
     logAction('Thêm quyền'),
     controller.createPermission
 );
@@ -23,7 +24,7 @@ router.post("/create",
 // Cập nhật quyền
 router.patch("/update/:id_quyen",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PERMISSION_UPDATE"), 
     logAction('Cập nhật quyền'),
     controller.updatePermission
 );
@@ -31,7 +32,7 @@ router.patch("/update/:id_quyen",
 // Xóa quyền
 router.delete("/delete/:id_quyen",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PERMISSION_DELETE"), 
     logAction('Xóa quyền'),
     controller.deletePermission
 );
@@ -39,7 +40,7 @@ router.delete("/delete/:id_quyen",
 // Xem chi tiết quyền quyền
 router.get("/detail/:id_quyen",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("PERMISSION_DETAIL"), 
     logAction('Xem chi tiết quyền quyền'),
     controller.detailPermission
 );

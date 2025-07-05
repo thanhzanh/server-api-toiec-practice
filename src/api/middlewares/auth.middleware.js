@@ -15,6 +15,8 @@ const authenticateUser = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("DECODED: ", decoded);
+        
         req.user = decoded; // Lưu thông tin người dùng vào request
         next();
     } catch (error) {
@@ -33,4 +35,11 @@ const authorizeRole = (roles) => {
     };
 };
 
-module.exports = { authenticateUser, authorizeRole };
+const authorizeAdminOnly = async (req, res, next) => {
+    if (req.user.vai_tro !== 'quan_tri_vien') {
+        return res.status(403).json({ message: "Chỉ quản trị viên mới được phép thao tác này!" });
+    }
+    next();
+};
+
+module.exports = { authenticateUser, authorizeRole, authorizeAdminOnly };

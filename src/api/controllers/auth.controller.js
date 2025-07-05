@@ -1,6 +1,7 @@
 const NguoiDung = require("../../models/nguoiDung.model");
 const MaXacMinhEmail = require("../../models/maXacMinhEmail.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
+const VaiTro = require("../../models/vaiTro.model");
 const generateHelper = require("../../utils/generate");
 const sendMailHelper = require("../../utils/sendMail");
 const { Sequelize } = require('sequelize');
@@ -24,6 +25,12 @@ module.exports.register = async(req, res) => {
             });
         }
 
+        // Gán vai trò mặc định 'nguoi_dung'
+        const vaiTroMacDinh = await VaiTro.findOne({ where: { ten_vai_tro: 'nguoi_dung' } });
+        if (!vaiTroMacDinh) {
+            return res.status(500).json({ message: "Vai trò mặc định chưa được tạo" });
+        }
+
         // Mã hóa mật khẩu
         const hashPassword = bcrypt.hashSync(mat_khau, 10);
 
@@ -32,6 +39,7 @@ module.exports.register = async(req, res) => {
             email,
             ten_dang_nhap,
             mat_khau: hashPassword,
+            id_vai_tro: vaiTroMacDinh.id_vai_tro
         });
 
         res.status(201).json({ message: "Tạo tài khoản thành công" });
@@ -49,11 +57,14 @@ module.exports.login = async(req, res) => {
         // SELECT * FROM nguoi_dung WHERE email = 'admin@gmail.com' OR ten_dang_nhap = 'abc123';
         const user = await NguoiDung.findOne({ 
             where: { 
-                [Sequelize.Op.or]: [
+                [Sequelize.Op.or]: [ // [Op.or]: hoặc
                     { email: identifier },
                     { ten_dang_nhap: identifier }
                 ],
             },
+            include: [
+                { model: VaiTro, as: 'vai_tro_nguoi_dung', attributes: ['ten_vai_tro'] }
+            ]
         });
         if (!user) {
             return res.status(400).json({ message: "Email hoặc tên đăng nhập không đúng" });
@@ -76,7 +87,10 @@ module.exports.login = async(req, res) => {
         // Tạo JWT
         const token = jwt.sign(
             {
-                id_nguoi_dung: user.id_nguoi_dung, email: user.email, vai_tro: user.vai_tro
+                id_nguoi_dung: user.id_nguoi_dung, 
+                email: user.email, 
+                id_vai_tro: user.id_vai_tro,
+                vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro
             },
             process.env.JWT_SECRET,
             {
@@ -90,7 +104,7 @@ module.exports.login = async(req, res) => {
         res.status(200).json({
             message: "Đăng nhập thành công",
             token,
-            vai_tro: user.vai_tro,
+            vai_tro: user.vai_tro_nguoi_dung.ten_vai_tro,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

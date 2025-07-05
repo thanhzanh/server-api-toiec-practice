@@ -27,9 +27,9 @@ const NguoiDung = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: true,
     },
-    vai_tro: {
-      type: DataTypes.ENUM("nguoi_dung", "quan_tri_vien"),
-      defaultValue: "nguoi_dung",
+    id_vai_tro: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
     trang_thai: {
       type: DataTypes.ENUM("hoat_dong", "khong_hoat_dong"),

@@ -18,10 +18,13 @@ const PhanQuyenVaiTro = require('../models/phanQuyenVaiTro.model');
 
 const setupAssociations = () => {
     console.log('Đang thiết lập mối quan hệ...');
+
+    // NguoiDung relationships
+    NguoiDung.hasOne(HoSoNguoiDung, { foreignKey: 'id_nguoi_dung', as: 'ho_so' });
+    NguoiDung.belongsTo(VaiTro, { foreignKey: 'id_vai_tro', as: 'vai_tro_nguoi_dung' });
     
     // HoSoNguoiDung relationships
     HoSoNguoiDung.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
-    NguoiDung.hasOne(HoSoNguoiDung, { foreignKey: 'id_nguoi_dung', as: 'ho_so' });
 
     // MaXacMinhEmail relationships
     MaXacMinhEmail.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
@@ -65,6 +68,7 @@ const setupAssociations = () => {
 
     // VaiTro relationships
     VaiTro.belongsToMany(Quyen, { through: PhanQuyenVaiTro, foreignKey: 'id_vai_tro', otherKey: 'id_quyen', as: 'ds_quyen' });
+    VaiTro.hasMany(NguoiDung, { foreignKey: 'id_vai_tro', as: 'ds_nguoi_dung' });
 
     // Quyen relationships
     Quyen.belongsToMany(VaiTro, { through: PhanQuyenVaiTro, foreignKey: 'id_quyen', otherKey: 'id_vai_tro', as: 'ds_vai_tro' });

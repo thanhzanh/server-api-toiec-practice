@@ -402,3 +402,29 @@ module.exports.getProfile = async(req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// [PATCH] /api/users/set-role/:id_nguoi_dung
+module.exports.setUserRole = async(req, res) => {
+    try {
+        const { id_nguoi_dung } = req.params;
+        const { id_vai_tro } = req.body;        
+
+        // Kiểm tra người dùng tồn tại không
+        const user = await NguoiDung.findByPk(id_nguoi_dung);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại!" });
+        }
+
+        // Cập nhật id_vai_tro
+        user.id_vai_tro = id_vai_tro;
+        await user.save();
+
+        res.status(200).json({ 
+            message: "Cập nhật vai trò thành công!" ,
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};

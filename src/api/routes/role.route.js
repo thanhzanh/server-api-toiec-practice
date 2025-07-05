@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/role.controller');
-const { authenticateUser, authorizeRole } = require('../middlewares/auth.middleware');
+const { authenticateUser, authorizeAdminOnly } = require('../middlewares/auth.middleware');
+const { authorizePermission } = require('../middlewares/permission.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // Lấy danh sách vai trò
 router.get("/",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]), 
+    authorizePermission("ROLE_VIEW"), 
     logAction('Lấy danh sách vai trò'),
     controller.index
 );
@@ -15,7 +16,7 @@ router.get("/",
 // Tạo vai trò mới
 router.post("/create",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]),
+    authorizePermission("ROLE_CREATE"),
     logAction('Tạo vai trò mới'),
     controller.createRole
 );
@@ -23,7 +24,7 @@ router.post("/create",
 // Cập nhật vai trò
 router.patch("/update/:id_vai_tro",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]),
+    authorizePermission("ROLE_UPDATE"),
     logAction('Cập nhật vai trò'),
     controller.updateRole
 );
@@ -31,7 +32,7 @@ router.patch("/update/:id_vai_tro",
 // Xem chi tiết vai trò
 router.get("/detail/:id_vai_tro",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]),
+    authorizePermission("ROLE_DETAIL"),
     logAction('Xem chi tiết vai trò'),
     controller.detailRole
 );
@@ -39,7 +40,7 @@ router.get("/detail/:id_vai_tro",
 // Xóa vai trò
 router.delete("/delete/:id_vai_tro",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]),
+    authorizePermission("ROLE_DELETE"),
     logAction('Xóa vai trò'),
     controller.deleteRole
 );
@@ -47,9 +48,10 @@ router.delete("/delete/:id_vai_tro",
 // Cập nhật quyền cho vai trò
 router.post("/permissions/:id_vai_tro",
     authenticateUser,
-    authorizeRole(["quan_tri_vien"]),
+    authorizeAdminOnly,
+    authorizePermission("ROLE_PERMISSION"),
     logAction('Cập nhật quyền cho vai trò'),
     controller.updateRolePermission
-)
+);
 
 module.exports = router;
