@@ -29,7 +29,7 @@ router.patch("/update/:id_quyen",
 );
 
 // Xóa quyền
-router.delete("/delet/:id_quyen",
+router.delete("/delete/:id_quyen",
     authenticateUser,
     authorizeRole(["quan_tri_vien"]), 
     logAction('Xóa quyền'),

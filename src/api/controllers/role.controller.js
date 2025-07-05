@@ -116,9 +116,10 @@ module.exports.deleteRole = async (req, res) => {
             return res.status(400).json({ message: 'Vai trò không tồn tại!' });
         }
 
-        // Chặn nếu xóa là vai trò 'quan_tri_vien
-        if (role?.ten_vai_tro === 'quan_tri_vien') {
-            return res.status(400).json({ message: 'Không thể xóa vai trò quản trị viên!' });
+        // Chặn nếu xóa là vai trò 'quan_tri_vien và 'nguoi_dung'
+        const vaiTroChinhTrongHeThong = ["quan_tri_vien", "nguoi_dung"];
+        if (vaiTroChinhTrongHeThong.includes(role.ten_vai_tro)) {
+            return res.status(400).json({ message: `Không thể xóa vai trò chính trong hệ thống: ${role.ten_vai_tro}!` });
         }
 
         // Cập nhật trong database
@@ -169,7 +170,7 @@ module.exports.updateRolePermission = async (req, res) => {
             return res.status(400).json({ message: "Không tìm thấy quyền trong danh sách quyền!" });
         }
 
-        // Xóa quyền cũ trong PhanQuyenPhanQuyen
+        // Xóa toàn bộ quyền cũ trong PhanQuyenPhanQuyen
         await PhanQuyenVaiTro.destroy({ where: { id_vai_tro } });
 
         const newPermissions = permissions.map(quyen => ({
@@ -177,7 +178,7 @@ module.exports.updateRolePermission = async (req, res) => {
             id_quyen: quyen.id_quyen
         }));
 
-        // Thêm quyền mới vào database
+        // Thêm toàn bộ quyền mới vào database
         await PhanQuyenVaiTro.bulkCreate(newPermissions);
 
         res.status(200).json({ message: `Đã cập nhật quyền cho vai trò ${role.ten_vai_tro}!` });
