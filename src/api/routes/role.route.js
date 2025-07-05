@@ -54,4 +54,12 @@ router.post("/permissions/:id_vai_tro",
     controller.updateRolePermission
 );
 
+
+router.get("/permissions-table", 
+    authenticateUser,
+    authorizePermission("ROLE_VIEW"), 
+    logAction("Xem bảng phân quyền"),
+    controller.getPermissionsTable
+);
+
 module.exports = router;

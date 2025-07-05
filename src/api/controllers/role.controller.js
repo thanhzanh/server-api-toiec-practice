@@ -1,7 +1,7 @@
 const VaiTro = require("../../models/vaiTro.model");
 const Quyen = require("../../models/quyen.model");
 const PhanQuyenVaiTro = require("../../models/phanQuyenVaiTro.model");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 // [GET] /api/roles/
 module.exports.index = async (req, res) => {
@@ -185,5 +185,44 @@ module.exports.updateRolePermission = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/roles/permissions-table
+module.exports.getPermissionsTable = async (req, res) => {
+    try {
+        const dsVaiTro = await VaiTro.findAll({ 
+            where: {
+                ten_vai_tro: { [Op.ne]: 'nguoi_dung' } // không phân biệt hoa thường
+            },
+            attributes: ['id_vai_tro', 'ten_vai_tro'] 
+        });
+        const dsQuyen = await Quyen.findAll({
+            include: [
+                {
+                    model: VaiTro,
+                    as: 'ds_vai_tro',
+                    through: { attributes: [] }, // bỏ bảng trung gian
+                    attributes: ['id_vai_tro', 'ten_vai_tro']
+                }
+            ]
+        });
+
+        const result = dsQuyen.map(quyen => {
+            const rolesMap = {};
+            dsVaiTro.forEach(role => {
+                rolesMap[role.ten_vai_tro] = quyen.ds_vai_tro.some(vt => vt.id_vai_tro === role.id_vai_tro);
+            });
+            return {
+                ma_quyen: quyen.ma_quyen,
+                ten_quyen: quyen.ten_quyen,
+                mo_ta: quyen.mo_ta,
+                roles: rolesMap
+            };
+        });
+
+        res.status(200).json({ permissions: result });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
