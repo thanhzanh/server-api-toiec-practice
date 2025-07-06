@@ -2,7 +2,6 @@ const NguoiDung = require("../../models/nguoiDung.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const { createPaginationQuery } = require('../../utils/pagination');
 const { createSearchQuery } = require('../../utils/search');
-const dayjs = require('dayjs');
 const { Op, where } = require('sequelize');
 
 // [GET] /api/users
@@ -25,7 +24,8 @@ module.exports.index = async(req, res) => {
                 {
                     model: HoSoNguoiDung,
                     as: 'ho_so',
-                    where: profileSearch
+                    required: false, // LEFT JOIN để không loại user chưa có hồ sơ
+                    where: Object.keys(profileSearch).length > 0 ? profileSearch : undefined
                 }
             ],
             distinct: true
@@ -55,7 +55,8 @@ module.exports.index = async(req, res) => {
                     model: HoSoNguoiDung,
                     as: 'ho_so',
                     attributes: ['ho_ten'],
-                    where: profileSearch
+                    required: false,
+                    where: Object.keys(profileSearch).length > 0 ? profileSearch : undefined
                 }
             ],
             attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai']
