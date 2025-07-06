@@ -2,6 +2,7 @@ const NguoiDung = require("../../models/nguoiDung.model");
 const MaXacMinhEmail = require("../../models/maXacMinhEmail.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const VaiTro = require("../../models/vaiTro.model");
+const Quyen = require("../../models/quyen.model");
 const generateHelper = require("../../utils/generate");
 const sendMailHelper = require("../../utils/sendMail");
 const { Sequelize } = require('sequelize');
@@ -66,7 +67,14 @@ module.exports.login = async(req, res) => {
                 { 
                     model: VaiTro, 
                     as: 'vai_tro_nguoi_dung', 
-                    attributes: ['ten_vai_tro', 'is_admin'] 
+                    attributes: ['ten_vai_tro', 'is_admin'],
+                    include: [
+                        {
+                            model: Quyen,
+                            as: 'ds_quyen',
+                            attributes: ['ma_quyen']
+                        }
+                    ]
 
                 }
             ],
@@ -88,6 +96,9 @@ module.exports.login = async(req, res) => {
         if(user.trang_thai === 'khong_hoat_dong') {
             return res.status(403).json({ message: "Tài khoản đã bị khóa" });
         }
+
+        // Lấy danh sách mã quyền
+        const permissions = user.vai_tro_nguoi_dung?.ds_quyen?.map(quyen => quyen.ma_quyen) || [];
 
         // Tạo JWT
         const token = jwt.sign(
@@ -111,7 +122,8 @@ module.exports.login = async(req, res) => {
             message: "Đăng nhập thành công",
             token,
             vai_tro: user.vai_tro_nguoi_dung.ten_vai_tro,
-            is_admin: user.vai_tro_nguoi_dung.is_admin
+            is_admin: user.vai_tro_nguoi_dung.is_admin,
+            permissions: permissions
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
