@@ -153,9 +153,9 @@ module.exports.updateRolePermission = async (req, res) => {
         }
 
         // quan_tri_vien toàn quyền nên không cho sửa quyền cửa quan_tri_vien
-        // if (role.ten_vai_tro === 'quan_tri_vien') {
-        //     return res.status(400).json({ message: "Quản trị viên toàn quyền. Không thể cập nhật quyền cho quản trị viên!" });
-        // }
+        if (role.ten_vai_tro === 'quan_tri_vien') {
+            return res.status(400).json({ message: "Quản trị viên toàn quyền. Không thể cập nhật quyền cho quản trị viên!" });
+        }
 
         // Tìm kiếm quyền trong table quyen
         const permissions = await Quyen.findAll({
@@ -208,24 +208,36 @@ module.exports.getPermissionsTable = async (req, res) => {
             ]
         });
 
-        // Nhóm quyền lại
+        // Gom nhóm theo tiền tố ma_quyen
+        const groupedPermissions = {};
 
+        dsQuyen.forEach(quyen => {
+            const prefix = quyen.ma_quyen.split('_')[0]; // VD: USER, EXAM,...
+            const roles = dsVaiTro.map(role => ({
+                id_vai_tro: role.id_vai_tro,
+                ten_vai_tro: role.ten_vai_tro,
+                co_quyen: quyen.ds_vai_tro.some(vt => vt.id_vai_tro === role.id_vai_tro)
+            }));
 
-        const result = dsQuyen.map(quyen => {
-            const rolesMap = {};
-            dsVaiTro.forEach(role => {
-                rolesMap[role.ten_vai_tro] = quyen.ds_vai_tro.some(vt => vt.id_vai_tro === role.id_vai_tro);
-            });
-            return {
+            const item = {
                 ma_quyen: quyen.ma_quyen,
                 ten_quyen: quyen.ten_quyen,
                 mo_ta: quyen.mo_ta,
-                roles: rolesMap
+                roles
             };
+
+            if (!groupedPermissions[prefix]) {
+                groupedPermissions[prefix] = [];
+            }
+
+            groupedPermissions[prefix].push(item);
         });
 
-        res.status(200).json({ permissions: result });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(200).json({ 
+            message: "Danh sách quyền của từng vai trò",
+            permissions: groupedPermissions
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
