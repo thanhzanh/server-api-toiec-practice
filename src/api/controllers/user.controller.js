@@ -58,7 +58,7 @@ module.exports.index = async(req, res) => {
                     where: profileSearch
                 }
             ],
-            attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'vai_tro', 'trang_thai']
+            attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai']
         }
 
         // Lấy danh sách người dùng
@@ -110,7 +110,7 @@ module.exports.detailUser = async(req, res) => {
                     {
                         model: NguoiDung,
                         as: 'nguoi_dung',
-                        attributes: ['email', 'ten_dang_nhap', 'vai_tro', 'trang_thai'],
+                        attributes: ['email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai'],
                     },
                 ],
             },
@@ -388,7 +388,7 @@ module.exports.getProfile = async(req, res) => {
                         attributes: { exclude: ['thoi_gian_cap_nhat'] },
                     },
                 ],
-                attributes: ['ten_dang_nhap', 'email', 'vai_tro', 'trang_thai']
+                attributes: ['ten_dang_nhap', 'email', 'id_vai_tro', 'trang_thai']
             },
         );
 
