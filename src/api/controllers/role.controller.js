@@ -193,10 +193,10 @@ module.exports.getPermissionsTable = async (req, res) => {
     try {
         const dsVaiTro = await VaiTro.findAll({ 
             where: {
-                ten_vai_tro: { [Op.ne]: 'nguoi_dung' } // không phân biệt hoa thường
+                ten_vai_tro: { [Op.ne]: 'nguoi_dung' } // Loại bỏ nguoi_dung
             },
             attributes: ['id_vai_tro', 'ten_vai_tro'] ,
-            order: [['id_vai_tro', 'DESC']]
+            order: [['id_vai_tro', 'ASC']] // sắp xếp tăng dần
         });
         const dsQuyen = await Quyen.findAll({
             include: [
@@ -208,6 +208,9 @@ module.exports.getPermissionsTable = async (req, res) => {
                 }
             ]
         });
+
+        // Nhóm quyền lại
+
 
         const result = dsQuyen.map(quyen => {
             const rolesMap = {};
