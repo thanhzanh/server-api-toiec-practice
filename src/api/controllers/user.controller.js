@@ -9,10 +9,8 @@ module.exports.index = async(req, res) => {
     try {
         const { page, limit, search } = req.query;
 
-        // Query tìm kiếm
+        // Query tìm kiếm theo ten_dang_nhap và email
         const userSearch = createSearchQuery(search, ['email', 'ten_dang_nhap']);
-
-        const profileSearch = createSearchQuery(search, ['ho_ten']);
 
         // Đếm tổng số bản ghi
         const count = await NguoiDung.count({
@@ -20,21 +18,13 @@ module.exports.index = async(req, res) => {
                 ...userSearch,
                 da_xoa: false
             },
-            include: [
-                {
-                    model: HoSoNguoiDung,
-                    as: 'ho_so',
-                    required: false, // LEFT JOIN để không loại user chưa có hồ sơ
-                    where: Object.keys(profileSearch).length > 0 ? profileSearch : undefined
-                }
-            ],
             distinct: true
         });
 
         // Query pagination
         let initPagination = {
             currentPage: 1,
-            limitItem: 8
+            limitItem: 10
         }
         const pagination = createPaginationQuery(
             initPagination,
@@ -50,15 +40,6 @@ module.exports.index = async(req, res) => {
                 ...userSearch,
                 da_xoa: false
             },
-            include: [
-                {
-                    model: HoSoNguoiDung,
-                    as: 'ho_so',
-                    attributes: ['ho_ten'],
-                    required: false,
-                    where: Object.keys(profileSearch).length > 0 ? profileSearch : undefined
-                }
-            ],
             attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai']
         }
 
