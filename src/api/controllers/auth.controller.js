@@ -63,8 +63,13 @@ module.exports.login = async(req, res) => {
                 ],
             },
             include: [
-                { model: VaiTro, as: 'vai_tro_nguoi_dung', attributes: ['ten_vai_tro'] }
-            ]
+                { 
+                    model: VaiTro, 
+                    as: 'vai_tro_nguoi_dung', 
+                    attributes: ['ten_vai_tro', 'is_admin'] 
+
+                }
+            ],
         });
         if (!user) {
             return res.status(400).json({ message: "Email hoặc tên đăng nhập không đúng" });
@@ -90,21 +95,23 @@ module.exports.login = async(req, res) => {
                 id_nguoi_dung: user.id_nguoi_dung, 
                 email: user.email, 
                 id_vai_tro: user.id_vai_tro,
-                vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro
+                vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro,
+                is_admin: user.vai_tro_nguoi_dung?.is_admin
             },
             process.env.JWT_SECRET,
             {
                 expiresIn: '1d'
             }
         );
-
-        // Gán req.user để log
+        
+       // Gán req.user để log
         req.user = { id_nguoi_dung: user.id_nguoi_dung };
 
         res.status(200).json({
             message: "Đăng nhập thành công",
             token,
             vai_tro: user.vai_tro_nguoi_dung.ten_vai_tro,
+            is_admin: user.vai_tro_nguoi_dung.is_admin
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

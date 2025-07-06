@@ -36,8 +36,8 @@ const authorizeRole = (roles) => {
 };
 
 const authorizeAdminOnly = async (req, res, next) => {
-    if (req.user.vai_tro !== 'quan_tri_vien') {
-        return res.status(403).json({ message: "Chỉ quản trị viên mới được phép thao tác này!" });
+    if (req.user.is_admnin) {
+        return res.status(403).json({ message: "Chỉ các quản trị viên mới được phép truy cập!" });
     }
     next();
 };

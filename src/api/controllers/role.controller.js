@@ -10,6 +10,7 @@ module.exports.index = async (req, res) => {
             where: {
                 da_xoa: false,
             },
+            attributes: ["id_vai_tro", "ten_vai_tro", "mo_ta", "is_admin"], 
             order: [['thoi_gian_tao', 'ASC']]
         });
 
@@ -22,25 +23,34 @@ module.exports.index = async (req, res) => {
 // [POST] /api/roles/create
 module.exports.createRole = async (req, res) => {
     try {
-        const { ten_vai_tro, mo_ta } = req.body;
+        const { ten_vai_tro, mo_ta, is_admin } = req.body;
+        const tenVaiTroUpper = ten_vai_tro.toLowerCase();
 
-        if (!ten_vai_tro) {
+        if (!tenVaiTroUpper) {
             return res.status(400).json({ message: "Tên vài trò phải bắt buộc!" });
         }
 
         // Kiểm tra vai trò có chưa
         const existed = await VaiTro.findOne({
             where: {
-                ten_vai_tro
+                ten_vai_tro: tenVaiTroUpper
             }
         });
         if (existed) {
             return res.status(400).json({ message: 'Vai trò đã tồn tại!' });
         }
 
-        const role = await VaiTro.create({ ten_vai_tro, mo_ta });
+        // Tạo role mới lưu vào database
+        const role = await VaiTro.create({ 
+            ten_vai_tro: tenVaiTroUpper, 
+            mo_ta,
+            is_admin: is_admin || false // false là nguoi_dung
+        });
 
-        res.status(200).json({ message: 'Tạo vai trò thành công!', data: role });
+        res.status(200).json({ 
+            message: 'Tạo vai trò thành công!', 
+            data: role 
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -50,7 +60,7 @@ module.exports.createRole = async (req, res) => {
 module.exports.updateRole = async (req, res) => {
     try {
         const { id_vai_tro } = req.params;
-        const { ten_vai_tro, mo_ta } = req.body;        
+        const { ten_vai_tro, mo_ta, is_admin } = req.body;        
 
         // Kiểm tra vai trò có chưa
         const role = await VaiTro.findByPk(id_vai_tro);
@@ -68,8 +78,9 @@ module.exports.updateRole = async (req, res) => {
 
         // Cập nhật trong database
         await VaiTro.update({ 
-            ten_vai_tro: ten_vai_tro,
-            mo_ta: mo_ta,
+            ten_vai_tro: ten_vai_tro?.toLowerCase() || role.ten_vai_tro,
+            mo_ta: mo_ta || role.mo_ta,
+            is_admin: is_admin !== undefined ? is_admin : role.is_admin,
             thoi_gian_cap_nhat: new Date()
         }, {
             where: {
@@ -148,13 +159,17 @@ module.exports.updateRolePermission = async (req, res) => {
         }
 
         // Kiểm tra ds mảng mã quyền
-        if (!Array.isArray(ds_ma_quyen) || ds_ma_quyen.length === 0) {
+        if (!Array.isArray(ds_ma_quyen)) {
             return res.status(400).json({ message: "Danh sách mảng quyền không hợp lệ!" });
         }
 
         // quan_tri_vien toàn quyền nên không cho sửa quyền cửa quan_tri_vien
         if (role.ten_vai_tro === 'quan_tri_vien') {
             return res.status(400).json({ message: "Quản trị viên toàn quyền. Không thể cập nhật quyền cho quản trị viên!" });
+        }
+
+        if (ds_ma_quyen.length === 0) {
+            return res.status(400).json({ message: "Không có gì thay đổi!" });
         }
 
         // Tìm kiếm quyền trong table quyen
@@ -188,7 +203,7 @@ module.exports.updateRolePermission = async (req, res) => {
 };
 
 // [GET] /api/roles/permissions-table
-module.exports.getPermissionsTable = async (req, res) => {
+module.exports.getPermissionsTable = async (req, res) => {  
     try {
         const dsVaiTro = await VaiTro.findAll({ 
             where: {

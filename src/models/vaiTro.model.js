@@ -22,6 +22,10 @@ const VaiTro = sequelize.define(
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
+    is_admin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     thoi_gian_cap_nhat: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
