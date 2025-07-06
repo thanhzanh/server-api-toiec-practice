@@ -9,7 +9,6 @@ module.exports.index = async (req, res) => {
         const roles = await VaiTro.findAll({
             where: {
                 da_xoa: false,
-                ten_vai_tro: { [Op.ne]: 'nguoi_dung' } // [Op.ne]: loại bỏ (khác)
             },
             order: [['thoi_gian_tao', 'ASC']]
         });
