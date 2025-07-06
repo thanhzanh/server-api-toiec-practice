@@ -195,7 +195,8 @@ module.exports.getPermissionsTable = async (req, res) => {
             where: {
                 ten_vai_tro: { [Op.ne]: 'nguoi_dung' } // không phân biệt hoa thường
             },
-            attributes: ['id_vai_tro', 'ten_vai_tro'] 
+            attributes: ['id_vai_tro', 'ten_vai_tro'] ,
+            order: [['id_vai_tro', 'DESC']]
         });
         const dsQuyen = await Quyen.findAll({
             include: [
