@@ -10,7 +10,7 @@ module.exports.index = async (req, res) => {
             where: {
                 da_xoa: false,
             },
-            attributes: ["id_vai_tro", "ten_vai_tro", "mo_ta", "is_admin"], 
+            attributes: ["id_vai_tro", "ten_vai_tro", "mo_ta", "is_admin", "thoi_gian_tao", "thoi_gian_cap_nhat"], 
             order: [['thoi_gian_tao', 'ASC']]
         });
 
