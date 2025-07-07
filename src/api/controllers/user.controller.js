@@ -210,7 +210,7 @@ module.exports.editUser = async(req, res) => {
         const userProfile = await NguoiDung.findByPk(
             id_nguoi_dung,
             {
-                attributes: ['id_nguoi_dung', 'ten_dang_nhap', 'trang_thai', 'vai_tro'],
+                attributes: ['id_nguoi_dung', 'ten_dang_nhap', 'trang_thai', 'id_vai_tro'],
                 include: [
                     {
                         model: HoSoNguoiDung,
@@ -226,10 +226,7 @@ module.exports.editUser = async(req, res) => {
                     },
                 ],
             },
-        );
-
-        console.log(userProfile);
-        
+        );        
 
         res.status(200).json({ 
             message: "Đã cập nhật thông tin cá nhân",
