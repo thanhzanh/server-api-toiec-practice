@@ -99,6 +99,31 @@ module.exports.detailUser = async(req, res) => {
             },
         );
 
+        // Nếu chưa có hồ sơ thì lấy thông tin người dùng cơ bản
+        if (!profile) {
+            const nguoiDung = await NguoiDung.findByPk(id_nguoi_dung, {
+                attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai']
+            });
+
+            if (!nguoiDung) {
+                return res.status(404).json({ message: "Người dùng không tồn tại!" });
+            }
+
+            // Trả về thông tin hồ sơ null
+            profile = {
+                id_nguoi_dung,
+                ho_ten: null,
+                so_dien_thoai: null,
+                url_hinh_dai_dien: null,
+                dia_chi: null,
+                ngay_sinh: null,
+                gioi_thieu: null,
+                thoi_gian_tao: null,
+                thoi_gian_cap_nhat: null,
+                nguoi_dung: nguoiDung
+            };
+        }
+
         // Lấy danh sách trạng thái
         const listStatus = NguoiDung.rawAttributes.trang_thai.values;
 

@@ -4,12 +4,12 @@ const router = express.Router();
 const controller = require('../controllers/category.controller');
 const { authenticateUser } = require('../middlewares/auth.middleware');
 const { authorizePermission } = require('../middlewares/permission.middleware');
-const { uploadCloudinary } = require('../middlewares/upload.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // Lấy tất cả danh sách danh mục bài viết
 router.get("/", 
     authenticateUser, 
+    authorizePermission("CATEGORY_VIEW"),
     logAction('Xem danh sách danh mục bài viết'),
     controller.index
 );
@@ -17,6 +17,7 @@ router.get("/",
 // Tạo danh mục bài viết
 router.post("/create", 
     authenticateUser, 
+    authorizePermission("CATEGORY_CREATE"),
     logAction('Tạo danh mục bài viết'),
     controller.createCategory
 );
@@ -24,6 +25,7 @@ router.post("/create",
 // Cập nhật danh mục bài viết
 router.patch("/update/:id_danh_muc", 
     authenticateUser, 
+    authorizePermission("CATEGORY_UPDATE"),
     logAction('Cập nhật danh mục bài viết'),
     controller.updateCategory
 );
@@ -31,6 +33,7 @@ router.patch("/update/:id_danh_muc",
 // Xóa danh mục bài viết
 router.delete("/delete/:id_danh_muc", 
     authenticateUser, 
+    authorizePermission("CATEGORY_DELETE"),
     logAction('Xóa danh mục bài viết'),
     controller.deleteCategory
 );
@@ -38,6 +41,7 @@ router.delete("/delete/:id_danh_muc",
 // Xem danh mục bài viết
 router.get("/detail/:id_danh_muc", 
     authenticateUser, 
+    authorizePermission("CATEGORY_DETAIL"),
     logAction('Xem danh mục bài viết'),
     controller.detailCategory
 );

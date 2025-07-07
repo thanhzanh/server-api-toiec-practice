@@ -164,9 +164,9 @@ module.exports.updateRolePermission = async (req, res) => {
         }
 
         // quan_tri_vien toàn quyền nên không cho sửa quyền cửa quan_tri_vien
-        if (role.ten_vai_tro === 'quan_tri_vien') {
-            return res.status(400).json({ message: "Quản trị viên toàn quyền. Không thể cập nhật quyền cho quản trị viên!" });
-        }
+        // if (role.ten_vai_tro === 'quan_tri_vien') {
+        //     return res.status(400).json({ message: "Quản trị viên toàn quyền. Không thể cập nhật quyền cho quản trị viên!" });
+        // }
 
         if (ds_ma_quyen.length === 0) {
             return res.status(400).json({ message: "Không có gì thay đổi!" });
