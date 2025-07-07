@@ -1,5 +1,6 @@
 const NguoiDung = require("../../models/nguoiDung.model");
 const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
+const VaiTro = require("../../models/vaiTro.model");
 const { createPaginationQuery } = require('../../utils/pagination');
 const { createSearchQuery } = require('../../utils/search');
 const { Op, where } = require('sequelize');
@@ -420,9 +421,18 @@ module.exports.setUserRole = async(req, res) => {
             return res.status(404).json({ message: "Người dùng không tồn tại!" });
         }
 
+        // Ràng buộc không cho cấp quyền quản trị viên
+        const role = await VaiTro.findByPk(id_vai_tro);
+        if (!role) {
+            return res.status(404).json({ message: "Vai trò không tồn tại!" });
+        }
+        if (role.ten_vai_tro === "quan_tri_vien") {
+            return res.status(403).json({ message: "Không được phép cấp quyền quản trị viên!" });
+        }
+
         // Cập nhật id_vai_tro
         user.id_vai_tro = id_vai_tro;
-        await user.save();
+        await user.save();  
 
         res.status(200).json({ 
             message: "Cập nhật vai trò thành công!" ,
