@@ -41,4 +41,19 @@ router.get("/detail/:id_bai_lam_nguoi_dung",
     controller.detail
 );
 
+// Xem chi tiết kết quả làm bài thi theo part
+router.get("/detail-part/:id_bai_lam_nguoi_dung/:part", 
+    authenticateUser, 
+    logAction('Xem chi tiết kết quả làm bài thi theo Part'),
+    controller.detailPart
+);
+
+// Xem chi tiết kết quả làm bài thi part 1
+router.get("/detail-first/:id_bai_lam_nguoi_dung", 
+    authenticateUser, 
+    logAction('Xem chi tiết kết quả làm bài thi Part 1'),
+    controller.detailFirstPart
+);
+
+
 module.exports = router;
