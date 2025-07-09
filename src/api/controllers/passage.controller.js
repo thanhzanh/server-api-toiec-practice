@@ -79,7 +79,6 @@ module.exports.index = async (req, res) => {
 module.exports.create = async (req, res) => {
     try {        
         const { tieu_de, noi_dung, id_phan, loai_doan_van } = req.body;
-        console.log("Data request: ", req.body);
 
         // Kiểm tra phần tồn tại không
         const phan = await PhanCauHoi.findByPk(id_phan);
@@ -138,8 +137,6 @@ module.exports.create = async (req, res) => {
                 }
             ]
         });
-
-        console.log("Dữ liệu đoạn văn đã thêm: ", dataCreated);
         
         res.status(200).json({ 
             message: "Tạo đoạn văn thành công",

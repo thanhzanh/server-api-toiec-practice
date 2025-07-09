@@ -579,46 +579,40 @@ module.exports.detailPartUser = async (req, res) => {
 
         const baiLam = await BaiLamNguoiDung.findByPk(id_bai_lam_nguoi_dung, {
             include: [
-                { 
-                    model: NguoiDung, as: 'nguoi_dung_lam_bai', attributes: ['email', 'ten_dang_nhap'],
-                    include: [
-                        { model: HoSoNguoiDung, as: 'ho_so', attributes: ['ho_ten'] }
-                    ],
-                },
                 {
                     model: CauTraLoiNguoiDung,
                     as: 'cau_tra_loi',
-                    attributes: ['id_cau_tra_loi', 'id_bai_lam_nguoi_dung', 'id_cau_hoi', 'lua_chon_da_chon', 'la_dung', 'da_tra_loi']
+                    attributes: ['id_cau_tra_loi', 'lua_chon_da_chon', 'la_dung', 'da_tra_loi']
                 },
                 { 
                     model: BaiThi, as: 'bai_thi_nguoi_dung', attributes: ['id_bai_thi','ten_bai_thi'],
                     include: [
                         {
-                            model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi', 'id_bai_thi', 'id_cau_hoi'],
+                            model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi'],
                             include: [
                                 {
                                     model: NganHangCauHoi, 
                                     as: 'cau_hoi', 
-                                    attributes: ['id_cau_hoi', 'id_phan', 'id_doan_van', 'noi_dung', 'dap_an_dung', 'giai_thich', 'muc_do_kho', 'id_phuong_tien_hinh_anh', 'id_phuong_tien_am_thanh'],
+                                    attributes: ['id_cau_hoi', 'id_doan_van', 'noi_dung', 'dap_an_dung', 'giai_thich', 'id_phuong_tien_hinh_anh', 'id_phuong_tien_am_thanh'],
                                     include: [
                                         {
-                                            model: PhanCauHoi, as: 'phan', attributes: ['id_phan', 'ten_phan', 'loai_phan', 'mo_ta'],
+                                            model: PhanCauHoi, as: 'phan', attributes: ['id_phan'],
                                             where: { id_phan: phan }
                                         }, 
                                         { 
                                             model: DoanVan, 
                                             as: 'doan_van', 
-                                            attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'id_phan', 'thoi_gian_tao'],
+                                            attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van'],
                                             include: [
                                                 {
                                                     model: PhuongTien,
                                                     as: 'danh_sach_phuong_tien',
-                                                    attributes: ['id_phuong_tien', 'loai_phuong_tien', 'url_phuong_tien']
+                                                    attributes: ['id_phuong_tien', 'url_phuong_tien']
                                                 }
                                             ] 
                                         },
-                                        { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
-                                        { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
+                                        { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien'] },
+                                        { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien'] },
                                         { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
                                     ]
                                 }
@@ -628,6 +622,7 @@ module.exports.detailPartUser = async (req, res) => {
                     ]
                 }            
             ],
+            attributes: ['id_bai_lam_nguoi_dung', 'tong_diem', 'diem_doc', 'diem_nghe', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc']
         });
         if (!baiLam) {
             return res.status(400).json({ message: 'Bài làm người dùng không tồn tại!' });

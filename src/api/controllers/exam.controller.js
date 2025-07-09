@@ -340,7 +340,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
                 if (demSoCauTheoPart[part] !== undefined) {
                     demSoCauTheoPart[part]++;
                 }
-                console.log(`Câu hỏi ${ds_cau_hoi[i]} - Part ${part}`);
             }
     
             for (const part in cauTrucToiec) {
@@ -450,8 +449,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
                 }
             ]
         });
-
-        console.log("Thông tin đề thi sau khi cập nhật:", examWithQuestions);
         
         res.status(200).json({ 
             message: "Đã thêm câu hỏi vào đề thi và tạo bảng nháp!",
