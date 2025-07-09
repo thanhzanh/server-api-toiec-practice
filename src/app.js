@@ -19,7 +19,8 @@ app.use(cors({
     origin: ["http://localhost:5173", "https://toeic-practice-eight.vercel.app"], // Cho phep hoat dong tren local va online
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
+    credentials: true,
+    optionsSuccessStatus: 200
 }));
 
 // parse application/x-www-form-urlencoded

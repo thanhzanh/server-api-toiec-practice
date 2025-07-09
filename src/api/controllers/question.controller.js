@@ -348,8 +348,6 @@ module.exports.importExcel = async (req, res) => {
         const workSheet= workbook.Sheets[sheetName];
         const results = xlsx.utils.sheet_to_json(workSheet);
 
-        console.log("Data parse xlsx to json: ", results);
-
         const questionToAdd = [];
 
         // Cache để lưu id_phuong_tien hoặc id_doan_van chung
@@ -401,10 +399,8 @@ module.exports.importExcel = async (req, res) => {
                 if (loai_doan_van) whereDoanVan.loai_doan_van = loai_doan_van;
                 // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
                 const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}|${loai_doan_van || ''}`;
-                console.log("Key tieu doan van: ", keyTieuDoanVan);
                 
                 id_doan_van = doanVanCache.get(keyTieuDoanVan);
-                console.log("ID doan van cache: ", id_doan_van);
                 
                 if (!id_doan_van) {
                     const [doanVan, created] = await DoanVan.findOrCreate({
@@ -431,11 +427,9 @@ module.exports.importExcel = async (req, res) => {
             if (url_hinh_anh) {
                 // Duyệt qua từng hình ảnh ngăn cách bởi ;
                 const dsHinhAnh = url_hinh_anh.split(";").map(url => url.trim());
-                console.log("Danh sach hinh anh: ", dsHinhAnh);
                 
                 for (const url of dsHinhAnh) {
                     let id_phuong_tien = phuongTienCache.get(url);
-                    console.log("ID phuong tien hinh anh cache: ", id_phuong_tien);
 
                     if (!id_phuong_tien) {
                         const fileId = url.match(/\/d\/(.*?)\//)?.[1];
@@ -480,10 +474,8 @@ module.exports.importExcel = async (req, res) => {
             // Xử lý âm thanh
             let amThanhId = null;
             if (url_am_thanh) {
-                console.log("Đang tải âm thanh từ: ", url_am_thanh);
                 
                 let id_phuong_tien = phuongTienCache.get(url_am_thanh);
-                console.log("ID phuong tien am thanh cache: ", id_phuong_tien);
                 
                 if (!id_phuong_tien) {
                     
@@ -491,7 +483,6 @@ module.exports.importExcel = async (req, res) => {
                     const downloadUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
     
                     const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
-                    console.log("Response axios: ", response);
                     
                     const buffer = Buffer.from(response.data);
     
@@ -634,14 +625,11 @@ module.exports.delete = async (req, res) => {
 module.exports.edit = async (req, res) => {
     try {
         const { id_cau_hoi } = req.params;
-        console.log(id_cau_hoi);
 
         let data = JSON.parse(req.body.data);
-        console.log("Data gui len: ", data);
         
         // Kiểm tra câu hỏi tồn tại không
         const existingQuestion = await NganHangCauHoi.findByPk(id_cau_hoi);
-        console.log(existingQuestion);
         
         if (!existingQuestion) {
             return res.status(400).json({ message: "Câu hỏi không tồn tại!" });

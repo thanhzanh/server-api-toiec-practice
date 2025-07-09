@@ -5,6 +5,7 @@ const { authenticateUser, authorizeRole } = require('../middlewares/auth.middlew
 const { authorizePermission } = require('../middlewares/permission.middleware');
 const logAction = require('../middlewares/log.middleware');
 
+// ==================================== QUẢN TRỊ VIÊN ====================================
 // Làm bài thi
 router.post("/submit-exam",
     authenticateUser,
@@ -26,13 +27,6 @@ router.get("/",
     controller.index
 );
 
-// Lấy danh sách tất cả kết quả làm bài thi của người dùng
-router.get("/get-all-exam-submit/:id_nguoi_dung", 
-    authenticateUser, 
-    logAction('Lấy danh sách tất cả kết quả làm bài thi của người dùng'),
-    controller.getAllExamSubmit
-);
-
 // Xem chi tiết kết quả làm bài thi
 router.get("/detail/:id_bai_lam_nguoi_dung", 
     authenticateUser, 
@@ -44,6 +38,7 @@ router.get("/detail/:id_bai_lam_nguoi_dung",
 // Xem chi tiết kết quả làm bài thi theo part
 router.get("/detail-part/:id_bai_lam_nguoi_dung/:part", 
     authenticateUser, 
+    authorizePermission("RESULT_DETAIL"),
     logAction('Xem chi tiết kết quả làm bài thi theo Part'),
     controller.detailPart
 );
@@ -51,8 +46,32 @@ router.get("/detail-part/:id_bai_lam_nguoi_dung/:part",
 // Xem chi tiết kết quả làm bài thi part 1
 router.get("/detail-first/:id_bai_lam_nguoi_dung", 
     authenticateUser, 
+    authorizePermission("RESULT_DETAIL"),
     logAction('Xem chi tiết kết quả làm bài thi Part 1'),
     controller.detailFirstPart
+);
+
+// ==================================== NGƯỜI DÙNG ====================================
+
+// Lấy danh sách tất cả kết quả làm bài thi của người dùng
+router.get("/get-all-exam-submit/:id_nguoi_dung", 
+    authenticateUser, 
+    logAction('Lấy danh sách tất cả kết quả làm bài thi của người dùng'),
+    controller.getAllExamSubmit
+);
+
+// Xem chi tiết kết quả làm bài thi theo part
+router.get("/detail-part-user/:id_bai_lam_nguoi_dung/:part", 
+    authenticateUser, 
+    logAction('Xem chi tiết kết quả làm bài thi theo Part'),
+    controller.detailPartUser
+);
+
+// Xem chi tiết kết quả làm bài thi part 1
+router.get("/detail-first-user/:id_bai_lam_nguoi_dung", 
+    authenticateUser, 
+    logAction('Xem chi tiết kết quả làm bài thi Part 1'),
+    controller.detailFirstPartUser
 );
 
 
