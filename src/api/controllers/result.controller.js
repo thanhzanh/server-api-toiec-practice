@@ -14,6 +14,7 @@ const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicSco
 const { createPaginationQuery } = require('../../utils/pagination');
 
 const { Sequelize } = require('sequelize'); // nếu chưa import
+// const { sequelize } = require('../models'); 
 const sequelize = require('../../config/database'); // đường dẫn config Sequelize
 
 // [POST] /api/results/submit-exam
@@ -571,6 +572,7 @@ module.exports.detailFirstPart = async (req, res) => {
   }
 };
 
+
 // [GET] /api/results/detail-part-user/:id_bai_lam_nguoi_dung/:part
 module.exports.detailPartUser = async (req, res) => {
     try {
@@ -589,15 +591,18 @@ module.exports.detailPartUser = async (req, res) => {
                     include: [
                         {
                             model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi'],
+                            required: true,
                             include: [
                                 {
                                     model: NganHangCauHoi, 
                                     as: 'cau_hoi', 
                                     attributes: ['id_cau_hoi', 'id_doan_van', 'noi_dung', 'dap_an_dung', 'giai_thich', 'id_phuong_tien_hinh_anh', 'id_phuong_tien_am_thanh'],
+                                    required: true,
                                     include: [
                                         {
                                             model: PhanCauHoi, as: 'phan', attributes: ['id_phan'],
-                                            where: { id_phan: phan }
+                                            where: { id_phan: phan },
+                                            required: true
                                         }, 
                                         { 
                                             model: DoanVan, 

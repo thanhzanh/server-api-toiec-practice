@@ -63,14 +63,12 @@ router.get("/get-all-exam-submit/:id_nguoi_dung",
 // Xem chi tiết kết quả làm bài thi theo part
 router.get("/detail-part-user/:id_bai_lam_nguoi_dung/:part", 
     authenticateUser, 
-    logAction('Xem chi tiết kết quả làm bài thi theo Part'),
     controller.detailPartUser
 );
 
 // Xem chi tiết kết quả làm bài thi part 1
 router.get("/detail-first-user/:id_bai_lam_nguoi_dung", 
     authenticateUser, 
-    logAction('Xem chi tiết kết quả làm bài thi Part 1'),
     controller.detailFirstPartUser
 );
 
