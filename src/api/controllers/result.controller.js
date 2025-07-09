@@ -584,7 +584,7 @@ module.exports.detailPartUser = async (req, res) => {
                 {
                     model: CauTraLoiNguoiDung,
                     as: 'cau_tra_loi',
-                    attributes: ['id_cau_tra_loi', 'lua_chon_da_chon', 'la_dung', 'da_tra_loi']
+                    attributes: ['id_cau_tra_loi', 'id_cau_hoi', 'lua_chon_da_chon', 'la_dung', 'da_tra_loi']
                 },
                 { 
                     model: BaiThi, as: 'bai_thi_nguoi_dung', attributes: ['id_bai_thi','ten_bai_thi'],
