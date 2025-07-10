@@ -299,7 +299,16 @@ module.exports.googleLogin = async(req, res) => {
 
         const { email, name, picture, sub} = payload;    
 
-        let user = await NguoiDung.findOne({ where: { email } });
+        const user = await NguoiDung.findOne({ 
+            where: { email },
+            include: [
+                {
+                    model: VaiTro, 
+                    as: 'vai_tro_nguoi_dung', 
+                    attributes: ['ten_vai_tro'],
+                }
+            ]
+        });
         if (!user) {
             // Lưu bảng nguoi_dung
             user = await NguoiDung.create({
@@ -307,7 +316,7 @@ module.exports.googleLogin = async(req, res) => {
                 ten_dang_nhap: email.split('@')[0],
                 mat_khau: '',
                 id_google: sub,
-                vai_tro: 'nguoi_dung',
+                id_vai_tro: 'nguoi_dung',
                 trang_thai: 'hoat_dong'
             });
 
@@ -323,7 +332,7 @@ module.exports.googleLogin = async(req, res) => {
             {
                 id_nguoi_dung: user.id_nguoi_dung,
                 email: user.email,
-                vai_tro: user.vai_tro,
+                vai_tro: user.vai_tro_nguoi_dung.ten_vai_tro,
                 action: 'auth'
             },
             process.env.JWT_SECRET,
