@@ -299,12 +299,30 @@ module.exports.googleLogin = async(req, res) => {
 
         const { email, name, picture, sub} = payload;    
 
-        const user = await NguoiDung.findOne({ 
-            where: { email }
-        });
-
         // Gán vai trò mặc định 'nguoi_dung'
         const vaiTroMacDinh = await VaiTro.findOne({ where: { ten_vai_tro: 'nguoi_dung' } });
+        if (!vaiTroMacDinh) {
+            return res.status(500).json({ message: "Không tìm thấy vai trò mặc định" });
+        }
+
+        // Tìm user theo email (vai trò và hồ sơ)
+        let user = await NguoiDung.findOne({ 
+            where: { email },
+            include: [
+                {
+                    model: VaiTro,
+                    as: 'vai_tro_nguoi_dung',
+                    attributes: ['ten_vai_tro']
+                },
+                {
+                    model: HoSoNguoiDung,
+                    as: 'ho_so',
+                    attributes: ['ho_ten', 'url_hinh_dai_dien']
+                }
+            ]
+        });
+
+        // Nếu user chưa tồn tại thì tạo mới
         if (!user) {
             // Lưu bảng nguoi_dung
             user = await NguoiDung.create({
@@ -324,18 +342,49 @@ module.exports.googleLogin = async(req, res) => {
             });
 
             // Lấy lại user kèm vai trò
-            user = await NguoiDung.findOne({
+            user = await NguoiDung.findOne({ 
                 where: { email },
                 include: [
                     {
                         model: VaiTro,
                         as: 'vai_tro_nguoi_dung',
                         attributes: ['ten_vai_tro']
+                    },
+                    {
+                        model: HoSoNguoiDung,
+                        as: 'ho_so',
+                        attributes: ['ho_ten', 'url_hinh_dai_dien']
                     }
                 ]
             });
+        } else {
+            if (!user.ho_so) {
+                await HoSoNguoiDung.create({
+                    id_nguoi_dung: user.id_nguoi_dung,
+                    ho_ten: name,
+                    url_hinh_dai_dien: picture
+                });
+
+                // Cập nhật lại user sau khi thêm hồ sơ
+                user = await NguoiDung.findOne({
+                    where: { email },
+                    include: [
+                        {
+                            model: VaiTro,
+                            as: 'vai_tro_nguoi_dung',
+                            attributes: ['ten_vai_tro']
+                        },
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
+                });
+            }
         }
 
+        // Tạo JWT token
         const jwtToken = jwt.sign(
             {
                 id_nguoi_dung: user.id_nguoi_dung,

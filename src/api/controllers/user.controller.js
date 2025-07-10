@@ -275,6 +275,13 @@ module.exports.changeStatus = async(req, res) => {
             return res.status(404).json({ message: "Người dùng không tồn tại" });
         }
 
+        // Vai trò
+        const role = await VaiTro.findOne({ where: { ten_vai_tro: 'quan_tri_vien' } });
+        if (role) {
+            return res.status(404).json({ message: "Không cập nhật trạng thái cho quản trị viên được!" });
+        }
+        
+
         // Cập nhật trạng thái
         await user.update({ trang_thai: trang_thai });
 
