@@ -419,76 +419,6 @@ module.exports.getAllExamSubmit = async (req, res) => {
     }
 };
 
-// [GET] /api/results/detail/:id_bai_lam_nguoi_dung
-module.exports.detail = async (req, res) => {
-    try {
-        const { id_bai_lam_nguoi_dung } = req.params;
-
-        const baiLam = await BaiLamNguoiDung.findByPk(id_bai_lam_nguoi_dung, {
-            include: [
-                { 
-                    model: NguoiDung, as: 'nguoi_dung_lam_bai', attributes: ['email', 'ten_dang_nhap'],
-                    include: [
-                        { model: HoSoNguoiDung, as: 'ho_so', attributes: ['ho_ten'] }
-                    ],
-                },
-                {
-                    model: CauTraLoiNguoiDung,
-                    as: 'cau_tra_loi',
-                    attributes: ['id_cau_tra_loi', 'id_bai_lam_nguoi_dung', 'id_cau_hoi', 'lua_chon_da_chon', 'la_dung', 'da_tra_loi']
-                },
-                { 
-                    model: BaiThi, as: 'bai_thi_nguoi_dung', attributes: ['id_bai_thi','ten_bai_thi', 'mo_ta', 'so_luong_cau_hoi', 'muc_do_diem', 'thoi_gian_bai_thi', 'nam_xuat_ban'],
-                    include: [
-                        {
-                            model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi', 'id_bai_thi', 'id_cau_hoi'],
-                            include: [
-                                {
-                                    model: NganHangCauHoi, 
-                                    as: 'cau_hoi', 
-                                    attributes: ['id_cau_hoi', 'id_phan', 'id_doan_van', 'noi_dung', 'dap_an_dung', 'giai_thich', 'muc_do_kho', 'id_phuong_tien_hinh_anh', 'id_phuong_tien_am_thanh', 'nguon_goc'],
-                                    include: [
-                                        {
-                                            model: PhanCauHoi, as: 'phan', attributes: ['id_phan', 'ten_phan', 'loai_phan', 'mo_ta']
-                                        }, 
-                                        { 
-                                            model: DoanVan, 
-                                            as: 'doan_van', 
-                                            attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'id_phan', 'thoi_gian_tao'],
-                                            include: [
-                                                {
-                                                    model: PhuongTien,
-                                                    as: 'danh_sach_phuong_tien',
-                                                    attributes: ['id_phuong_tien', 'loai_phuong_tien', 'url_phuong_tien']
-                                                }
-                                            ] 
-                                        },
-                                        { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
-                                        { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
-                                        { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
-                                    ]
-                                }
-                            ],
-                            order: [['id_cau_hoi_bai_thi', 'ASC']]
-                        }
-                    ]
-                }            
-            ],
-        });
-        if (!baiLam) {
-            return res.status(400).json({ message: 'Bài làm người dùng không tồn tại!' });
-        }
-
-        res.status(200).json({ 
-            message: 'Danh sách bài làm người dùng',
-            data: baiLam
-        });
-
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
 // [GET] /api/results/detail/:id_bai_lam_nguoi_dung/:part
 module.exports.detailPart = async (req, res) => {
     try {
@@ -650,6 +580,52 @@ module.exports.detailFirstPartUser = async (req, res) => {
     return module.exports.detailPartUser(req, res); // tái sử dụng API detailPartUser
   } catch (error) {
     console.error('Lỗi khi lấy Part 1:', error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// [GET] /api/results/question-index/:id_bai_lam_nguoi_dung
+module.exports.getQuestionIndex = async (req, res) => {
+  try {
+    const { id_bai_lam_nguoi_dung } = req.params;
+
+    const baiLam = await BaiLamNguoiDung.findByPk(id_bai_lam_nguoi_dung, {
+        include: [
+            {
+                model: BaiThi,
+                as: 'bai_thi_nguoi_dung',
+                include: [
+                    {
+                        model: CauHoiBaiThi,
+                        as: 'cau_hoi_cua_bai_thi',
+                        include: [
+                            {
+                                model: NganHangCauHoi,
+                                as: 'cau_hoi',
+                                attributes: ['id_cau_hoi']
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    });
+
+    if (!baiLam) {
+        return res.status(400).json({ message: "Không tìm thấy bài làm!" });
+    }
+
+    const result = baiLam.bai_thi_nguoi_dung.cau_hoi_cua_bai_thi.map((cauHoiBaiThi, index) => ({
+        id_cau_hoi: cauHoiBaiThi.cau_hoi.id_cau_hoi,
+        thu_tu: index + 1
+    }));    
+
+    res.status(200).json({
+        message: "Thứ tự câu hỏi",
+        data: result
+    });
+
+  } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };

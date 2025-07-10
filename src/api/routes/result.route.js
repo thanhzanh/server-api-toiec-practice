@@ -27,14 +27,6 @@ router.get("/",
     controller.index
 );
 
-// Xem chi tiết kết quả làm bài thi
-router.get("/detail/:id_bai_lam_nguoi_dung", 
-    authenticateUser, 
-    authorizePermission("RESULT_DETAIL"), 
-    logAction('Xem chi tiết kết quả làm bài thi'),
-    controller.detail
-);
-
 // Xem chi tiết kết quả làm bài thi theo part
 router.get("/detail-part/:id_bai_lam_nguoi_dung/:part", 
     authenticateUser, 
@@ -56,7 +48,6 @@ router.get("/detail-first/:id_bai_lam_nguoi_dung",
 // Lấy danh sách tất cả kết quả làm bài thi của người dùng
 router.get("/get-all-exam-submit/:id_nguoi_dung", 
     authenticateUser, 
-    logAction('Lấy danh sách tất cả kết quả làm bài thi của người dùng'),
     controller.getAllExamSubmit
 );
 
@@ -70,6 +61,12 @@ router.get("/detail-part-user/:id_bai_lam_nguoi_dung/:part",
 router.get("/detail-first-user/:id_bai_lam_nguoi_dung", 
     authenticateUser, 
     controller.detailFirstPartUser
+);
+
+// Lấy thứ tự câu hỏi
+router.get("/question-index/:id_bai_lam_nguoi_dung",
+    authenticateUser,
+    controller.getQuestionIndex
 );
 
 
