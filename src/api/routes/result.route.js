@@ -69,5 +69,11 @@ router.get("/question-index/:id_bai_lam_nguoi_dung",
     controller.getQuestionIndex
 );
 
+// Lấy danh sách cách phần có trong bài thi
+router.get("/avaliable-parts/:id_bai_lam_nguoi_dung",
+    authenticateUser,
+    controller.getAvaliableParts
+);
+
 
 module.exports = router;

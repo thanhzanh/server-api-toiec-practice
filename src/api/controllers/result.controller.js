@@ -630,4 +630,73 @@ module.exports.getQuestionIndex = async (req, res) => {
   }
 };
 
+// [GET] /api/results/avaliable-parts/:id_bai_lam_nguoi_dung
+module.exports.getAvaliableParts = async (req, res) => {
+  try {
+    const { id_bai_lam_nguoi_dung } = req.params;
+
+    const baiLam = await BaiLamNguoiDung.findByPk(id_bai_lam_nguoi_dung, {
+        include: [
+            {
+                model: BaiThi,
+                as: 'bai_thi_nguoi_dung',
+                include: [
+                    {
+                        model: CauHoiBaiThi,
+                        as: 'cau_hoi_cua_bai_thi',
+                        include: [
+                            {
+                                model: NganHangCauHoi,
+                                as: 'cau_hoi',
+                                attributes: ['id_phan'],
+                                include: [
+                                    {
+                                        model: PhanCauHoi,
+                                        as: 'phan',
+                                        attributes: ['id_phan', 'ten_phan'],
+                                        order: [['id_phan', 'ASC']]
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    });
+
+    if (!baiLam) {
+        return res.status(400).json({ message: "Không tìm thấy bài làm!" });
+    }
+
+    const partSet = new Set();
+    const arrayParts = [];
+    
+    const dsCauHoi = baiLam?.bai_thi_nguoi_dung?.cau_hoi_cua_bai_thi;
+    
+    dsCauHoi.forEach(cauHoi => {
+        const phan = cauHoi?.cau_hoi?.phan;
+        if (phan && !partSet.has(phan.id_phan)) {
+            partSet.add(phan.id_phan);
+            arrayParts.push({
+                id_phan: phan.id_phan,
+                ten_phan: phan.ten_phan
+            });
+        }
+    });
+    
+    // Sắp xếp tăng dần theo id_phan
+    arrayParts.sort((a, b) => a.id_phan - b.id_phan);
+
+    res.status(200).json({
+        message: "Danh sách các phần của bài làm",
+        parts: arrayParts
+    });
+
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
 
