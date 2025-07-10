@@ -18,6 +18,10 @@ module.exports.register = async(req, res) => {
     try {
         const { email, ten_dang_nhap, mat_khau } = req.body;
 
+        if (!email || !ten_dang_nhap || !mat_khau) {
+            return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin!" });
+        }
+
         // Kiểm tra email và ten_dang_nhap
         const existingUser = await NguoiDung.findOne({ where: { email } }) || await NguoiDung.findOne({ where: { ten_dang_nhap } });
         if (existingUser) {
@@ -53,6 +57,10 @@ module.exports.register = async(req, res) => {
 module.exports.login = async(req, res) => {
     try {
         const { identifier, mat_khau } = req.body;
+
+        if (!identifier || !mat_khau) {
+            return res.status(400).json({ message: "Vui lòng nhập đầy đủ tài khoản và mật khẩu!" });
+        }
     
         // Tìm người dùng
         // SELECT * FROM nguoi_dung WHERE email = 'admin@gmail.com' OR ten_dang_nhap = 'abc123';
@@ -134,6 +142,10 @@ module.exports.login = async(req, res) => {
 module.exports.forgotPassword = async(req, res) => {
     try {
         const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Vui lòng nhập email!" });
+        }
 
         // Tìm người dùng
         const user = await NguoiDung.findOne({ where: { email } });

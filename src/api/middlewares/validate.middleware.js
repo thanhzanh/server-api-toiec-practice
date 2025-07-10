@@ -79,7 +79,7 @@ const resetPasswordValidation = [
     body('email')
         .isEmail().withMessage('Email không hợp lệ'),
     body('mat_khau_moi')
-        .isLength({ min: 8 }).withMessage('Mật khẩu phải ít nhất ký tự')
+        .isLength({ min: 8 }).withMessage('Mật khẩu phải ít nhất 8 ký tự')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/).withMessage('Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt')
         .notEmpty().withMessage('Mật khẩu là bắt buộc'),
         validate

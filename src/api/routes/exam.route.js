@@ -16,7 +16,7 @@ router.get("/",
 // Tạo đề thi nháp (Bước 1)
 router.post("/create", 
     authenticateUser, 
-    authorizePermission("USER_CREATE"),
+    authorizePermission("EXAM_CREATE"),
     logAction('Tạo đề thi nháp'), 
     controller.createExam
 );
