@@ -107,7 +107,8 @@ module.exports.login = async(req, res) => {
                 email: user.email, 
                 id_vai_tro: user.id_vai_tro,
                 vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro,
-                is_admin: user.vai_tro_nguoi_dung?.is_admin
+                is_admin: user.vai_tro_nguoi_dung?.is_admin,
+                permissions: permissions
             },
             process.env.JWT_SECRET,
             {
@@ -123,7 +124,6 @@ module.exports.login = async(req, res) => {
             token,
             vai_tro: user.vai_tro_nguoi_dung.ten_vai_tro,
             is_admin: user.vai_tro_nguoi_dung.is_admin,
-            permissions: permissions
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

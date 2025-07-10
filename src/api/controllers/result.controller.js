@@ -615,7 +615,12 @@ module.exports.getQuestionIndex = async (req, res) => {
         return res.status(400).json({ message: "Không tìm thấy bài làm!" });
     }
 
-    const result = baiLam.bai_thi_nguoi_dung.cau_hoi_cua_bai_thi.map((cauHoiBaiThi, index) => ({
+    // Sắp xếp câu hỏi theo part tăng dần (1 -> 7)
+    const sortedCauHoi = baiLam.bai_thi_nguoi_dung.cau_hoi_cua_bai_thi.sort((a, b) => {
+      return a.cau_hoi.part - b.cau_hoi.part;
+    });
+
+    const result = sortedCauHoi.map((cauHoiBaiThi, index) => ({
         id_cau_hoi: cauHoiBaiThi.cau_hoi.id_cau_hoi,
         thu_tu: index + 1
     }));    
