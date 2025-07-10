@@ -109,9 +109,9 @@ const updateProfileValidation = [
         .isLength({ min: 0, max: 100 }).withMessage('Họ và tên có độ dài từ 1 ký tự đến 100 ký tự'),
     body('so_dien_thoai')
         .optional()
-        .matches(/^\d{10}$/).withMessage('Số điện thoại phải đủ 10 số')
         .custom(async (value, { req }) => {
-            if (!value) return true;
+            if (!value || value === '') return true;
+            if (!/^\d{10}$/.test(value)) throw new Error('Số điện thoại phải đủ 10 số');
             const profile = await HoSoNguoiDung.findOne({ 
                 where: {
                     so_dien_thoai: value,
