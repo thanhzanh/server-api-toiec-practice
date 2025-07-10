@@ -602,7 +602,7 @@ module.exports.getQuestionIndex = async (req, res) => {
                             {
                                 model: NganHangCauHoi,
                                 as: 'cau_hoi',
-                                attributes: ['id_cau_hoi']
+                                attributes: ['id_cau_hoi', 'id_phan'],
                             },
                         ],
                     },
@@ -617,7 +617,7 @@ module.exports.getQuestionIndex = async (req, res) => {
 
     // Sắp xếp câu hỏi theo part tăng dần (1 -> 7)
     const sortedCauHoi = baiLam.bai_thi_nguoi_dung.cau_hoi_cua_bai_thi.sort((a, b) => {
-      return a.cau_hoi.part - b.cau_hoi.part;
+      return a.cau_hoi.id_phan - b.cau_hoi.id_phan;
     });
 
     const result = sortedCauHoi.map((cauHoiBaiThi, index) => ({
