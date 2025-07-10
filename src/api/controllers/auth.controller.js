@@ -300,15 +300,11 @@ module.exports.googleLogin = async(req, res) => {
         const { email, name, picture, sub} = payload;    
 
         const user = await NguoiDung.findOne({ 
-            where: { email },
-            include: [
-                {
-                    model: VaiTro, 
-                    as: 'vai_tro_nguoi_dung', 
-                    attributes: ['ten_vai_tro'],
-                }
-            ]
+            where: { email }
         });
+
+        // Gán vai trò mặc định 'nguoi_dung'
+        const vaiTroMacDinh = await VaiTro.findOne({ where: { ten_vai_tro: 'nguoi_dung' } });
         if (!user) {
             // Lưu bảng nguoi_dung
             user = await NguoiDung.create({
@@ -316,7 +312,7 @@ module.exports.googleLogin = async(req, res) => {
                 ten_dang_nhap: email.split('@')[0],
                 mat_khau: '',
                 id_google: sub,
-                id_vai_tro: 'nguoi_dung',
+                id_vai_tro: vaiTroMacDinh.id_vai_tro,
                 trang_thai: 'hoat_dong'
             });
 
@@ -326,13 +322,25 @@ module.exports.googleLogin = async(req, res) => {
                 ho_ten: name,
                 url_hinh_dai_dien: picture
             });
+
+            // Lấy lại user kèm vai trò
+            user = await NguoiDung.findOne({
+                where: { email },
+                include: [
+                    {
+                        model: VaiTro,
+                        as: 'vai_tro_nguoi_dung',
+                        attributes: ['ten_vai_tro']
+                    }
+                ]
+            });
         }
 
         const jwtToken = jwt.sign(
             {
                 id_nguoi_dung: user.id_nguoi_dung,
                 email: user.email,
-                vai_tro: user.vai_tro_nguoi_dung.ten_vai_tro,
+                vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro,
                 action: 'auth'
             },
             process.env.JWT_SECRET,
