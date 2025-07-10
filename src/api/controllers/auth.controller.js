@@ -324,8 +324,8 @@ module.exports.googleLogin = async(req, res) => {
 
         // Nếu user chưa tồn tại thì tạo mới
         if (!user) {
-            const userName = email.split('@')[0]; // ví dụ: "thanhzanh.03"
-            const userNameHoanChinh = userName.replace(/[^a-zA-Z0-9_-]/g, '_'); // => "thanhzanh_03"
+            const userName = email.split('@')[0];
+            const userNameHoanChinh = userName.replace(/[^a-zA-Z0-9_-]/g, '_'); 
             // Lưu bảng nguoi_dung
             user = await NguoiDung.create({
                 email: email,
