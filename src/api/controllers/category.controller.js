@@ -33,7 +33,7 @@ module.exports.index = async (req, res) => {
         // Lấy tất cả danh mục bài viết
         const dsDanhMuc = await DanhMucBaiViet.findAll({
             where,
-            attributes: ['id_danh_muc', 'mo_ta', 'thoi_gian_tao', 'thoi_gian_cap_nhat', 'da_xoa'],
+            attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta', 'thoi_gian_tao', 'thoi_gian_cap_nhat', 'da_xoa'],
             order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem,
@@ -150,7 +150,7 @@ module.exports.detailCategory = async (req, res) => {
         }
 
         const data = await DanhMucBaiViet.findByPk(id_danh_muc, {
-            attributes: ['id_danh_muc', 'mo_ta', 'thoi_gian_tao', 'thoi_gian_cap_nhat', 'da_xoa']
+            attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta', 'thoi_gian_tao', 'thoi_gian_cap_nhat', 'da_xoa']
         })
 
         res.status(200).json({ 

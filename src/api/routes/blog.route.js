@@ -46,6 +46,11 @@ router.get("/detail/:id_bai_viet",
 );
 
 // ============================== API QUẢN TRỊ VIÊN ==============================
-
+// Lấy tất cả danh sách bài viết chờ phê duyệt
+router.get("/pending",
+    authenticateUser, 
+    logAction('Lấy tất cả danh sách bài viết chờ phê duyệt'),
+    controller.getAdminPendingBlogs
+);
 
 module.exports = router;

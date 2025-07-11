@@ -204,6 +204,41 @@ module.exports.getUserBlogsDetail = async (req, res) => {
     }
 };
 
+// [GET] /api/blogs/pending
+module.exports.getAdminPendingBlogs = async (req, res) => {
+    try {
+        const id_nguoi_dung = req.user.id_nguoi_dung;
+
+        const blogs = await BaiViet.findAll({
+            where: {
+                id_nguoi_dung: id_nguoi_dung,
+                da_xoa: false
+            },
+            include: [
+                {
+                    model: DanhMucBaiViet,
+                    as: 'danh_muc_bai_viet',
+                    attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
+                },
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                    attributes: ['id_phuong_tien', 'url_phuong_tien']
+                }
+            ],
+        });
+        
+        res.status(200).json({
+            messsage: "Danh sách bài viết của người dùng",
+            data: blogs
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+};
+
 
 
 
