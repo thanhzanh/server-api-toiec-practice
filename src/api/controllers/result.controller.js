@@ -14,7 +14,6 @@ const { listeningScoreTable, readingScoreTable } = require('../../utils/toeicSco
 const { createPaginationQuery } = require('../../utils/pagination');
 
 const { Sequelize } = require('sequelize'); // nếu chưa import
-// const { sequelize } = require('../models'); 
 const sequelize = require('../../config/database'); // đường dẫn config Sequelize
 
 // [POST] /api/results/submit-exam

@@ -7,6 +7,7 @@ const resultRoutes = require("./result.route");
 const roleRoutes = require("./role.route");
 const permissionRoutes = require("./permission.route");
 const categoryRoutes = require("./category.route");
+const blogRoutes = require("./blog.route");
 
 module.exports = (app) => {
     const version = "/api";
@@ -27,6 +28,6 @@ module.exports = (app) => {
 
     app.use(version + "/permissions", permissionRoutes);
 
-    app.use(version + "/categorys", categoryRoutes);
+    app.use(version + "/blogs", blogRoutes);
 
 };
