@@ -13,7 +13,7 @@ router.post("/create",
     authenticateUser, 
     uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
     logAction('Người dùng tạo bài viết bài viết'),
-    controller.createBlog
+    controller.createUserBlog
 );
 
 // Lấy tất cả bài viết của người dùng
@@ -23,7 +23,15 @@ router.get("/user",
     controller.getUserBlogs
 );
 
+// Người dùng chỉnh sửa bài viết bài viết khi bài viết đã được phê duyệt
+router.patch("/update/:id_bai_viet", 
+    authenticateUser, 
+    uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
+    logAction('Người dùng chỉnh sửa bài viết bài viết khi bài viết đã được phê duyệt'),
+    controller.updateUserBlog
+);
 
+// ============================== API QUẢN TRỊ VIÊN ==============================
 
 
 module.exports = router;

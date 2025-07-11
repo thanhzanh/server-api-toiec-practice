@@ -28,6 +28,8 @@ module.exports = (app) => {
 
     app.use(version + "/permissions", permissionRoutes);
 
+    app.use(version + "/categorys", categoryRoutes);
+
     app.use(version + "/blogs", blogRoutes);
 
 };

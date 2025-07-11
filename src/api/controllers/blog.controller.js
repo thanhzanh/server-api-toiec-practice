@@ -6,7 +6,7 @@ const striptags = require('striptags');
 const { createPaginationQuery } = require('../../utils/pagination');
 
 // [POST] /api/blogs/create/:id_nguoi_dung
-module.exports.createBlog = async (req, res) => {
+module.exports.createUserBlog = async (req, res) => {
     try {
         const id_nguoi_dung = req.user.id_nguoi_dung;
         const { id_danh_muc, tieu_de, noi_dung, url_hinh_anh } = req.body;
@@ -94,6 +94,57 @@ module.exports.getUserBlogs = async (req, res) => {
         res.status(500).json({ messsage: error.messsage });
     }
 };
+
+// [PATCH] /api/blogs/update/:id_bai_viet
+module.exports.updateUserBlog = async (req, res) => {
+    try {
+        const id_bai_viet = req.params.id_bai_viet;
+        const id_nguoi_dung = req.user.id_nguoi_dung;
+        const { tieu_de, noi_dung, id_danh_muc, url_hinh_anh } = req.body;
+
+        const blog = await BaiViet.findOne({
+            where: {
+                id_bai_viet,
+                id_nguoi_dung,
+                da_xoa: false,
+                blog_status: 'da_xuat_ban'
+            },
+            include: [
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                }
+            ]
+        });        
+
+        if (!blog) {
+            return res.status(404).json({ message: "Không tìm thấy bài viết hoặc chưa được xuất bản." });
+        }
+
+        // Cập nhật hình ảnh nếu có
+        if (url_hinh_anh) {
+            blog.hinh_anh.url_phuong_tien = url_hinh_anh;
+            await blog.hinh_anh.save();
+        }
+
+        blog.tieu_de = tieu_de || blog.tieu_de;
+        blog.noi_dung = noi_dung || blog.noi_dung;
+        blog.id_danh_muc = id_danh_muc || blog.id_danh_muc;
+        blog.thoi_gian_cap_nhat = new Date();
+
+        await blog.save();
+
+        res.status(200).json({
+            message: "Cập nhật bài viết thành công.",
+            data: blog
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 
 
