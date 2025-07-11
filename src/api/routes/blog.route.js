@@ -8,7 +8,7 @@ const { uploadCloudinary } = require('../middlewares/upload.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // ============================== API NGƯỜI DÙNG ==============================
-// Người dùng tạo bài viết bài viết
+// Người dùng tạo bài viết
 router.post("/create", 
     authenticateUser, 
     uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
@@ -23,12 +23,26 @@ router.get("/user",
     controller.getUserBlogs
 );
 
-// Người dùng chỉnh sửa bài viết bài viết khi bài viết đã được phê duyệt
+// Người dùng chỉnh sửa bài viết khi bài viết đã được phê duyệt
 router.patch("/update/:id_bai_viet", 
     authenticateUser, 
     uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
     logAction('Người dùng chỉnh sửa bài viết bài viết khi bài viết đã được phê duyệt'),
     controller.updateUserBlog
+);
+
+// Người dùng gỡ bài viết
+router.delete("/delete/:id_bai_viet", 
+    authenticateUser, 
+    logAction('Người dùng gỡ bài viết'),
+    controller.deleteUserBlog
+);
+
+// Xem chi tiết bài viết của người dùng
+router.get("/detail/:id_bai_viet",
+    authenticateUser, 
+    logAction('Xem chi tiết bài viết của người dùng'),
+    controller.getUserBlogsDetail
 );
 
 // ============================== API QUẢN TRỊ VIÊN ==============================

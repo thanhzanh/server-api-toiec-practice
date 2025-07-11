@@ -145,6 +145,66 @@ module.exports.updateUserBlog = async (req, res) => {
     }
 };
 
+// [DELETE] /api/blogs/delete/:id_bai_viet
+module.exports.deleteUserBlog = async (req, res) => {
+    try {
+        const id_bai_viet = req.params.id_bai_viet;
+
+        const blog = await BaiViet.findByPk(id_bai_viet);        
+
+        if (!blog) {
+            return res.status(404).json({ message: "Không tìm thấy bài viết." });
+        }
+
+        // Cập nhật lại csdl
+        await blog.update({
+            blog_status: 'luu_tru',
+            da_xoa: true
+        });
+
+        res.status(200).json({
+            message: "Đã gỡ bài viết thành công.",
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/blogs/detail/:id_bai_viet
+module.exports.getUserBlogsDetail = async (req, res) => {
+    try {
+        const { id_bai_viet } = req.params;
+
+        const blog = await BaiViet.findByPk(id_bai_viet, {
+            include: [
+                {
+                    model: DanhMucBaiViet,
+                    as: 'danh_muc_bai_viet',
+                    attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
+                },
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                    attributes: ['id_phuong_tien', 'url_phuong_tien']
+                }
+            ],
+        });
+        
+        res.status(200).json({
+            messsage: "Xem chi tiết bài viết của người dùng",
+            data: blog
+
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+};
+
+
 
 
 
