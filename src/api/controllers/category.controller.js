@@ -161,3 +161,22 @@ module.exports.detailCategory = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// [GET] /api/categorys/get-all-categorys
+module.exports.getAllCategorys = async (req, res) => {
+    try {
+        const dsDanhMuc = await DanhMucBaiViet.findAll({
+            where: { da_xoa: false },
+            attributes: ['id_danh_muc', 'ten_danh_muc'],
+            order: [['thoi_gian_tao', 'DESC']]
+        });
+
+        res.status(200).json({ 
+            message: "Lấy tất cả danh mục bài viết thành công",
+            data: dsDanhMuc
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}
