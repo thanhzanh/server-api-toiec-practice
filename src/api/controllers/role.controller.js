@@ -195,7 +195,10 @@ module.exports.updateRolePermission = async (req, res) => {
         // Thêm toàn bộ quyền mới vào database
         await PhanQuyenVaiTro.bulkCreate(newPermissions);
 
-        res.status(200).json({ message: `Đã cập nhật quyền cho vai trò ${role.ten_vai_tro}!` });
+        res.status(200).json({ 
+            message: `Đã cập nhật quyền cho vai trò ${role.ten_vai_tro}!`,
+            id_vai_tro: id_vai_tro
+        });
 
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -3,7 +3,7 @@ const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const VaiTro = require("../../models/vaiTro.model");
 const { createPaginationQuery } = require('../../utils/pagination');
 const { createSearchQuery } = require('../../utils/search');
-const { Op, where } = require('sequelize');
+const { Op, where, or } = require('sequelize');
 const dayjs = require("dayjs");
 
 // [GET] /api/users
@@ -42,7 +42,8 @@ module.exports.index = async(req, res) => {
                 ...userSearch,
                 da_xoa: false
             },
-            attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai']
+            attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai'],
+            order: [['thoi_gian_tao', 'DESC']],
         }
 
         // Lấy danh sách người dùng

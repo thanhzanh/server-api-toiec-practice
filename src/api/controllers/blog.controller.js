@@ -282,7 +282,8 @@ module.exports.index = async (req, res) => {
 
         // Điều kiện lọc
         const where = {
-            da_xoa: false
+            da_xoa: false,
+            blog_status: 'da_xuat_ban'
         };
 
         // Đếm tổng số bản ghi
