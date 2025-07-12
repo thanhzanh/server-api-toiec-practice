@@ -96,6 +96,39 @@ module.exports.getUserBlogs = async (req, res) => {
     }
 };
 
+// [GET] /api/blogs/public
+module.exports.getPublicBlogs = async (req, res) => {
+    try {
+        const blogs = await BaiViet.findAll({
+            where: {
+                blog_status: 'da_xuat_ban',
+                da_xoa: false
+            },
+            include: [
+                {
+                    model: DanhMucBaiViet,
+                    as: 'danh_muc_bai_viet',
+                    attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
+                },
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                    attributes: ['id_phuong_tien', 'url_phuong_tien']
+                }
+            ],
+        });
+        
+        res.status(200).json({
+            messsage: "Danh sách bài viết hiển thị ngoài blog",
+            data: blogs
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+};
+
 // [PATCH] /api/blogs/update/:id_bai_viet
 module.exports.updateUserBlog = async (req, res) => {
     try {

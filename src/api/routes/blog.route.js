@@ -23,6 +23,13 @@ router.get("/user",
     controller.getUserBlogs
 );
 
+// Lấy tất cả bài viết hiển thị ngoài blog
+router.get("/public",
+    authenticateUser, 
+    logAction('Lấy tất cả bài viết của người dùng'),
+    controller.getPublicBlogs
+);
+
 // Người dùng chỉnh sửa bài viết khi bài viết đã được phê duyệt
 router.patch("/update/:id_bai_viet", 
     authenticateUser, 
