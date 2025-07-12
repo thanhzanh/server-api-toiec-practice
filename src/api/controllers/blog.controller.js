@@ -207,14 +207,40 @@ module.exports.getUserBlogsDetail = async (req, res) => {
 // [GET] /api/blogs/pending
 module.exports.getAdminPendingBlogs = async (req, res) => {
     try {
-        const id_nguoi_dung = req.user.id_nguoi_dung;
+        const { page, limit } = req.query;
 
+        // Điều kiện lọc
+        const where = {
+            blog_status: 'cho_phe_duyet',
+            da_xoa: false
+        };
+
+        // Đếm tổng số bản ghi
+        const count = await BaiViet.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Danh sách bài viết chờ phê duyệt
         const blogs = await BaiViet.findAll({
-            where: {
-                id_nguoi_dung: id_nguoi_dung,
-                da_xoa: false
-            },
+            where,
             include: [
+                {
+                    model: NguoiDung,
+                    as: 'nguoi_dung',
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap']
+                },
                 {
                     model: DanhMucBaiViet,
                     as: 'danh_muc_bai_viet',
@@ -226,11 +252,20 @@ module.exports.getAdminPendingBlogs = async (req, res) => {
                     attributes: ['id_phuong_tien', 'url_phuong_tien']
                 }
             ],
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
         });
         
         res.status(200).json({
-            messsage: "Danh sách bài viết của người dùng",
-            data: blogs
+            messsage: "Danh sách bài viết chờ phê duyệt",
+            data: blogs,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            }
         });
         
     } catch (error) {

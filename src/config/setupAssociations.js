@@ -24,6 +24,8 @@ const setupAssociations = () => {
     // NguoiDung relationships
     NguoiDung.hasOne(HoSoNguoiDung, { foreignKey: 'id_nguoi_dung', as: 'ho_so' });
     NguoiDung.belongsTo(VaiTro, { foreignKey: 'id_vai_tro', as: 'vai_tro_nguoi_dung' });
+    NguoiDung.hasMany(MaXacMinhEmail, { foreignKey: 'id_nguoi_dung', as: 'ma_xac_minh_email' });
+    NguoiDung.hasMany(BaiViet, { foreignKey: 'id_bai_viet', as: 'bai_viet' });
     
     // HoSoNguoiDung relationships
     HoSoNguoiDung.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
@@ -78,6 +80,7 @@ const setupAssociations = () => {
     // BaiViet relationships
     BaiViet.belongsTo(PhuongTien, { foreignKey: "id_phuong_tien_hinh_anh", as: "hinh_anh"});
     BaiViet.belongsTo(DanhMucBaiViet, { foreignKey: "id_danh_muc", as: "danh_muc_bai_viet"});
+    BaiViet.belongsTo(NguoiDung, { foreignKey: "id_nguoi_dung", as: "nguoi_dung" });
 
     // DanhMucBaiViet relationships
     DanhMucBaiViet.hasMany(BaiViet, { foreignKey: "id_danh_muc", as: "bai_viet"});
