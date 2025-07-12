@@ -274,6 +274,80 @@ module.exports.getAdminPendingBlogs = async (req, res) => {
     }
 };
 
+// [GET] /api/blogs/index
+module.exports.index = async (req, res) => {
+    try {
+        const { page, limit } = req.query;
+
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false
+        };
+
+        // Đếm tổng số bản ghi
+        const count = await BaiViet.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Danh sách trạng thái bài viết
+        const blogStatuses = BaiViet.rawAttributes.blog_status.values;
+
+        // Danh sách bài viết chờ phê duyệt
+        const blogs = await BaiViet.findAll({
+            where,
+            include: [
+                {
+                    model: NguoiDung,
+                    as: 'nguoi_dung',
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap']
+                },
+                {
+                    model: DanhMucBaiViet,
+                    as: 'danh_muc_bai_viet',
+                    attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
+                },
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                    attributes: ['id_phuong_tien', 'url_phuong_tien']
+                }
+            ],
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
+        
+        res.status(200).json({
+            messsage: "Danh sách bài viết",
+            data: blogs,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+            blogStatuses
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+};
+
+
 
 
 

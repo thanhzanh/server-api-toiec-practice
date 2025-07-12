@@ -53,4 +53,11 @@ router.get("/pending",
     controller.getAdminPendingBlogs
 );
 
+// Lấy tất cả danh sách bài viết
+router.get("/",
+    authenticateUser, 
+    logAction('Lấy tất cả danh sách bài viết'),
+    controller.index
+)
+
 module.exports = router;
