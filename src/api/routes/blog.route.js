@@ -49,6 +49,7 @@ router.get("/detail/:id_bai_viet",
 // Quản trị viên lấy tất cả danh sách bài viết chờ phê duyệt
 router.get("/pending",
     authenticateUser, 
+    authorizePermission('BLOG_VIEW'),
     logAction('Lấy tất cả danh sách bài viết chờ phê duyệt'),
     controller.getAdminPendingBlogs
 );
@@ -56,6 +57,7 @@ router.get("/pending",
 // Quản trị viên lấy tất cả danh sách bài viết
 router.get("/",
     authenticateUser, 
+    authorizePermission('BLOG_VIEW'),
     logAction('Lấy tất cả danh sách bài viết'),
     controller.index
 )
@@ -63,8 +65,42 @@ router.get("/",
 // Quản trị viên phê duyệt bài viết
 router.patch("/approve/:id_bai_viet", 
     authenticateUser, 
+    authorizePermission('BLOG_APPROVE'),
     logAction('Quản trị viên phê duyệt bài viết'),
     controller.approveAdminBlog
+);
+
+// Quản trị viên từ chối bài viết
+router.patch("/reject/:id_bai_viet",    
+    authenticateUser, 
+    authorizePermission('BLOG_REJECT'),
+    logAction('Quản trị viên từ chối bài viết'),
+    controller.rejectAdminBlog
+);
+
+// Quản trị viên xóa bài viết
+router.delete("/admin-delete/:id_bai_viet",   
+    authenticateUser, 
+    authorizePermission('BLOG_DELETE'),
+    logAction('Quản trị viên xóa bài viết'),
+    controller.deleteAdminBlog
+);
+
+// Quản trị viên lấy chi tiết bài viết
+router.get("/admin-detail/:id_bai_viet",    
+    authenticateUser, 
+    authorizePermission('BLOG_DETAIL'),
+    logAction('Quản trị viên lấy chi tiết bài viết'),
+    controller.getAdminBlogsDetail
+);
+
+// Quản trị viên chỉnh sửa bài viết
+router.patch("/admin-update/:id_bai_viet",  
+    authenticateUser, 
+    authorizePermission('BLOG_UPDATE'),
+    uploadCloudinary([{ name: 'hinh_anh', type: 'image' }]),
+    logAction('Quản trị viên chỉnh sửa bài viết'),
+    controller.updateAdminBlog
 );
 
 module.exports = router;

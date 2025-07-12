@@ -68,6 +68,7 @@ module.exports.getUserBlogs = async (req, res) => {
         const blogs = await BaiViet.findAll({
             where: {
                 id_nguoi_dung: id_nguoi_dung,
+                blog_status: 'da_xuat_ban',
                 da_xoa: false
             },
             include: [
@@ -370,6 +371,135 @@ module.exports.approveAdminBlog = async (req, res) => {
         res.status(500).json({ messsage: error.messsage });
     }
 };
+
+// [PATCH] /api/blogs/reject/:id_bai_viet
+module.exports.rejectAdminBlog = async (req, res) => {  
+    try {
+        const id_bai_viet = req.params.id_bai_viet;
+        const blog = await BaiViet.findByPk(id_bai_viet);
+        if (!blog) {
+            return res.status(400).json({ message: "Bài viết không tồn tại!" });
+        }
+
+        // Cập nhật trạng thái bài viết
+        blog.blog_status = 'tu_choi';
+        blog.thoi_gian_cap_nhat = new Date();
+        await blog.save();
+        
+        res.status(200).json({
+            messsage: "Đã từ chối bài viết",
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+}
+
+// [DELETE] /api/blogs/admin-delete/:id_bai_viet
+module.exports.deleteAdminBlog = async (req, res) => {
+    try {
+        const id_bai_viet = req.params.id_bai_viet;
+        const blog = await BaiViet.findByPk(id_bai_viet);
+        if (!blog) {
+            return res.status(400).json({ message: "Bài viết không tồn tại!" });
+        }
+
+        // Xóa khỏi cơ sở dữ liệu
+        await blog.destroy();
+
+        res.status(200).json({
+            messsage: "Đã xóa bài viết thành công.",
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+}
+
+// [GET] /api/blogs/admin-detail/:id_bai_viet
+module.exports.getAdminBlogsDetail = async (req, res) => {
+    try {
+        const { id_bai_viet } = req.params;
+
+        const blog = await BaiViet.findByPk(id_bai_viet, {
+            include: [
+                {
+                    model: NguoiDung,
+                    as: 'nguoi_dung',
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap']
+                },
+                {
+                    model: DanhMucBaiViet,
+                    as: 'danh_muc_bai_viet',
+                    attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
+                },
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                    attributes: ['id_phuong_tien', 'url_phuong_tien']
+                }
+            ],
+        });
+
+        if (!blog) {
+            return res.status(404).json({ messsage: "Không tìm thấy bài viết." });
+        }
+        
+        res.status(200).json({
+            messsage: "Chi tiết bài viết của quản trị viên",
+            data: blog
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+}
+
+// [PATCH] /api/blogs/admin-update/:id_bai_viet
+module.exports.updateAdminBlog = async (req, res) => {
+    try {
+        const id_bai_viet = req.params.id_bai_viet;
+        const { tieu_de, noi_dung, id_danh_muc, url_hinh_anh } = req.body;
+
+        const blog = await BaiViet.findByPk(id_bai_viet, {
+            include: [
+                {
+                    model: PhuongTien,
+                    as: 'hinh_anh',
+                }
+            ]
+        });
+
+        if (!blog) {
+            return res.status(404).json({ message: "Không tìm thấy bài viết." });
+        }
+
+        // Cập nhật hình ảnh nếu có
+        if (url_hinh_anh) {
+            blog.hinh_anh.url_phuong_tien = url_hinh_anh;
+            await blog.hinh_anh.save();
+        }
+
+        blog.tieu_de = tieu_de || blog.tieu_de;
+        blog.noi_dung = noi_dung || blog.noi_dung;
+        blog.id_danh_muc = id_danh_muc || blog.id_danh_muc;
+        blog.thoi_gian_cap_nhat = new Date();
+
+        await blog.save();
+
+        res.status(200).json({
+            message: "Cập nhật bài viết thành công.",
+            data: blog
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}
 
 
 
