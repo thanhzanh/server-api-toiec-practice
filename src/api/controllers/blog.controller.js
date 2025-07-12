@@ -347,6 +347,30 @@ module.exports.index = async (req, res) => {
     }
 };
 
+// [PATCH] /api/blogs/approve/:id_bai_viet
+module.exports.approveAdminBlog = async (req, res) => {
+    try {
+        const id_bai_viet = req.params.id_bai_viet;
+        const blog = await BaiViet.findByPk(id_bai_viet);
+        if (!blog) {
+            return res.status(400).json({ message: "Bài viết không tồn tại!" });
+        }
+
+        // Cập nhật trạng thái bài viết
+        blog.blog_status = 'da_xuat_ban';
+        blog.thoi_gian_cap_nhat = new Date();
+        await blog.save();
+        
+        res.status(200).json({
+            messsage: "Đã duyệt bài viết",
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ messsage: error.messsage });
+    }
+};
+
 
 
 

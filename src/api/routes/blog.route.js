@@ -46,18 +46,25 @@ router.get("/detail/:id_bai_viet",
 );
 
 // ============================== API QUẢN TRỊ VIÊN ==============================
-// Lấy tất cả danh sách bài viết chờ phê duyệt
+// Quản trị viên lấy tất cả danh sách bài viết chờ phê duyệt
 router.get("/pending",
     authenticateUser, 
     logAction('Lấy tất cả danh sách bài viết chờ phê duyệt'),
     controller.getAdminPendingBlogs
 );
 
-// Lấy tất cả danh sách bài viết
+// Quản trị viên lấy tất cả danh sách bài viết
 router.get("/",
     authenticateUser, 
     logAction('Lấy tất cả danh sách bài viết'),
     controller.index
 )
+
+// Quản trị viên phê duyệt bài viết
+router.patch("/approve/:id_bai_viet", 
+    authenticateUser, 
+    logAction('Quản trị viên phê duyệt bài viết'),
+    controller.approveAdminBlog
+);
 
 module.exports = router;
