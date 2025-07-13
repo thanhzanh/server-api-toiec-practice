@@ -97,6 +97,7 @@ module.exports.updateCategory = async (req, res) => {
 
         // Cập nhật thời gian
         updateData.thoi_gian_cap_nhat = new Date();
+        await danhMuc.update(updateData);
 
         res.status(200).json({ 
             message: "Đã chỉnh sửa danh ngữ pháp viết thành công",

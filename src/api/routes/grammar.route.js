@@ -21,5 +21,12 @@ router.get("/detail/:id_tai_lieu",
     controller.detailGrammar
 );
 
+// Quan trị viên cập nhật ngữ pháp
+router.put("/update/:id_tai_lieu",  
+    authenticateUser, 
+    logAction('Cập nhật ngữ pháp'),
+    controller.updateGrammar
+);
+
 
 module.exports = router;
