@@ -401,7 +401,7 @@ module.exports.googleLogin = async(req, res) => {
         )
 
         res.status(200).json({
-            message: "Đăng nhập bằng Google thành công",
+            message: "Đăng nhập thành công",
             token: jwtToken
         });
     } catch (error) {
