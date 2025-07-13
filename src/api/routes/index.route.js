@@ -9,6 +9,7 @@ const permissionRoutes = require("./permission.route");
 const categoryRoutes = require("./category.route");
 const blogRoutes = require("./blog.route");
 const categoryGrammarRoutes = require("./categoryGrammar.route");
+const grammarRoutes = require("./grammar.route");
 
 module.exports = (app) => {
     const version = "/api";
@@ -32,6 +33,8 @@ module.exports = (app) => {
     app.use(version + "/categorys", categoryRoutes);
 
     app.use(version + "/blogs", blogRoutes);
+
+    app.use(version + "/grammars", grammarRoutes);
 
     app.use(version + "/category-grammars", categoryGrammarRoutes);
 

@@ -9,16 +9,20 @@ const TaiLieuNguPhap = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    nguoi_dung: {
+    nguoi_tao: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    tieu_de: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
     id_danh_muc: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    tieu_de: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    noi_dung: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     vi_du: {

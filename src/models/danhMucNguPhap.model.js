@@ -8,6 +8,7 @@ const DanhMucNguPhap = sequelize.define(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+      allowNull: false,
     },
     ten_danh_muc: {
       type: DataTypes.STRING(255),
