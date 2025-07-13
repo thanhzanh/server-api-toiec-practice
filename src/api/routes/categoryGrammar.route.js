@@ -9,6 +9,7 @@ const logAction = require('../middlewares/log.middleware');
 // Quản trị viên lấy tất cả danh sách danh mục ngữ pháp
 router.get("/", 
     authenticateUser, 
+    authorizePermission('CATEGORY_GRAMMAR_VIEW'),
     logAction('Xem danh sách danh mục ngữ pháp'),
     controller.index
 );
@@ -16,6 +17,7 @@ router.get("/",
 // Quản trị viên tạo danh mục ngữ pháp
 router.post("/create", 
     authenticateUser, 
+    authorizePermission('CATEGORY_GRAMMAR_CREATE'),
     logAction('Tạo danh mục ngữ pháp'),
     controller.createCategory
 );
@@ -23,6 +25,7 @@ router.post("/create",
 // Quản trị viên chỉnh sửa danh mục ngữ pháp
 router.patch("/update/:id_danh_muc", 
     authenticateUser, 
+    authorizePermission('CATEGORY_GRAMMAR_UPDATE'),
     logAction('Chỉnh sửa danh mục ngữ pháp'),
     controller.updateCategory
 );
@@ -30,6 +33,7 @@ router.patch("/update/:id_danh_muc",
 // Quản trị viên xóa danh mục ngữ pháp
 router.delete("/delete/:id_danh_muc", 
     authenticateUser, 
+    authorizePermission('CATEGORY_GRAMMAR_DELETE'),
     logAction('á danh mục ngữ pháp'),
     controller.deleteCategory
 );
@@ -37,6 +41,7 @@ router.delete("/delete/:id_danh_muc",
 // Quản trị viên xem chi tiết danh mục ngữ pháp
 router.get("/detail/:id_danh_muc", 
     authenticateUser, 
+    authorizePermission('CATEGORY_GRAMMAR_VIEW'),
     logAction('Xem chi tiết danh mục ngữ pháp'),
     controller.detailCategory
 );

@@ -3,6 +3,66 @@ const TaiLieuNguPhap = require("../../models/taiLieuNguPhap.model");
 const striptags = require("striptags");
 const { createPaginationQuery } = require("../../utils/pagination");
 
+
+// [GET] /api/grammars
+module.exports.index = async (req, res) => {
+    try {        
+        const { page, limit } = req.query;
+
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false
+        };
+
+        // Đếm tổng số bản ghi
+        const count = await TaiLieuNguPhap.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy danh mục ngữ pháp
+        const danhMucNguPhap = await DanhMucNguPhap.findAll({
+            where: {
+                da_xoa: false
+            },
+            attributes: ['id_danh_muc', 'ten_danh_muc'],
+        });
+
+        // Lấy tất cả danh mục bài viết
+        const dsDanhMuc = await TaiLieuNguPhap.findAll({
+            where,
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem,
+        });
+        
+        res.status(200).json({ 
+            message: "Lấy danh sách tài liệu ngữ thành công",
+            data: dsDanhMuc,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+            danhMucNguPhap
+        });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+}
 // [POST] /api/grammars/create
 module.exports.createGrammar = async (req, res) => {
   try {
@@ -150,4 +210,65 @@ module.exports.deleteGrammar = async (req, res) => {
         console.error(error);
         res.status(500).json({ message: error.message });
     }
-}
+};
+
+// [GET] /api/grammars/home
+module.exports.getHomeGrammars = async (req, res) => {
+    try {
+        const { page, limit, id_danh_muc } = req.query;
+
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false,
+        };
+        if (id_danh_muc) where.id_danh_muc = id_danh_muc;
+
+        // Đếm tổng số bản ghi
+        const count = await TaiLieuNguPhap.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy danh mục ngữ pháp
+        const danhMucNguPhap = await DanhMucNguPhap.findAll({
+            where: {
+                da_xoa: false
+            },
+            attributes: ['id_danh_muc', 'ten_danh_muc'],
+        });
+
+        // Lấy tất cả danh mục bài viết
+        const dsDanhMuc = await TaiLieuNguPhap.findAll({
+            where,
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem,
+        });
+        
+        res.status(200).json({ 
+            message: "Lấy danh sách tài liệu ngữ thành công",
+            data: dsDanhMuc,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+            danhMucNguPhap
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
