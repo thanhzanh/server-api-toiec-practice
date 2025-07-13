@@ -129,3 +129,25 @@ module.exports.updateGrammar = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+// [DELETE] /api/grammars/delete/:id_tai_lieu
+module.exports.deleteGrammar = async (req, res) => {    
+    try {
+        const id_tai_lieu = req.params.id_tai_lieu;
+
+        // Kiểm tra ngữ pháp có tồn tại không
+        const grammar = await TaiLieuNguPhap.findByPk(id_tai_lieu);
+        if (!grammar) {
+            return res.status(404).json({ message: "Ngữ pháp không tồn tại!" });
+        }
+
+        // Đánh dấu ngữ pháp là đã xóa
+        await grammar.update({ da_xoa: true });
+
+        res.status(200).json({ message: "Xóa ngữ pháp thành công!" });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}

@@ -28,5 +28,12 @@ router.put("/update/:id_tai_lieu",
     controller.updateGrammar
 );
 
+// Quản trị viên xóa ngữ pháp
+router.delete("/delete/:id_tai_lieu", 
+    authenticateUser, 
+    logAction('Xóa ngữ pháp'),
+    controller.deleteGrammar
+);
+
 
 module.exports = router;
