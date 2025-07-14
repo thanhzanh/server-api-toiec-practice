@@ -145,7 +145,7 @@ module.exports.detailGrammar = async (req, res) => {
 module.exports.updateGrammar = async (req, res) => {
     try {
         const id_tai_lieu = req.params.id_tai_lieu;
-        const { tieu_de, noi_dung, ghi_chu, vi_du } = req.body;
+        const { id_danh_muc, tieu_de, noi_dung, ghi_chu, vi_du } = req.body;
 
         // Kiểm tra ngữ pháp có tồn tại không
         const grammar = await TaiLieuNguPhap.findByPk(id_tai_lieu);
@@ -166,6 +166,9 @@ module.exports.updateGrammar = async (req, res) => {
 
         // Cập nhật ngữ pháp
         const updatedData = {};
+        if (id_danh_muc && id_danh_muc !== grammar.id_danh_muc) {
+            updatedData.id_danh_muc = id_danh_muc;  
+        }
         if (tieu_de !== grammar.tieu_de && tieu_de !== undefined) {
             updatedData.tieu_de = striptags(tieu_de) || grammar.tieu_de;
         }

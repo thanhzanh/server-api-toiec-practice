@@ -6,19 +6,6 @@ const { authorizePermission } = require('../middlewares/permission.middleware');
 const logAction = require('../middlewares/log.middleware');
 
 // ==================================== QUẢN TRỊ VIÊN ====================================
-// Làm bài thi
-router.post("/submit-exam",
-    authenticateUser,
-    logAction('Nộp bài thi'),
-    controller.submitExam
-);
-
-router.post("/submit-from-fe-react",
-    authenticateUser,
-    logAction('Nộp bài thi'),
-    controller.submitExamFromFE
-);
-
 // Lấy danh sách kết quả làm bài thi
 router.get("/", 
     authenticateUser, 
@@ -44,6 +31,19 @@ router.get("/detail-first/:id_bai_lam_nguoi_dung",
 );
 
 // ==================================== NGƯỜI DÙNG ====================================
+
+// Làm bài thi
+router.post("/submit-exam",
+    authenticateUser,
+    logAction('Nộp bài thi'),
+    controller.submitExam
+);
+
+router.post("/submit-from-fe-react",
+    authenticateUser,
+    logAction('Nộp bài thi'),
+    controller.submitExamFromFE
+);
 
 // Lấy danh sách tất cả kết quả làm bài thi của người dùng
 router.get("/get-all-exam-submit/:id_nguoi_dung", 
@@ -73,6 +73,13 @@ router.get("/question-index/:id_bai_lam_nguoi_dung",
 router.get("/avaliable-parts/:id_bai_lam_nguoi_dung",
     authenticateUser,
     controller.getAvaliableParts
+);
+
+// Làm bài thi đầu vào
+router.post("/submit-exam-test",
+    authenticateUser,
+    logAction('Nộp bài thi đầu vào'),
+    controller.submitExamTest
 );
 
 

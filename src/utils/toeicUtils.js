@@ -1,6 +1,6 @@
 const sequelize = require('../config/database');
 const DiemMucDoCauHoi = require('../models/diemMucDoCauHoi');
-const MucDoToiec = require('../models/mucDoToiec');
+const MucDoToiec = require('../models/mucDoToiec.model');
 const NganHangCauHoi = require('../models/nganHangCauHoi.model');
 const { Sequelize } = require('sequelize');
 
