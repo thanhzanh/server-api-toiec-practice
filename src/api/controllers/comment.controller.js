@@ -1,5 +1,7 @@
 const BinhLuan = require('../../models/binhLuan.model');
 const BaiViet = require('../../models/baiViet.model');
+const NguoiDung = require('../../models/nguoiDung.model');
+const HoSoNguoiDung = require('../../models/hoSoNguoiDung.model');
 
 // [POST] /api/comments/create
 module.exports.createComment = async (req, res) => {
@@ -31,6 +33,46 @@ module.exports.createComment = async (req, res) => {
             data: newComment
         });
         
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// [GET] /api/comments/list/:id_bai_viet
+module.exports.getCommentsByBlogId = async (req, res) => {
+    try {
+        const { id_bai_viet } = req.params;
+        const comments = await BinhLuan.findAll({
+            where: { id_bai_viet, id_binh_luan_cha: null }, // Lấy bình luận gốc (không phải phản hồi)
+            include: [
+                {
+                    model: BinhLuan,
+                    as: 'phan_hoi', 
+                    include: [
+                        {
+                            model: NguoiDung,
+                            attributes: ['id_nguoi_dung', 'ten_dang_nhap'],
+                            as: 'nguoi_dung',
+                            include: [
+                                {
+                                    model: HoSoNguoiDung,
+                                    attributes: ['url_hinh_dai_dien'],
+                                    as: 'ho_so'
+                                }
+                            ]
+                        }
+                    ],
+                },
+            ],
+            order: [['thoi_gian_tao', 'DESC']]
+        });
+
+        res.status(200).json({
+            message: 'Lấy danh sách bình luận thành công',
+            data: comments
+        });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });

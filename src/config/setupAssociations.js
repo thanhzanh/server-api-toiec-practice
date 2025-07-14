@@ -19,6 +19,7 @@ const BaiViet = require('../models/baiViet.model');
 const DanhMucBaiViet = require('../models/danhMucBaiViet.model');
 const TaiLieuNguPhap = require('../models/taiLieuNguPhap.model');
 const DanhMucNguPhap = require('../models/danhMucNguPhap.model');
+const BinhLuan = require('../models/binhLuan.model');
 
 const setupAssociations = () => {
     console.log('Đang thiết lập mối quan hệ...');
@@ -94,6 +95,12 @@ const setupAssociations = () => {
     // TaiLieuNguPhap relationships
     TaiLieuNguPhap.belongsTo(DanhMucNguPhap, { foreignKey: 'id_danh_muc', targetKey: "id_danh_muc", as: 'danh_muc_ngu_phap' });
     TaiLieuNguPhap.belongsTo(NguoiDung, { foreignKey: 'nguoi_tao', as: 'nguoi_tao_ngu_phap' });
+
+    // Quan hệ phản hồi bình luận (self-referencing)
+    BinhLuan.hasMany(BinhLuan, { as: 'phan_hoi', foreignKey: 'id_binh_luan_cha' });
+    BinhLuan.belongsTo(BinhLuan, { as: 'binh_luan_cha', foreignKey: 'id_binh_luan_cha' });
+    BinhLuan.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
+    BinhLuan.belongsTo(BaiViet, { foreignKey: 'id_bai_viet', as: 'bai_viet' });
   
     console.log('Tất cả các mối quan hệ đã được thiết lập thành công!');
 };

@@ -11,4 +11,10 @@ router.post("/create",
     controller.createComment
 );
 
+// Lấy danh sách bình luận bài viết kèm phản hồi
+router.get("/list/:id_bai_viet", 
+    authenticateUser, 
+    controller.getCommentsByBlogId
+);
+
 module.exports = router;
