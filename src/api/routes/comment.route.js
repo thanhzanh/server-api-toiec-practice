@@ -23,4 +23,10 @@ router.patch("/update/:id_binh_luan",
     controller.updateComment
 );
 
+// Xoá bình luận
+router.delete("/delete/:id_binh_luan", 
+    authenticateUser, 
+    controller.deleteComment
+);
+
 module.exports = router;
