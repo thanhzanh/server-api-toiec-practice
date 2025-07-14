@@ -1,4 +1,5 @@
 const DanhMucNguPhap = require("../../models/danhMucNguPhap.model");
+const TaiLieuNguPhap = require("../../models/taiLieuNguPhap.model");
 const striptags = require('striptags');
 const { createPaginationQuery } = require('../../utils/pagination');
 
@@ -115,6 +116,17 @@ module.exports.deleteCategory = async (req, res) => {
         const danhMuc = await DanhMucNguPhap.findByPk(id_danh_muc);
         if (!danhMuc) {
             return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại!" });
+        }
+
+        // Kiểm tra xem danh mục có chứa ngữ pháp nào không
+        const grammars = await TaiLieuNguPhap.findOne({
+            where: {
+                id_danh_muc: danhMuc.id_danh_muc,
+                da_xoa: false
+            }
+        });
+        if (grammars) {
+            return res.status(400).json({ message: "Không thể xóa danh mục này vì nó chứa ngữ pháp!" });
         }
 
         // Đánh dấu là đã xóa

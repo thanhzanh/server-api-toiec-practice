@@ -46,7 +46,7 @@ router.get("/detail/:id_danh_muc",
     controller.detailCategory
 );
 
-// Lấy tất cả danh sách danh mục bài viết hiển thị trên trang chủ
+// Lấy tất cả danh sách danh mục ngữ pháp hiển thị trên trang chủ
 router.get("/get-all-categorys-grammars", 
     authenticateUser, 
     controller.getAllCategorys

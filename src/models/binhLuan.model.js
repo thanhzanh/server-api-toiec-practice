@@ -25,6 +25,10 @@ const BinhLuan = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    id_binh_luan_cha: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     thoi_gian_tao: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

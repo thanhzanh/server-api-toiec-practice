@@ -10,6 +10,7 @@ const categoryRoutes = require("./category.route");
 const blogRoutes = require("./blog.route");
 const categoryGrammarRoutes = require("./categoryGrammar.route");
 const grammarRoutes = require("./grammar.route");
+const commentRoutes = require("./comment.route");
 
 module.exports = (app) => {
     const version = "/api";
@@ -37,5 +38,7 @@ module.exports = (app) => {
     app.use(version + "/grammars", grammarRoutes);
 
     app.use(version + "/category-grammars", categoryGrammarRoutes);
+
+    app.use(version + "/comments", commentRoutes);
 
 };
