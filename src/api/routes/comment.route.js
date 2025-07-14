@@ -17,4 +17,10 @@ router.get("/list/:id_bai_viet",
     controller.getCommentsByBlogId
 );
 
+// Cập nhật bình luận
+router.patch("/update/:id_binh_luan", 
+    authenticateUser, 
+    controller.updateComment
+);
+
 module.exports = router;

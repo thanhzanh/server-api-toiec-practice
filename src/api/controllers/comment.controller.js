@@ -2,6 +2,7 @@ const BinhLuan = require('../../models/binhLuan.model');
 const BaiViet = require('../../models/baiViet.model');
 const NguoiDung = require('../../models/nguoiDung.model');
 const HoSoNguoiDung = require('../../models/hoSoNguoiDung.model');
+const striptags = require('striptags');
 
 // [POST] /api/comments/create
 module.exports.createComment = async (req, res) => {
@@ -73,6 +74,28 @@ module.exports.getCommentsByBlogId = async (req, res) => {
             data: comments
         });
 
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// [PATCH] /api/comments/update/:id_binh_luan
+module.exports.updateComment = async (req, res) => {
+    try {
+        const { id_binh_luan } = req.params;
+        const noiDung = striptags(req.body.noi_dung);
+
+        const binhLuan = await BinhLuan.findByPk(id_binh_luan);
+        if (!binhLuan || binhLuan.id_nguoi_dung !== req.user.id_nguoi_dung) {
+            return res.status(404).json({ message: 'Bạn không có quyền sửa' });
+        }
+
+        // Cập nhật
+        binhLuan.noi_dung = noiDung;
+        await binhLuan.save();
+
+        res.status(200).json({ message: 'Đã cập nhật bình luận' }); 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });
