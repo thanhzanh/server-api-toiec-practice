@@ -358,7 +358,7 @@ module.exports.importExcel = async (req, res) => {
             const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, loai_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
 
             const part = parseInt(id_phan);
-            if (part < 1 || part > 7) {
+            if (isNaN(part) || part < 1 || part > 7) {
                 return res.status(400).json({ message: "Part phải từ 1 đến 7!" });
             }
 

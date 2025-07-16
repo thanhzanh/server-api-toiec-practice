@@ -2,6 +2,7 @@ const DanhMucBaiViet = require("../../models/danhMucBaiViet.model");
 const BaiViet = require("../../models/baiViet.model");
 const PhuongTien = require("../../models/phuongTien.model");
 const NguoiDung = require("../../models/nguoiDung.model");
+const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const striptags = require('striptags');
 const { createPaginationQuery } = require('../../utils/pagination');
 
@@ -73,6 +74,18 @@ module.exports.getUserBlogs = async (req, res) => {
             },
             include: [
                 {
+                    model: NguoiDung,
+                    as: 'nguoi_dung',
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap'],
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so_nguoi_dung',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
+                },
+                {
                     model: DanhMucBaiViet,
                     as: 'danh_muc_bai_viet',
                     attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
@@ -105,6 +118,18 @@ module.exports.getPublicBlogs = async (req, res) => {
                 da_xoa: false
             },
             include: [
+                {
+                    model: NguoiDung,
+                    as: 'nguoi_dung',
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap'],
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so_nguoi_dung',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
+                },
                 {
                     model: DanhMucBaiViet,
                     as: 'danh_muc_bai_viet',
@@ -213,6 +238,18 @@ module.exports.getUserBlogsDetail = async (req, res) => {
 
         const blog = await BaiViet.findByPk(id_bai_viet, {
             include: [
+                {
+                    model: NguoiDung,
+                    as: 'nguoi_dung',
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap'],
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so_nguoi_dung',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
+                },
                 {
                     model: DanhMucBaiViet,
                     as: 'danh_muc_bai_viet',
@@ -346,7 +383,14 @@ module.exports.index = async (req, res) => {
                 {
                     model: NguoiDung,
                     as: 'nguoi_dung',
-                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap']
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap'],
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so_nguoi_dung',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
                 },
                 {
                     model: DanhMucBaiViet,
@@ -462,7 +506,14 @@ module.exports.getAdminBlogsDetail = async (req, res) => {
                 {
                     model: NguoiDung,
                     as: 'nguoi_dung',
-                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap']
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap'],
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so_nguoi_dung',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
                 },
                 {
                     model: DanhMucBaiViet,
