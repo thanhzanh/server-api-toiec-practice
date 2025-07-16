@@ -25,7 +25,6 @@ router.get("/user",
 
 // Lấy tất cả bài viết hiển thị ngoài blog
 router.get("/public",
-    authenticateUser, 
     logAction('Lấy tất cả bài viết của người dùng'),
     controller.getPublicBlogs
 );
