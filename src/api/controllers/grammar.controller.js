@@ -3,7 +3,6 @@ const TaiLieuNguPhap = require("../../models/taiLieuNguPhap.model");
 const striptags = require("striptags");
 const { createPaginationQuery } = require("../../utils/pagination");
 
-
 // [GET] /api/grammars
 module.exports.index = async (req, res) => {
     try {        

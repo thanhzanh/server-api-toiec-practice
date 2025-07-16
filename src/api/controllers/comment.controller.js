@@ -65,7 +65,20 @@ module.exports.getCommentsByBlogId = async (req, res) => {
                         }
                     ],
                 },
+                {
+                    model: NguoiDung,
+                    attributes: ['id_nguoi_dung', 'ten_dang_nhap'],
+                    as: 'nguoi_dung',
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            attributes: ['url_hinh_dai_dien'],
+                            as: 'ho_so'
+                        }
+                    ]
+                },
             ],
+            attributes: ['id_binh_luan', 'id_nguoi_dung', 'id_bai_viet', 'noi_dung', 'thoi_gian_tao', 'thoi_gian_cap_nhat'],          
             order: [['thoi_gian_tao', 'DESC']]
         });
 
