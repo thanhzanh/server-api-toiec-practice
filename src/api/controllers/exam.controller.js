@@ -608,14 +608,6 @@ module.exports.editExam = async (req, res) => {
             return res.status(404).json({ message: "Đề thi không tồn tại." });
         }
 
-        // Kiểm tra đề thi đã có người dùng làm chưa
-        const coNguoiLam = await BaiLamNguoiDung.findOne({
-            where: { id_bai_thi: id_bai_thi }
-        });
-        if (coNguoiLam) {
-            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không thể chỉnh sửa trực tiếp." });
-        }
-
         // Cập nhật thông tin đề thi
         const dataUpdateExam = {};
         if (req.body.ten_bai_thi) dataUpdateExam.ten_bai_thi = req.body.ten_bai_thi;
@@ -650,6 +642,31 @@ module.exports.editExam = async (req, res) => {
 module.exports.getExamTest = async (req, res) => {
     try {
         const { page, limit, nam_xuat_ban } = req.query;
+
+        // Lấy token người đã đăng nhập đã làm bài đầu vào chưa
+        const id_nguoi_dung = req.user.id_nguoi_dung;
+
+        // Kiểm tra người dùng đã làm bài đầu vào chưa
+        const daLamBaiDauVao = await BaiLamNguoiDung.findOne({
+            where: {
+                id_nguoi_dung: id_nguoi_dung,
+            },
+            include: [
+                {
+                    model: BaiThi,
+                    as: 'bai_thi_nguoi_dung',
+                    attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                    where: {
+                        da_xoa: false,
+                        trang_thai: 'da_xuat_ban',
+                        la_bai_thi_dau_vao: true
+                    }
+                }
+            ]
+        });
+        if (!daLamBaiDauVao) {
+            return res.status(400).json({ message: "Bạn cần làm bài thi đầu vào trước khi làm các bài thi khác." });
+        }
         
         // Điều kiện lọc
         const where = {
@@ -708,6 +725,9 @@ module.exports.getExamTest = async (req, res) => {
             offset: pagination.skip,
             limit: pagination.limitItem
         });
+
+        // Đánh dấu những đề thi gợi ý cần luyện tập
+        
 
         res.status(200).json({
             message: "Đã lấy danh sách đề thi thành công.",

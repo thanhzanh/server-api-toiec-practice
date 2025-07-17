@@ -176,7 +176,7 @@ module.exports.submitExamFromFE = async (req, res) => {
             diem_nghe,
             diem_doc,
             tong_diem,
-            da_hoan_thanh: true
+            da_hoan_thanh: false
         });
 
         // Ghi câu trả lời
@@ -463,7 +463,7 @@ module.exports.detailPartUser = async (req, res) => {
                     ]
                 }            
             ],
-            attributes: ['id_bai_lam_nguoi_dung', 'tong_diem', 'diem_doc', 'diem_nghe', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc']
+            attributes: ['id_bai_lam_nguoi_dung', 'tong_diem', 'diem_doc', 'diem_nghe', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'da_hoan_thanh']
         });
         if (!baiLam) {
             return res.status(400).json({ message: 'Bài làm người dùng không tồn tại.' });
@@ -649,39 +649,8 @@ module.exports.submitExamTest = async (req, res) => {
 
         await CauTraLoiNguoiDung.bulkCreate(dataInsert);
 
-        // Xác định mức độ điểm người dùng đạt được
-        const mucDoDiemUser = await MucDoToiec.findOne({
-            where: {
-                diem_bat_dau: { [Op.lte]: tong_diem },
-                diem_ket_thuc: { [Op.gte]: tong_diem },
-            }
-        });
-
-        // Gợi ý đề ý để luyện tập
-        const deThiLuyenTap = await BaiThi.findAll({
-            where: {
-                la_bai_thi_dau_vao: false,
-                loai_bai_thi: 'chuan',
-                trang_thai: 'da_xuat_ban',
-                da_xoa: false,
-                id_muc_do: mucDoDiemUser ? mucDoDiemUser.id_muc_do : null,
-            },
-            order: [['id_muc_do', 'ASC']]
-        });
-
-        // Duyệt danh sach đề thi luyện tập để lấy thông tin
-        const deThiLuyenTapInfo = deThiLuyenTap.map(de => ({
-            id_bai_thi: de.id_bai_thi,
-            ten_bai_thi: de.ten_bai_thi,
-            muc_do: de.id_muc_do,
-            so_luong_cau_hoi: de.so_luong_cau_hoi,
-            diem_toi_da: de.diem_toi_da,
-            la_goi_y: true
-        }));
-
-
         return res.status(200).json({
-            message: "Lưu bài làm từ frontend thành công.",
+            message: "Lưu bài làm thành công.",
             data: {
                 id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
                 diem_nghe,
