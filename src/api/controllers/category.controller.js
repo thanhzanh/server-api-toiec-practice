@@ -40,7 +40,7 @@ module.exports.index = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Lấy danh sách danh mục bài viết thành công",
+            message: "Lấy danh sách danh mục bài viết thành công.",
             data: dsDanhMuc,
             pagination: {
                 page: pagination.currentPage,
@@ -61,20 +61,20 @@ module.exports.createCategory = async (req, res) => {
         const { ten_danh_muc, mo_ta } = req.body;
 
         if (!ten_danh_muc) {
-            return res.status(400).json({ message: "Vui lòng nhập tên danh mục!" });
+            return res.status(400).json({ message: "Vui lòng nhập tên danh mục." });
         }
 
         const danhMuc = await DanhMucBaiViet.findOne({
             where: { ten_danh_muc }
         });
         if (danhMuc) {
-            return res.status(404).json({ message: "Danh mục đã tồn tại!" });
+            return res.status(404).json({ message: "Danh mục đã tồn tại." });
         }
         
         const data = await DanhMucBaiViet.create({ ten_danh_muc, mo_ta });
 
         res.status(200).json({ 
-            message: "Tạo danh mục bài viết thành công",
+            message: "Tạo danh mục bài viết thành công.",
             data: data
         });
     } catch (error) {
@@ -91,7 +91,7 @@ module.exports.updateCategory = async (req, res) => {
 
         const danhMuc = await DanhMucBaiViet.findByPk(id_danh_muc);
         if (!danhMuc) {
-            return res.status(404).json({ message: "Danh mục không tồn tại!" });
+            return res.status(404).json({ message: "Danh mục không tồn tại." });
         }
 
         const updateData = {};
@@ -104,7 +104,7 @@ module.exports.updateCategory = async (req, res) => {
         const data = await danhMuc.update(updateData);        
 
         res.status(200).json({ 
-            message: "Đã chỉnh sửa danh mục bài viết thành công",
+            message: "Đã chỉnh sửa danh mục bài viết thành công.",
             data: data
         });
     } catch (error) {
@@ -119,12 +119,12 @@ module.exports.deleteCategory = async (req, res) => {
 
         const danhMuc = await DanhMucBaiViet.findByPk(id_danh_muc);
         if (!danhMuc) {
-            return res.status(404).json({ message: "Danh mục không tồn tại!" });
+            return res.status(404).json({ message: "Danh mục không tồn tại." });
         }
 
         const existedCategory = await BaiViet.findOne({ where: { id_danh_muc } });
         if (existedCategory) {
-            return res.status(404).json({ message: "Danh mục đã được sử dụng trong bài viết. Không xóa được!" });
+            return res.status(404).json({ message: "Danh mục đã được sử dụng trong bài viết. Không xóa được." });
         }
 
         await danhMuc.update({
@@ -132,7 +132,7 @@ module.exports.deleteCategory = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: "Đã xóa danh mục bài viết thành công"
+            message: "Đã xóa danh mục bài viết thành công."
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -146,7 +146,7 @@ module.exports.detailCategory = async (req, res) => {
 
         const danhMuc = await DanhMucBaiViet.findByPk(id_danh_muc);
         if (!danhMuc) {
-            return res.status(404).json({ message: "Danh mục không tồn tại!" });
+            return res.status(404).json({ message: "Danh mục không tồn tại." });
         }
 
         const data = await DanhMucBaiViet.findByPk(id_danh_muc, {
@@ -154,7 +154,7 @@ module.exports.detailCategory = async (req, res) => {
         })
 
         res.status(200).json({ 
-            message: "Xem thông tin chi tiết danh mục bài viết thành công",
+            message: "Xem thông tin chi tiết danh mục bài viết thành công.",
             data: data
         });
     } catch (error) {
@@ -172,7 +172,7 @@ module.exports.getAllCategorys = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: "Lấy tất cả danh mục bài viết thành công",
+            message: "Lấy tất cả danh mục bài viết thành công.",
             data: dsDanhMuc
         });
     } catch (error) {

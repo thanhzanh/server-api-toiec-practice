@@ -95,7 +95,7 @@ module.exports.index = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Lấy danh sách câu hỏi thành công",
+            message: "Lấy danh sách câu hỏi thành công.",
             data: questions,
             pagination: {
                 page: pagination.currentPage,
@@ -136,30 +136,30 @@ module.exports.create = async (req, res) => {
         if (id_phan) {
             const phan = await PhanCauHoi.findByPk(id_phan);
             if (!phan) {
-                return res.status(400).json({ message: "Phần câu hỏi không tồn tại" });
+                return res.status(400).json({ message: "Phần câu hỏi không tồn tạ." });
             }
         }
 
         // Bắt buộc phải có hình ảnh cho Part 1, 2, 5
         if (checkPhan.co_hinh_anh && !req.body.url_hinh_anh) {
             if ([1, 2, 5].includes(id_phan)) {
-                return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có hình ảnh!` });
+                return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có hình ảnh.` });
             }
         }
 
         // Bắt buộc phải có âm thanh    
         if (checkPhan.co_am_thanh && !req.body.url_am_thanh) {
-            return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có âm thanh!` });
+            return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có âm thanh.` });
         }
 
         // Bắt buộc có đoạn văn
         if (!id_doan_van && checkPhan.co_doan_van) {
-            return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có đoạn văn!` });
+            return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có đoạn văn.` });
         }
         if (id_doan_van) {
             const doanvan = await DoanVan.findByPk(id_doan_van);
             if (!doanvan) {
-                return res.status(400).json({ message: "Đoạn văn không tồn tại!" });
+                return res.status(400).json({ message: "Đoạn văn không tồn tại." });
             }
         }
 
@@ -170,49 +170,49 @@ module.exports.create = async (req, res) => {
                 // Kiểm tra phải nhập lựa chọn
                 for (const lc of lua_chon) {
                     if (!lc.noi_dung || !lc.noi_dung.trim()) {
-                        return res.status(400).json({ message: "Bắt buộc phải nhập nội dung lựa chọn!" });
+                        return res.status(400).json({ message: "Bắt buộc phải nhập nội dung lựa chọn." });
                     }
                 }
 
                 // Kiểm tra đáp án đúng
                 if (!['A', 'B', 'C', 'D'].includes(dap_an_dung)) {
-                    return res.status(400).json({ message: "Phải chọn duy nhất một đáp án đúng A, B, C hoặc D!" });
+                    return res.status(400).json({ message: "Phải chọn duy nhất một đáp án đúng A, B, C hoặc D." });
                 }
                 break;
             case 2:
                 // Kiểm tra phải nhập lựa chọn
                 for (const lc of lua_chon) {
                     if (!lc.noi_dung || !lc.noi_dung.trim()) {
-                        return res.status(400).json({ message: "Bắt buộc phải nhập nội dung lựa chọn!" });
+                        return res.status(400).json({ message: "Bắt buộc phải nhập nội dung lựa chọn." });
                     }
                 }
 
                 // Kiểm tra đáp án đúng
                 if (!['A', 'B', 'C', 'D'].includes(dap_an_dung)) {
-                    return res.status(400).json({ message: "Phải chọn duy nhất một đáp án đúng A, B, C hoặc D!" });
+                    return res.status(400).json({ message: "Phải chọn duy nhất một đáp án đúng A, B, C hoặc D." });
                 }
                 break;
             case 3:
             case 4:
                 if (!Array.isArray(noi_dung) && noi_dung && noi_dung.length !== checkPhan.so_cau_hoi) {
-                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_cau_hoi} câu hỏi!` });
+                    return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_cau_hoi} câu hỏi.` });
                 }
                 for (let i = 0; i < checkPhan.so_cau_hoi; i++) {
                     const luachon = lua_chon[i];
                     if (!Array.isArray(luachon) && luachon.length !== checkPhan.so_lua_chon) {
-                        return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn!` });
+                        return res.status(400).json({ message: `Part ${id_phan} bắt buộc phải có ${checkPhan.so_lua_chon} lựa chọn.` });
                     }   
 
                     for (const lc of luachon) {
                         if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
-                            return res.status(400).json({ message: `Bắt buộc phải nhập nội dung lựa chọn cho câu hỏi ${i + 1}!` });
+                            return res.status(400).json({ message: `Bắt buộc phải nhập nội dung lựa chọn cho câu hỏi ${i + 1}.` });
                         }
                     }
 
                     // Kiểm tra đáp án đúng
                     const dapAn = dap_an_dung[i];
                     if (!['A', 'B', 'C', 'D'].includes(dapAn)) {
-                        return res.status(400).json({ message: ` Câu hỏi ${i + 1} phải chọn duy nhất một đáp án đúng A, B, C hoặc D!` });
+                        return res.status(400).json({ message: ` Câu hỏi ${i + 1} phải chọn duy nhất một đáp án đúng A, B, C hoặc D.` });
                     }
                 }
                 break;
@@ -223,14 +223,14 @@ module.exports.create = async (req, res) => {
 
                     for (const lc of luachon) {
                         if (!lc.ky_tu_lua_chon || !lc.noi_dung || !lc.noi_dung.trim()) {
-                            return res.status(400).json({ message: `Bắt buộc phải nhập nội dung lựa chọn cho câu hỏi ${i + 1}!` });
+                            return res.status(400).json({ message: `Bắt buộc phải nhập nội dung lựa chọn cho câu hỏi ${i + 1}.` });
                         }
                     }
 
                     // Kiểm tra đáp án đúng
                     const dapAn = dap_an_dung[i];
                     if (!['A', 'B', 'C', 'D'].includes(dapAn)) {
-                        return res.status(400).json({ message: ` Câu hỏi ${i + 1} phải chọn duy nhất một đáp án đúng A, B, C hoặc D!` });
+                        return res.status(400).json({ message: ` Câu hỏi ${i + 1} phải chọn duy nhất một đáp án đúng A, B, C hoặc D.` });
                     }
                 }
                 break;
@@ -327,7 +327,7 @@ module.exports.create = async (req, res) => {
         );
                 
         res.status(200).json({ 
-            message: "Tạo câu hỏi thành công",
+            message: "Tạo câu hỏi thành công.",
             data: dataQuestion
         });
     } catch (error) {
@@ -340,7 +340,7 @@ module.exports.create = async (req, res) => {
 module.exports.importExcel = async (req, res) => {
     try {
         if (!req.file) {
-            return res.status(400).json({ message: "Vui lòng tải lên tệp Excel!" });
+            return res.status(400).json({ message: "Vui lòng tải lên tệp Excel." });
         }        
 
         const workbook = xlsx.read(req.file.buffer);
@@ -359,7 +359,7 @@ module.exports.importExcel = async (req, res) => {
 
             const part = parseInt(id_phan);
             if (isNaN(part) || part < 1 || part > 7) {
-                return res.status(400).json({ message: "Part phải từ 1 đến 7!" });
+                return res.status(400).json({ message: "Part phải từ 1 đến 7." });
             }
 
             const newQuestion = {
@@ -523,7 +523,7 @@ module.exports.importExcel = async (req, res) => {
         }
 
         res.status(200).json({ 
-            message: "Import câu hỏi từ excel thành công!",
+            message: "Import câu hỏi từ excel thành công.",
             data: questionToAdd
         });
 
@@ -539,7 +539,7 @@ module.exports.detail = async (req, res) => {
         const { id_cau_hoi } = req.params;
         const question = await NganHangCauHoi.findByPk(id_cau_hoi);
         if (!question) {
-            return res.status(400).json({ message: "ID câu hỏi không hợp lệ" });
+            return res.status(400).json({ message: "ID câu hỏi không hợp lệ." });
         }
         // Lấy thông tin câu hỏi
         const questionDetail = await NganHangCauHoi.findByPk(
@@ -578,7 +578,7 @@ module.exports.detail = async (req, res) => {
         );        
                 
         res.status(200).json({ 
-            message: "Lấy chi tiết câu hỏi thành công",
+            message: "Lấy chi tiết câu hỏi thành công.",
             data: questionDetail
         });
     } catch (error) {
@@ -594,7 +594,7 @@ module.exports.delete = async (req, res) => {
         
         const question = await NganHangCauHoi.findByPk(id_cau_hoi);
         if (!question) {
-            return res.status(400).json({ message: "Câu hỏi không tồn tại!" });
+            return res.status(400).json({ message: "Câu hỏi không tồn tại." });
         }
 
         // Kiểm tra xem câu hỏi đã được sử dụng chưa
@@ -602,7 +602,7 @@ module.exports.delete = async (req, res) => {
             where: { id_cau_hoi: parseInt(id_cau_hoi) }
         });
         if (daSuDung) {
-            return res.status(400).json({ message: "Câu hỏi đã được sử dụng trong bài thi. Không được xóa!" });
+            return res.status(400).json({ message: "Câu hỏi đã được sử dụng trong bài thi. Không được xóa." });
         }
 
         // Xóa mềm trong database chuyển sang trạng thái lưu trữ
@@ -612,7 +612,7 @@ module.exports.delete = async (req, res) => {
         });
 
         res.status(200).json({
-            message: "Đã xóa câu hỏi và chuyển sang kho lưu trữ!"
+            message: "Đã xóa câu hỏi và chuyển sang kho lưu trữ."
         });
 
     } catch (error) {
@@ -632,7 +632,7 @@ module.exports.edit = async (req, res) => {
         const existingQuestion = await NganHangCauHoi.findByPk(id_cau_hoi);
         
         if (!existingQuestion) {
-            return res.status(400).json({ message: "Câu hỏi không tồn tại!" });
+            return res.status(400).json({ message: "Câu hỏi không tồn tại." });
         }
 
         // Lấy id_phan để kiểm tra dữ liệu khi cập nhật
@@ -647,11 +647,11 @@ module.exports.edit = async (req, res) => {
                 await PhuongTien.findByPk(existingQuestion.id_phuong_tien_am_thanh) : null;
                 
                 if (coHinhAnh && req.body.url_hinh_anh && coHinhAnh.url_phuong_tien !== req.body.url_hinh_anh) {
-                    return res.status(400).json({ message: "Không được phép cập nhật hình ảnh Part 1!" });
+                    return res.status(400).json({ message: "Không được phép cập nhật hình ảnh Part 1." });
                 }
 
                 if (coAmThanh && req.body.url_am_thanh && coHinhAnh.url_phuong_tien !== req.body.url_am_thanh) {
-                    return res.status(400).json({ message: "Không được phép cập nhật âm thanh Part 1!" });
+                    return res.status(400).json({ message: "Không được phép cập nhật âm thanh Part 1." });
                 }
                 break;
             case 2:
@@ -659,7 +659,7 @@ module.exports.edit = async (req, res) => {
                 const coAmThanhP2 = existingQuestion.id_phuong_tien_am_thanh ?
                 await PhuongTien.findByPk(existingQuestion.id_phuong_tien_am_thanh) : null;
                 if (coAmThanhP2 && req.body.url_am_thanh && coAmThanhP2.url_phuong_tien !== req.body.url_am_thanh) {
-                    return res.status(400).json({ message: "Không được phép cập nhật âm thanh Part 2!" });
+                    return res.status(400).json({ message: "Không được phép cập nhật âm thanh Part 2." });
                 }
                 break;
             case 3:
@@ -671,11 +671,11 @@ module.exports.edit = async (req, res) => {
                 await PhuongTien.findByPk(existingQuestion.id_phuong_tien_am_thanh) : null;
 
                 if (coHinhAnhP34 && req.body.url_hinh_anh && coHinhAnhP34.url_phuong_tien !== req.body.url_hinh_anh) {
-                    return res.status(400).json({ message: `Không được phép cập nhật hình ảnh Part ${id_phan}!` });
+                    return res.status(400).json({ message: `Không được phép cập nhật hình ảnh Part ${id_phan}.` });
                 }
 
                 if (coAmThanhP34 && req.body.url_am_thanh && coAmThanhP34.url_phuong_tien !== req.body.url_am_thanh) {
-                    return res.status(400).json({ message: `Không được phép cập nhật hình ảnh Part ${id_phan}!` });
+                    return res.status(400).json({ message: `Không được phép cập nhật hình ảnh Part ${id_phan}.` });
                 }
                 break;
             case 5:
@@ -684,7 +684,7 @@ module.exports.edit = async (req, res) => {
             case 7:
                 // Kiểm tra đoạn văn gửi lên thì chặn lại
                 if (existingQuestion.id_doan_van && req.body.id_doan_van && existingQuestion.id_doan_van !== req.body.id_doan_van) {
-                    return res.status(400).json({ message: `Không được phép cập nhật đoạn văn Part ${id_phan}!` });
+                    return res.status(400).json({ message: `Không được phép cập nhật đoạn văn Part ${id_phan}.` });
                 }
         }
 
@@ -725,7 +725,7 @@ module.exports.edit = async (req, res) => {
         }   
 
         res.status(200).json({
-            message: "Đã chỉnh sửa câu hỏi!",
+            message: "Đã chỉnh sửa câu hỏi.",
         });
 
     } catch (error) {

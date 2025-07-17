@@ -62,7 +62,7 @@ module.exports.createCategory = async (req, res) => {
 
         // Kiểm tra dữ liệu đầu vào
         if (!ten_danh_muc || !mo_ta) {
-            return res.status(400).json({ message: "Cần nhập đủ thông tin!" });
+            return res.status(400).json({ message: "Cần nhập đủ thông tin." });
         }
 
         // Tạo danh mục ngữ pháp mới
@@ -72,7 +72,7 @@ module.exports.createCategory = async (req, res) => {
         });
 
         res.status(201).json({
-            message: "Tạo danh mục ngữ pháp thành công",
+            message: "Tạo danh mục ngữ pháp thành công.",
             data: newCategory
         });
     } catch (error) {
@@ -89,7 +89,7 @@ module.exports.updateCategory = async (req, res) => {
 
         const danhMuc = await DanhMucNguPhap.findByPk(id_danh_muc);
         if (!danhMuc) {
-            return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại!" });
+            return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại." });
         }
 
         const updateData = {};
@@ -101,7 +101,7 @@ module.exports.updateCategory = async (req, res) => {
         await danhMuc.update(updateData);
 
         res.status(200).json({ 
-            message: "Đã chỉnh sửa danh ngữ pháp viết thành công",
+            message: "Đã chỉnh sửa danh ngữ pháp viết thành công.",
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -115,7 +115,7 @@ module.exports.deleteCategory = async (req, res) => {
 
         const danhMuc = await DanhMucNguPhap.findByPk(id_danh_muc);
         if (!danhMuc) {
-            return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại!" });
+            return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại." });
         }
 
         // Kiểm tra xem danh mục có chứa ngữ pháp nào không
@@ -126,7 +126,7 @@ module.exports.deleteCategory = async (req, res) => {
             }
         });
         if (grammars) {
-            return res.status(400).json({ message: "Không thể xóa danh mục này vì nó chứa ngữ pháp!" });
+            return res.status(400).json({ message: "Không thể xóa danh mục này vì nó chứa ngữ pháp." });
         }
 
         // Đánh dấu là đã xóa
@@ -134,7 +134,7 @@ module.exports.deleteCategory = async (req, res) => {
         await danhMuc.save();
 
         res.status(200).json({ 
-            message: "Đã xóa danh mục ngữ pháp thành công",
+            message: "Đã xóa danh mục ngữ pháp thành công.",
         });
     } catch (error) {
         console.error(error);
@@ -149,11 +149,11 @@ module.exports.detailCategory = async (req, res) => {
 
         const danhMuc = await DanhMucNguPhap.findByPk(id_danh_muc);
         if (!danhMuc) {
-            return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại!" });
+            return res.status(404).json({ message: "Danh mục ngữ pháp không tồn tại." });
         }
 
         res.status(200).json({ 
-            message: "Lấy chi tiết danh mục ngữ pháp thành công",
+            message: "Lấy chi tiết danh mục ngữ pháp thành công.",
             data: danhMuc
         });
     } catch (error) {
@@ -172,7 +172,7 @@ module.exports.getAllCategorys = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: "Lấy tất cả danh mục ngữ pháp thành công",
+            message: "Lấy tất cả danh mục ngữ pháp thành công.",
             data: dsDanhMuc
         });
     } catch (error) {

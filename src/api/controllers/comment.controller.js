@@ -12,13 +12,13 @@ module.exports.createComment = async (req, res) => {
 
         // Bắt buộc nhập nội dung
         if (!noi_dung || noi_dung.trim() === '') {
-            return res.status(400).json({ message: 'Nội dung bình luận không được để trống' });
+            return res.status(400).json({ message: 'Nội dung bình luận không được để trống.' });
         }
 
         // Kiểm tra bài viết có tồn tại không
         const baiViet = await BaiViet.findByPk(id_bai_viet);
         if (!baiViet) {
-            return res.status(404).json({ message: 'Bài viết không tồn tại' });
+            return res.status(404).json({ message: 'Bài viết không tồn tại.' });
         }
 
         // Tạo mới bình luận 
@@ -30,7 +30,7 @@ module.exports.createComment = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: 'Tạo bình luận thành công',
+            message: 'Tạo bình luận thành công.',
             data: newComment
         });
         
@@ -83,7 +83,7 @@ module.exports.getCommentsByBlogId = async (req, res) => {
         });
 
         res.status(200).json({
-            message: 'Lấy danh sách bình luận thành công',
+            message: 'Lấy danh sách bình luận thành công.',
             data: comments
         });
 
@@ -101,14 +101,14 @@ module.exports.updateComment = async (req, res) => {
 
         const binhLuan = await BinhLuan.findByPk(id_binh_luan);
         if (!binhLuan || binhLuan.id_nguoi_dung !== req.user.id_nguoi_dung) {
-            return res.status(404).json({ message: 'Bạn không có quyền sửa bình luận' });
+            return res.status(404).json({ message: 'Bạn không có quyền sửa bình luận.' });
         }
 
         // Cập nhật
         binhLuan.noi_dung = noiDung;
         await binhLuan.save();
 
-        res.status(200).json({ message: 'Đã cập nhật bình luận' }); 
+        res.status(200).json({ message: 'Đã cập nhật bình luận.' }); 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });
@@ -122,13 +122,13 @@ module.exports.deleteComment = async (req, res) => {
 
         const binhLuan = await BinhLuan.findByPk(id_binh_luan);
         if (!binhLuan || binhLuan.id_nguoi_dung !== req.user.id_nguoi_dung) {
-            return res.status(404).json({ message: 'Bạn không có quyền xóa bình luận' });
+            return res.status(404).json({ message: 'Bạn không có quyền xóa bình luận.' });
         }
 
         // Xóa bình luận
         await binhLuan.destroy();
 
-        res.status(200).json({ message: 'Đã xóa bình luận' }); 
+        res.status(200).json({ message: 'Đã xóa bình luận.' }); 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });

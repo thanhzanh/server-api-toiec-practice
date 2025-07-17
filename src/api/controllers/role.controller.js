@@ -14,7 +14,7 @@ module.exports.index = async (req, res) => {
             order: [['thoi_gian_tao', 'ASC']]
         });
 
-        res.status(200).json({ message: 'Danh sách nhóm quyền', data: roles });
+        res.status(200).json({ message: 'Danh sách nhóm quyền.', data: roles });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -27,7 +27,7 @@ module.exports.createRole = async (req, res) => {
         const tenVaiTroUpper = ten_vai_tro.toLowerCase();
 
         if (!tenVaiTroUpper) {
-            return res.status(400).json({ message: "Tên vài trò phải bắt buộc!" });
+            return res.status(400).json({ message: "Tên vài trò phải bắt buộc." });
         }
 
         // Kiểm tra vai trò có chưa
@@ -37,7 +37,7 @@ module.exports.createRole = async (req, res) => {
             }
         });
         if (existed) {
-            return res.status(400).json({ message: 'Vai trò đã tồn tại!' });
+            return res.status(400).json({ message: 'Vai trò đã tồn tại.' });
         }
 
         // Tạo role mới lưu vào database
@@ -48,7 +48,7 @@ module.exports.createRole = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: 'Tạo vai trò thành công!', 
+            message: 'Tạo vai trò thành công.', 
             data: role 
         });
     } catch (error) {
@@ -65,15 +65,15 @@ module.exports.updateRole = async (req, res) => {
         // Kiểm tra vai trò có chưa
         const role = await VaiTro.findByPk(id_vai_tro);
         if (!role) {
-            return res.status(400).json({ message: 'Vai trò không tồn tại!' });
+            return res.status(400).json({ message: 'Vai trò không tồn tại.' });
         }
 
         if (role?.ten_vai_tro === 'quan_tri_vien') {
-            return res.status(400).json({ message: 'Không thể sửa vai trò quản trị viên!' });
+            return res.status(400).json({ message: 'Không thể sửa vai trò quản trị viên.' });
         }
 
         if (ten_vai_tro?.toLowerCase() === 'quan_tri_vien') {
-            return res.status(400).json({ message: 'Tên vai trò "quan_tri_vien" đã tồn tại!' });
+            return res.status(400).json({ message: 'Tên vai trò "quan_tri_vien" đã tồn tại.' });
         }
 
         // Cập nhật trong database
@@ -92,7 +92,7 @@ module.exports.updateRole = async (req, res) => {
         const updatedRole = await VaiTro.findByPk(id_vai_tro);
 
         res.status(200).json({ 
-            message: 'Cập nhật vai trò thành công!', 
+            message: 'Cập nhật vai trò thành công.', 
             data: updatedRole 
         });
     } catch (error) {
@@ -106,10 +106,10 @@ module.exports.detailRole = async (req, res) => {
         const { id_vai_tro } = req.params;
         const role = await VaiTro.findByPk(id_vai_tro);
         if (!role) {
-            return res.status(400).json({ message: 'Vai trò không hợp lệ' });
+            return res.status(400).json({ message: 'Vai trò không hợp lệ.' });
         }
 
-        res.status(200).json({ message: 'Thông tin chi tiết vai trò', data: role });
+        res.status(200).json({ message: 'Thông tin chi tiết vai trò.', data: role });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -123,13 +123,13 @@ module.exports.deleteRole = async (req, res) => {
         // Kiểm tra vai trò có chưa
         const role = await VaiTro.findByPk(id_vai_tro);
         if (!role) {
-            return res.status(400).json({ message: 'Vai trò không tồn tại!' });
+            return res.status(400).json({ message: 'Vai trò không tồn tại.' });
         }
 
         // Chặn nếu xóa là vai trò 'quan_tri_vien và 'nguoi_dung'
         const vaiTroChinhTrongHeThong = ["quan_tri_vien", "nguoi_dung"];
         if (vaiTroChinhTrongHeThong.includes(role.ten_vai_tro)) {
-            return res.status(400).json({ message: `Không thể xóa vai trò chính trong hệ thống: ${role.ten_vai_tro}!` });
+            return res.status(400).json({ message: `Không thể xóa vai trò chính trong hệ thống: ${role.ten_vai_tro}.` });
         }
 
         // Cập nhật trong database
@@ -141,7 +141,7 @@ module.exports.deleteRole = async (req, res) => {
             }
         });
 
-        res.status(200).json({ message: 'Đã xóa vai trò thành công!' });
+        res.status(200).json({ message: 'Đã xóa vai trò thành công.' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -155,12 +155,12 @@ module.exports.updateRolePermission = async (req, res) => {
 
         const role = await VaiTro.findByPk(id_vai_tro);
         if (!role) {
-            return res.status(404).json({ message: "Vai trò không tồn tại!" });
+            return res.status(404).json({ message: "Vai trò không tồn tại." });
         }
 
         // Kiểm tra ds mảng mã quyền
         if (!Array.isArray(ds_ma_quyen)) {
-            return res.status(400).json({ message: "Danh sách mảng quyền không hợp lệ!" });
+            return res.status(400).json({ message: "Danh sách mảng quyền không hợp lệ." });
         }
 
         // quan_tri_vien toàn quyền nên không cho sửa quyền cửa quan_tri_vien
@@ -169,7 +169,7 @@ module.exports.updateRolePermission = async (req, res) => {
         // }
 
         if (ds_ma_quyen.length === 0) {
-            return res.status(400).json({ message: "Không có gì thay đổi!" });
+            return res.status(400).json({ message: "Không có gì thay đổi." });
         }
 
         // Tìm kiếm quyền trong table quyen
@@ -181,7 +181,7 @@ module.exports.updateRolePermission = async (req, res) => {
         });
 
         if (permissions.length === 0) {
-            return res.status(400).json({ message: "Không tìm thấy quyền trong danh sách quyền!" });
+            return res.status(400).json({ message: "Không tìm thấy quyền trong danh sách quyền." });
         }
 
         // Xóa toàn bộ quyền cũ trong PhanQuyenPhanQuyen
@@ -196,7 +196,7 @@ module.exports.updateRolePermission = async (req, res) => {
         await PhanQuyenVaiTro.bulkCreate(newPermissions);
 
         res.status(200).json({ 
-            message: `Đã cập nhật quyền cho vai trò ${role.ten_vai_tro}!`,
+            message: `Đã cập nhật quyền cho vai trò ${role.ten_vai_tro}.`,
             id_vai_tro: id_vai_tro
         });
 
@@ -252,7 +252,7 @@ module.exports.getPermissionsTable = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: "Danh sách quyền của từng vai trò",
+            message: "Danh sách quyền của từng vai trò.",
             permissions: groupedPermissions
         });
     } catch (error) {

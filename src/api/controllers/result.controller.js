@@ -192,7 +192,7 @@ module.exports.submitExamFromFE = async (req, res) => {
         await CauTraLoiNguoiDung.bulkCreate(dataInsert);
 
         return res.status(200).json({
-            message: "Lưu bài làm từ frontend thành công!",
+            message: "Lưu bài làm từ frontend thành công.",
             data: {
                 id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
                 diem_nghe,
@@ -252,7 +252,7 @@ module.exports.index = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: 'Danh sách bài làm người dùng',
+            message: 'Danh sách bài làm người dùng.',
             data: records,
             pagination: {
                 page: pagination.currentPage,
@@ -274,7 +274,7 @@ module.exports.getAllExamSubmit = async (req, res) => {
         const { page, limit } = req.query;
         const nguoiDung = await NguoiDung.findByPk(id_nguoi_dung);
         if (!nguoiDung) {
-            return res.status(400).json({ message: 'Người dùng không tồn tại!' });
+            return res.status(400).json({ message: 'Người dùng không tồn tại.' });
         }
 
         // Đếm tổng số bài làm người dùng
@@ -313,7 +313,7 @@ module.exports.getAllExamSubmit = async (req, res) => {
         });
 
         res.status(200).json({ 
-            message: 'Danh sách bài làm của người dùng',
+            message: 'Danh sách bài làm của người dùng.',
             data: records,
             pagination: {
                 page: pagination.currentPage,
@@ -385,11 +385,11 @@ module.exports.detailPart = async (req, res) => {
             attributes: ['id_bai_lam_nguoi_dung', 'tong_diem', 'diem_doc', 'diem_nghe', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc']
         });
         if (!baiLam) {
-            return res.status(400).json({ message: 'Bài làm người dùng không tồn tại!' });
+            return res.status(400).json({ message: 'Bài làm người dùng không tồn tại.' });
         }
 
         res.status(200).json({ 
-            message: `Chi tiết bài làm Part ${part}`,
+            message: `Chi tiết bài làm Part ${part}.`,
             data: baiLam
         });
 
@@ -466,11 +466,11 @@ module.exports.detailPartUser = async (req, res) => {
             attributes: ['id_bai_lam_nguoi_dung', 'tong_diem', 'diem_doc', 'diem_nghe', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc']
         });
         if (!baiLam) {
-            return res.status(400).json({ message: 'Bài làm người dùng không tồn tại!' });
+            return res.status(400).json({ message: 'Bài làm người dùng không tồn tại.' });
         }
 
         res.status(200).json({ 
-            message: `Chi tiết bài làm Part ${part}`,
+            message: `Chi tiết bài làm Part ${part}.`,
             data: baiLam
         });
 
@@ -518,7 +518,7 @@ module.exports.getQuestionIndex = async (req, res) => {
     });
 
     if (!baiLam) {
-        return res.status(400).json({ message: "Không tìm thấy bài làm!" });
+        return res.status(400).json({ message: "Không tìm thấy bài làm." });
     }
 
     // Sắp xếp câu hỏi theo part tăng dần (1 -> 7)
@@ -532,7 +532,7 @@ module.exports.getQuestionIndex = async (req, res) => {
     }));    
 
     res.status(200).json({
-        message: "Thứ tự câu hỏi",
+        message: "Thứ tự câu hỏi.",
         data: result
     });
 
@@ -577,7 +577,7 @@ module.exports.getAvaliableParts = async (req, res) => {
     });
 
     if (!baiLam) {
-        return res.status(400).json({ message: "Không tìm thấy bài làm!" });
+        return res.status(400).json({ message: "Không tìm thấy bài làm." });
     }
 
     const partSet = new Set();
@@ -600,7 +600,7 @@ module.exports.getAvaliableParts = async (req, res) => {
     arrayParts.sort((a, b) => a.id_phan - b.id_phan);
 
     res.status(200).json({
-        message: "Danh sách các phần của bài làm",
+        message: "Danh sách các phần của bài làm.",
         parts: arrayParts
     });
 
@@ -670,7 +670,7 @@ module.exports.submitExamTest = async (req, res) => {
         });
 
         return res.status(200).json({
-            message: "Lưu bài làm từ frontend thành công!",
+            message: "Lưu bài làm từ frontend thành công.",
             data: {
                 id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
                 diem_nghe,

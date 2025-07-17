@@ -15,23 +15,23 @@ module.exports.createUserBlog = async (req, res) => {
         const idDanhMuc = parseInt(id_danh_muc);   
     
         if (!tieu_de || !noiDungStriptag || !idDanhMuc) {
-            return res.status(400).json({ messsage: "Cần nhập đủ thông tin!" });
+            return res.status(400).json({ messsage: "Cần nhập đủ thông tin." });
         }
     
         if (!url_hinh_anh) {
-            return res.status(400).json({ messsage: "Hình ảnh không hợp lệ" });
+            return res.status(400).json({ messsage: "Hình ảnh không hợp lệ." });
         }
 
         // Kiểm tra người dùng
         const user = await NguoiDung.findByPk(parseInt(id_nguoi_dung));
         if (!user) {
-            return res.status(404).json({ messsage: "Người dùng không tồn tại!" });
+            return res.status(404).json({ messsage: "Người dùng không tồn tại." });
         }
 
         // Kiểm tra danh mục
         const category = await DanhMucBaiViet.findByPk(idDanhMuc);
         if (!category) {
-            return res.status(404).json({ messsage: "Danh mục không tồn tại!" });
+            return res.status(404).json({ messsage: "Danh mục không tồn tại." });
         }
     
         // Lưu ảnh vào phuong_tien
@@ -51,7 +51,7 @@ module.exports.createUserBlog = async (req, res) => {
         });
     
         res.status(200).json({
-            messsage: "Tạo bài viết thành công, chờ phê duyệt",
+            messsage: "Tạo bài viết thành công, chờ phê duyệt.",
             data: blog
         });
         
@@ -264,7 +264,7 @@ module.exports.getUserBlogsDetail = async (req, res) => {
         });
         
         res.status(200).json({
-            messsage: "Xem chi tiết bài viết của người dùng",
+            messsage: "Xem chi tiết bài viết của người dùng.",
             data: blog
 
         });
@@ -336,7 +336,7 @@ module.exports.getAdminPendingBlogs = async (req, res) => {
         });
         
         res.status(200).json({
-            messsage: "Danh sách bài viết chờ phê duyệt",
+            messsage: "Danh sách bài viết chờ phê duyệt.",
             data: blogs,
             pagination: {
                 page: pagination.currentPage,
@@ -439,7 +439,7 @@ module.exports.approveAdminBlog = async (req, res) => {
         const id_bai_viet = req.params.id_bai_viet;
         const blog = await BaiViet.findByPk(id_bai_viet);
         if (!blog) {
-            return res.status(400).json({ message: "Bài viết không tồn tại!" });
+            return res.status(400).json({ message: "Bài viết không tồn tại." });
         }
 
         // Cập nhật trạng thái bài viết
@@ -448,7 +448,7 @@ module.exports.approveAdminBlog = async (req, res) => {
         await blog.save();
         
         res.status(200).json({
-            messsage: "Đã duyệt bài viết",
+            messsage: "Đã duyệt bài viết.",
         });
         
     } catch (error) {
@@ -463,7 +463,7 @@ module.exports.rejectAdminBlog = async (req, res) => {
         const id_bai_viet = req.params.id_bai_viet;
         const blog = await BaiViet.findByPk(id_bai_viet);
         if (!blog) {
-            return res.status(400).json({ message: "Bài viết không tồn tại!" });
+            return res.status(400).json({ message: "Bài viết không tồn tại." });
         }
 
         // Cập nhật trạng thái bài viết
@@ -472,7 +472,7 @@ module.exports.rejectAdminBlog = async (req, res) => {
         await blog.save();
         
         res.status(200).json({
-            messsage: "Đã từ chối bài viết",
+            messsage: "Đã từ chối bài viết.",
         });
         
     } catch (error) {
@@ -487,7 +487,7 @@ module.exports.deleteAdminBlog = async (req, res) => {
         const id_bai_viet = req.params.id_bai_viet;
         const blog = await BaiViet.findByPk(id_bai_viet);
         if (!blog) {
-            return res.status(400).json({ message: "Bài viết không tồn tại!" });
+            return res.status(400).json({ message: "Bài viết không tồn tại." });
         }
 
         // Xóa khỏi cơ sở dữ liệu

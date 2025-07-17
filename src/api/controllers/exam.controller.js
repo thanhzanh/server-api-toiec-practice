@@ -89,7 +89,7 @@ module.exports.index = async (req, res) => {
         });
 
         res.status(200).json({
-            message: "Đã lấy danh sách đề thi thành công!",
+            message: "Đã lấy danh sách đề thi thành công.",
             data: exams,
             pagination: {
                 page: pagination.currentPage,
@@ -112,24 +112,24 @@ module.exports.createExam = async (req, res) => {
         const { ten_bai_thi, mo_ta, la_bai_thi_dau_vao, thoi_gian_bai_thi, nam_xuat_ban, loai_bai_thi } = req.body;
 
         if (!ten_bai_thi || !mo_ta || !thoi_gian_bai_thi || !nam_xuat_ban || typeof la_bai_thi_dau_vao !== 'boolean') {
-            return res.status(400).json({ message: "Cần nhập đủ thông tin bài thi!" });
+            return res.status(400).json({ message: "Cần nhập đủ thông tin bài thi." });
         }
 
         if (loai_bai_thi === 'chuan') {
             if (parseInt(thoi_gian_bai_thi) !== 120) {
-                return res.status(400).json({ message: "Đề thi ETS TOIEC chuẩn cần thời gian phải là 120p!" });
+                return res.status(400).json({ message: "Đề thi ETS TOIEC chuẩn cần thời gian phải là 120p." });
             }
         } else if (loai_bai_thi === 'tu_do') {
             const thoiGian = parseInt(thoi_gian_bai_thi);
             if (thoiGian < 15 || thoiGian > 120) {
-                return res.status(400).json({ message: "Thời gian cho đề thi tự do nằm trong khoảng 15 đến 120 phút!" });
+                return res.status(400).json({ message: "Thời gian cho đề thi tự do nằm trong khoảng 15 đến 120 phút." });
             }
         }
 
         // Kiểm tra nam xuất bản
         const currentYear = new Date().getFullYear();
         if (nam_xuat_ban < 2000 || nam_xuat_ban > currentYear){
-            return res.status(400).json({ message: "Năm xuất bản không hợp lệ!" });
+            return res.status(400).json({ message: "Năm xuất bản không hợp lệ." });
         }
 
         // Kiểm tra chỉ có một bài thi đầu vào thôi
@@ -142,7 +142,7 @@ module.exports.createExam = async (req, res) => {
                 }
             });
             if (exam) {
-                return res.status(400).json({ message: "Hiện tại đã có bài thi đầu vào cho hệ thống!" });
+                return res.status(400).json({ message: "Hiện tại đã có bài thi đầu vào cho hệ thống." });
             }
         }
 
@@ -271,7 +271,7 @@ module.exports.getQuestions = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Lấy danh sách câu hỏi thành công",
+            message: "Lấy danh sách câu hỏi thành công.",
             data: questions,
             pagination: {
                 page: pagination.currentPage,
@@ -297,12 +297,12 @@ module.exports.addQuestionsToExam = async (req, res) => {
         // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
-            return res.status(404).json({ message: "Bài thi không tồn tại!" });
+            return res.status(404).json({ message: "Bài thi không tồn tại." });
         }
 
         // Kiểm tra danh sách câu hỏi có hợp lệ không
         if (ds_cau_hoi.length > MAX_QUESTION_TEST) {
-            return res.status(400).json({ message: `Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu!` });
+            return res.status(400).json({ message: `Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu.` });
         }
 
         // Kiểm tra danh sách câu hỏi
@@ -313,7 +313,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
             }
         });
         if (questions.length !== ds_cau_hoi.length) {
-            return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi!" });
+            return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi." });
         }
 
         // Kiểm tra Part 3&4, Part 6&7 những câu hỏi khi thêm vào đề thi phải đi cùng nhau
@@ -347,23 +347,23 @@ module.exports.addQuestionsToExam = async (req, res) => {
                 const soCauChuanPart = cauTrucToiec[part];
     
                 if (soCauThucTe !== soCauChuanPart) {
-                    return res.status(400).json({ message:`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi!` });
+                    return res.status(400).json({ message:`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi.` });
                 }
             }
     
         // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
         } else if (loaiDeThi === 'tu_do') {
             if (ds_cau_hoi.length > MAX_QUESTION_TEST) {
-                return res.status(400).json({ message:`Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu!` });
+                return res.status(400).json({ message:`Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu.` });
             }
 
             for (const part in cauTrucToiec) {
                 if (cauTrucToiec[part] === 0) {
-                    return res.status(400).json({ message:`Part ${part} yêu cầu ít nhất 1 câu!` });
+                    return res.status(400).json({ message:`Part ${part} yêu cầu ít nhất 1 câu.` });
                 }
             }
         } else {
-            return res.status(400).json({ message: `Loại bài thi không hợp lệ: ${loaiDeThi}!` });
+            return res.status(400).json({ message: `Loại bài thi không hợp lệ: ${loaiDeThi}.` });
         }
         
         // Duyệt qua danh sách câu hỏi
@@ -451,7 +451,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Đã thêm câu hỏi vào đề thi và tạo bảng nháp!",
+            message: "Đã thêm câu hỏi vào đề thi và tạo bảng nháp.",
             dataa: examWithQuestions
         });
 
@@ -518,11 +518,11 @@ module.exports.getDraftExam = async (req, res) => {
         });
 
         if (!examWithDraft) {
-            return res.status(400).json({ message: "Đề thi không tồn tại hoặc chưa tạo bản nháp!" });
+            return res.status(400).json({ message: "Đề thi không tồn tại hoặc chưa tạo bản nháp." });
         }
 
         res.status(200).json({ 
-            message: "Lấy thông tin bản nháp thành công!",
+            message: "Lấy thông tin bản nháp thành công.",
             data: examWithDraft
         });
 
@@ -538,11 +538,11 @@ module.exports.approveExam = async (req, res) => {
         // Kiểm tra bài thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
-            return res.status(400).json({ message: "Đề thi không tồn tại!" });
+            return res.status(400).json({ message: "Đề thi không tồn tại." });
         }
 
         if (exam.trang_thai !== 'nhap') {
-            return res.status(400).json({ message: "Chỉ duyệt đề thi ở trạng thái!" });
+            return res.status(400).json({ message: "Chỉ duyệt đề thi ở trạng thái." });
         }
 
         // Duyệt đề thi
@@ -554,7 +554,7 @@ module.exports.approveExam = async (req, res) => {
             { where: { id_bai_thi } }
         );
 
-        res.status(200).json({ message: "Đã duyệt đề thi để xuất bản!"});
+        res.status(200).json({ message: "Đã duyệt đề thi để xuất bản."});
 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -568,7 +568,7 @@ module.exports.deleteExam = async (req, res) => {
 
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
-            return res.status(404).json({ message: "Đề thi không tồn tại!" });
+            return res.status(404).json({ message: "Đề thi không tồn tại." });
         }
 
         // Kiểm tra đề thi đã có người dùng làm chưa
@@ -576,7 +576,7 @@ module.exports.deleteExam = async (req, res) => {
             where: { id_bai_thi: id_bai_thi }
         });
         if (coNguoiLam) {
-            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không xóa được!" });
+            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không xóa được." });
         }
 
         // Xóa đề thi (xóa mềm)
@@ -589,7 +589,7 @@ module.exports.deleteExam = async (req, res) => {
             where: { id_bai_thi }
         });
 
-        res.status(200).json({ message: "Đã xóa đề thi chuyển vào kho lưu trữ!" });
+        res.status(200).json({ message: "Đã xóa đề thi chuyển vào kho lưu trữ." });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -601,14 +601,11 @@ module.exports.editExam = async (req, res) => {
     try {
         // Dữ liệu nhận được
         const { id_bai_thi } = req.params;
-        const { ds_cau_hoi } = req.body;
-        console.log("ID de thi: ", id_bai_thi);
-        console.log("Data request: ", req.body);
         
         // Kiểm tra đề thi tồn tại không
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam) {
-            return res.status(404).json({ message: "Đề thi không tồn tại!" });
+            return res.status(404).json({ message: "Đề thi không tồn tại." });
         }
 
         // Kiểm tra đề thi đã có người dùng làm chưa
@@ -616,7 +613,7 @@ module.exports.editExam = async (req, res) => {
             where: { id_bai_thi: id_bai_thi }
         });
         if (coNguoiLam) {
-            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không thể chỉnh sửa trực tiếp!" });
+            return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không thể chỉnh sửa trực tiếp." });
         }
 
         // Cập nhật thông tin đề thi
@@ -635,17 +632,10 @@ module.exports.editExam = async (req, res) => {
                     where: { id_bai_thi: id_bai_thi }
                 }
             );
-        }
-
-        // Xử lý cập nhật thay đổi câu hỏi khác
-         
-
-        
-
+        } 
 
         res.status(200).json({ 
-            message: "Đã chỉnh sửa đề thi thành ông!",
-            data: examUpdated
+            message: "Đã chỉnh sửa đề thi thành công."
         });
         
     } catch (error) {
@@ -717,7 +707,7 @@ module.exports.getExamTest = async (req, res) => {
         });
 
         res.status(200).json({
-            message: "Đã lấy danh sách đề thi thành công!",
+            message: "Đã lấy danh sách đề thi thành công.",
             data: exams,
             pagination: {
                 page: pagination.currentPage,
@@ -789,11 +779,11 @@ module.exports.detailExamTest = async (req, res) => {
         });
 
         if (!detailExamTest) {
-            return res.status(400).json({ message: "Đề thi không tồn tại!" });
+            return res.status(400).json({ message: "Đề thi không tồn tại." });
         }
 
         res.status(200).json({ 
-            message: "Lấy thông tin chi tiết đề thi thành công!",
+            message: "Lấy thông tin chi tiết đề thi thành công.",
             data: detailExamTest
         });
 
@@ -848,14 +838,14 @@ module.exports.unsetEntryExam = async (req, res) => {
 
         const exam = await BaiThi.findByPk(id_bai_thi);
         if (!exam || exam.da_xoa || !exam.la_bai_thi_dau_vao) {
-            return res.status(404).json({ message: 'Bài thi không tồn tại hoặc không phải bài thi đầu vào!' });
+            return res.status(404).json({ message: 'Bài thi không tồn tại hoặc không phải bài thi đầu vào.' });
         }
 
         // Gỡ bài thi đầu vào, thay đổi la_bai_thi_dau_vao
         exam.la_bai_thi_dau_vao = false;
         await exam.save();
 
-        res.status(200).json({ message: "Đã gỡ bài thi đầu vào. Hãy thêm mới 1 bài thi đầu vào mới!" });
+        res.status(200).json({ message: "Đã gỡ bài thi đầu vào. Hãy thêm mới 1 bài thi đầu vào mới." });
 
     } catch (error) {
         res.status(500).json({ message: error.message });

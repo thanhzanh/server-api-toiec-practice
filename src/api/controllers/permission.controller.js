@@ -10,7 +10,7 @@ module.exports.index = async (req, res) => {
             },
         });        
 
-        res.status(200).json({ message: 'Danh sách nhóm quyền', data: permissions });
+        res.status(200).json({ message: 'Danh sách nhóm quyền.', data: permissions });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -23,18 +23,18 @@ module.exports.createPermission = async (req, res) => {
         const uppercaseMaQuyen = ma_quyen.toUpperCase();
 
         if (!ten_quyen || !uppercaseMaQuyen) {
-            return res.status(400).json({ message: "Vui lòng nhập đủ thông tin tên quyền và mã quyền!" });
+            return res.status(400).json({ message: "Vui lòng nhập đủ thông tin tên quyền và mã quyền." });
         }
 
         const existed = await Quyen.findOne({ where: { ma_quyen: uppercaseMaQuyen } });
         if (existed) {
-            return res.status(400).json({ message: "Mã quyền đã tồn tại!" });
+            return res.status(400).json({ message: "Mã quyền đã tồn tại." });
         }
 
         // Lưu vào database
         const permission = await Quyen.create({ ten_quyen, ma_quyen: uppercaseMaQuyen });
 
-        res.status(200).json({ message: 'Đã tạo quyền thành công!', data: permission });
+        res.status(200).json({ message: 'Đã tạo quyền thành công.', data: permission });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -48,7 +48,7 @@ module.exports.updatePermission = async (req, res) => {
 
         const existed = await Quyen.findByPk(id_quyen);
         if (!existed) {
-            return res.status(400).json({ message: "Không tìm thấy quyền!" });
+            return res.status(400).json({ message: "Không tìm thấy quyền." });
         }
 
         // Lưu vào database
@@ -62,7 +62,7 @@ module.exports.updatePermission = async (req, res) => {
         // Trả về data
         const updatedPermission = await Quyen.findByPk(id_quyen);
 
-        res.status(200).json({ message: 'Cập nhật quyền thành công', data: updatedPermission });
+        res.status(200).json({ message: 'Cập nhật quyền thành công.', data: updatedPermission });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -75,7 +75,7 @@ module.exports.deletePermission = async (req, res) => {
         // Kiểm tra trong phan_quyen_vai_tro
         const usedPermission = await PhanQuyenVaiTro.findOne({ where: { id_quyen } });
         if (usedPermission) {
-            return res.status(400).json({ message: "Không thể xóa quyền đang được gán cho vai trò!" });
+            return res.status(400).json({ message: "Không thể xóa quyền đang được gán cho vai trò." });
         }
 
         // Lưu vào database
@@ -85,7 +85,7 @@ module.exports.deletePermission = async (req, res) => {
             where: { id_quyen } 
         });
 
-        res.status(200).json({ message: 'Xóa quyền thành công' });
+        res.status(200).json({ message: 'Xóa quyền thành công.' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -97,10 +97,10 @@ module.exports.detailPermission = async (req, res) => {
         const { id_quyen } = req.params;
         const permission = await Quyen.findByPk(id_quyen);
         if (!permission) {
-            return res.status(400).json({ message: 'Vai trò không hợp lệ' });
+            return res.status(400).json({ message: 'Vai trò không hợp lệ.' });
         }
 
-        res.status(200).json({ message: 'Thông tin chi tiết quyền', data: permission });
+        res.status(200).json({ message: 'Thông tin chi tiết quyền.', data: permission });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

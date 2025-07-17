@@ -47,7 +47,7 @@ module.exports.index = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Lấy danh sách tài liệu ngữ thành công",
+            message: "Lấy danh sách tài liệu ngữ thành công.",
             data: dsDanhMuc,
             pagination: {
                 page: pagination.currentPage,
@@ -71,7 +71,7 @@ module.exports.createGrammar = async (req, res) => {
 
     // Kiểm tra dữ liệu đầu vào
     if (!idDanhMuc || !tieu_de || !noi_dung || !ghi_chu || !vi_du) {
-      return res.status(400).json({ message: "Cần nhập đủ thông tin!" });
+      return res.status(400).json({ message: "Cần nhập đủ thông tin." });
     }
 
     // Kiểm tra xem danh mục ngữ pháp có tồn tại không
@@ -93,7 +93,7 @@ module.exports.createGrammar = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Tạo pháp thành công",
+      message: "Tạo pháp thành công.",
       data: newGrammar,
     });
   } catch (error) {
@@ -109,7 +109,7 @@ module.exports.detailGrammar = async (req, res) => {
 
     // Kiểm tra dữ liệu đầu vào
     if (!idTaiLieu) {
-      return res.status(400).json({ message: "Cần nhập đủ thông tin!" });
+      return res.status(400).json({ message: "Cần nhập đủ thông tin." });
     }
 
     // Lấy chi tiết ngữ pháp
@@ -127,11 +127,11 @@ module.exports.detailGrammar = async (req, res) => {
     });
 
     if (!grammar) {
-      return res.status(404).json({ message: "Ngữ pháp không tồn tại!" });
+      return res.status(404).json({ message: "Ngữ pháp không tồn tại." });
     }
 
     res.status(200).json({
-      message: "Lấy chi tiết ngữ pháp thành công",
+      message: "Lấy chi tiết ngữ pháp thành công.",
       data: grammar,
     });
   } catch (error) {
@@ -200,13 +200,13 @@ module.exports.deleteGrammar = async (req, res) => {
         // Kiểm tra ngữ pháp có tồn tại không
         const grammar = await TaiLieuNguPhap.findByPk(id_tai_lieu);
         if (!grammar) {
-            return res.status(404).json({ message: "Ngữ pháp không tồn tại!" });
+            return res.status(404).json({ message: "Ngữ pháp không tồn tại." });
         }
 
         // Đánh dấu ngữ pháp là đã xóa
         await grammar.update({ da_xoa: true });
 
-        res.status(200).json({ message: "Xóa ngữ pháp thành công!" });
+        res.status(200).json({ message: "Xóa ngữ pháp thành công." });
 
     } catch (error) {
         console.error(error);
@@ -259,7 +259,7 @@ module.exports.getHomeGrammars = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Lấy danh sách tài liệu ngữ thành công",
+            message: "Lấy danh sách tài liệu ngữ thành công.",
             data: dsDanhMuc,
             pagination: {
                 page: pagination.currentPage,

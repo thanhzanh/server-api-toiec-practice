@@ -50,7 +50,7 @@ module.exports.index = async(req, res) => {
         const users = await NguoiDung.findAll(query);
 
         res.status(200).json({
-            message: "Danh sách người dùng",
+            message: "Danh sách người dùng.",
             data: users,
             pagination: {
                 page: pagination.currentPage,
@@ -74,7 +74,7 @@ module.exports.getMe = async(req, res) => {
         const user = await NguoiDung.findByPk(id_nguoi_dung, { attributes: { exclude: ['mat_khau'] } });
         
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
         res.status(200).json(user);
     } catch (error) {
@@ -108,7 +108,7 @@ module.exports.detailUser = async(req, res) => {
             });
 
             if (!nguoiDung) {
-                return res.status(404).json({ message: "Người dùng không tồn tại!" });
+                return res.status(404).json({ message: "Người dùng không tồn tại." });
             }
 
             // Trả về thông tin hồ sơ null
@@ -130,7 +130,7 @@ module.exports.detailUser = async(req, res) => {
         const listStatus = NguoiDung.rawAttributes.trang_thai.values;
 
         res.status(200).json({ 
-            message: "Thông tin cá nhân người dùng" ,
+            message: "Thông tin cá nhân người dùng." ,
             data: {
                 user: profile,
                 listStatus
@@ -150,11 +150,11 @@ module.exports.deleteUser = async(req, res) => {
 
         const user = await NguoiDung.findByPk(id_nguoi_dung);
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
         // Nếu là tài khoản quản trị viên thì không được xóa
         if (user.vai_tro === "quan_tri_vien") {
-            return res.status(404).json({ message: "Đây là tài khoản quản trị viên không xóa được" });
+            return res.status(404).json({ message: "Đây là tài khoản quản trị viên không xóa được." });
         }
 
         // Xóa mềm trong database
@@ -163,7 +163,7 @@ module.exports.deleteUser = async(req, res) => {
             trang_thai: 'khong_hoat_dong'
         });
 
-        res.status(200).json({ message: "Đã xóa thành công" });
+        res.status(200).json({ message: "Đã xóa thành công." });
         
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -181,7 +181,7 @@ module.exports.editUser = async(req, res) => {
         // Kiểm tra người dùng
         const user = await NguoiDung.findByPk(id_nguoi_dung);
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
 
         // Cập nhật ten_dang_nhap, trang_thai từ bảng NguoiDung
@@ -256,7 +256,7 @@ module.exports.editUser = async(req, res) => {
         );        
 
         res.status(200).json({ 
-            message: "Đã cập nhật thông tin cá nhân",
+            message: "Đã cập nhật thông tin cá nhân.",
             data: userProfile
         });
         
@@ -273,20 +273,20 @@ module.exports.changeStatus = async(req, res) => {
 
         const user = await NguoiDung.findByPk(id_nguoi_dung);
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
 
         // Vai trò
         const role = await VaiTro.findOne({ where: { ten_vai_tro: 'quan_tri_vien' } });
         if (role) {
-            return res.status(404).json({ message: "Không cập nhật trạng thái cho quản trị viên được!" });
+            return res.status(404).json({ message: "Không cập nhật trạng thái cho quản trị viên được." });
         }
         
 
         // Cập nhật trạng thái
         await user.update({ trang_thai: trang_thai });
 
-        res.status(200).json({ message: "Thay đổi trạng thái thành công" });
+        res.status(200).json({ message: "Thay đổi trạng thái thành công." });
         
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -305,7 +305,7 @@ module.exports.updateProfile = async(req, res) => {
         // Kiểm tra người dùng
         const user = await NguoiDung.findByPk(id_nguoi_dung);
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại" });
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
 
         // Cập nhật ten_dang_nhap, trang_thai từ bảng NguoiDung
@@ -377,7 +377,7 @@ module.exports.updateProfile = async(req, res) => {
         );
 
         res.status(200).json({ 
-            message: "Đã cập nhật thông tin cá nhân",
+            message: "Đã cập nhật thông tin cá nhân.",
             data: userProfile
         });
         
@@ -407,7 +407,7 @@ module.exports.getProfile = async(req, res) => {
         );
 
         res.status(200).json({ 
-            message: "Thông tin cá nhân người dùng" ,
+            message: "Thông tin cá nhân người dùng." ,
             data: profile
         });
         
@@ -426,16 +426,16 @@ module.exports.setUserRole = async(req, res) => {
         // Kiểm tra người dùng tồn tại không
         const user = await NguoiDung.findByPk(id_nguoi_dung);
         if (!user) {
-            return res.status(404).json({ message: "Người dùng không tồn tại!" });
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
 
         // Ràng buộc không cho cấp quyền quản trị viên
         const role = await VaiTro.findByPk(id_vai_tro);
         if (!role) {
-            return res.status(404).json({ message: "Vai trò không tồn tại!" });
+            return res.status(404).json({ message: "Vai trò không tồn tại." });
         }
         if (role.ten_vai_tro === "quan_tri_vien") {
-            return res.status(403).json({ message: "Không được phép cấp quyền quản trị viên!" });
+            return res.status(403).json({ message: "Không được phép cấp quyền quản trị viên." });
         }
 
         // Cập nhật id_vai_tro
@@ -443,7 +443,7 @@ module.exports.setUserRole = async(req, res) => {
         await user.save();  
 
         res.status(200).json({ 
-            message: "Cập nhật vai trò thành công!" ,
+            message: "Cập nhật vai trò thành công." ,
         });
         
     } catch (error) {

@@ -19,7 +19,7 @@ module.exports.register = async(req, res) => {
         const { email, ten_dang_nhap, mat_khau } = req.body;
 
         if (!email || !ten_dang_nhap || !mat_khau) {
-            return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin!" });
+            return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin" });
         }
 
         // Kiểm tra email và ten_dang_nhap
@@ -59,7 +59,7 @@ module.exports.login = async(req, res) => {
         const { identifier, mat_khau } = req.body;
 
         if (!identifier || !mat_khau) {
-            return res.status(400).json({ message: "Vui lòng nhập đầy đủ tài khoản và mật khẩu!" });
+            return res.status(400).json({ message: "Vui lòng nhập đầy đủ tài khoản và mật khẩu" });
         }
     
         // Tìm người dùng
@@ -144,7 +144,7 @@ module.exports.forgotPassword = async(req, res) => {
         const { email } = req.body;
 
         if (!email) {
-            return res.status(400).json({ message: "Vui lòng nhập email!" });
+            return res.status(400).json({ message: "Vui lòng nhập email" });
         }
 
         // Tìm người dùng

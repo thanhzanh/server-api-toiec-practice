@@ -60,7 +60,7 @@ module.exports.index = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Lấy danh sách đoạn văn thành công",
+            message: "Lấy danh sách đoạn văn thành công.",
             data: dsDoanVan,
             pagination: {
                 page: pagination.currentPage,
@@ -83,17 +83,17 @@ module.exports.create = async (req, res) => {
         // Kiểm tra phần tồn tại không
         const phan = await PhanCauHoi.findByPk(id_phan);
         if (!phan) {
-            return res.status(400).json({ message: "Phần câu hỏi không tồn tại!" });
+            return res.status(400).json({ message: "Phần câu hỏi không tồn tại." });
         }
 
         // Chỉ cho phép đoạn văn cho Part 6 và Part 7
         if (![6, 7].includes(parseInt(id_phan))) {
-            return res.status(400).json({ message: "Phần câu hỏi không tồn tại!" });
+            return res.status(400).json({ message: "Phần câu hỏi không tồn tại." });
         }
 
         // Kiểm tra phải có tiêu đề và nội dung
         if (!tieu_de) {
-            return res.status(400).json({ message: "Tiêu đề đoạn văn không được để trống!" });
+            return res.status(400).json({ message: "Tiêu đề đoạn văn không được để trống." });
         }
 
         // Lưu doan_van vào database
@@ -139,7 +139,7 @@ module.exports.create = async (req, res) => {
         });
         
         res.status(200).json({ 
-            message: "Tạo đoạn văn thành công",
+            message: "Tạo đoạn văn thành công.",
             data: dataCreated
         });
     } catch (error) {
@@ -157,7 +157,7 @@ module.exports.edit = async (req, res) => {
         // Kiểm tra phần tồn tại không
         const doanvan = await DoanVan.findByPk(id_doan_van);
         if (!doanvan) {
-            return res.status(400).json({ message: "Đoạn văn không hợp lệ!" });
+            return res.status(400).json({ message: "Đoạn văn không hợp lệ." });
         }
 
         const updateData = {};
@@ -171,7 +171,7 @@ module.exports.edit = async (req, res) => {
         const data = await doanvan.update(updateData);        
 
         res.status(200).json({ 
-            message: "Đã chỉnh sửa đoạn văn thành công",
+            message: "Đã chỉnh sửa đoạn văn thành công.",
             data: data
         });
     } catch (error) {
@@ -188,7 +188,7 @@ module.exports.delete = async (req, res) => {
         // Kiểm tra đoạn văn
         const doanVan = await DoanVan.findByPk(id_doan_van);
         if (!doanVan) {
-            return res.status(400).json({ message: "Đoạn văn không tồn tại!" });
+            return res.status(400).json({ message: "Đoạn văn không tồn tại." });
         }
 
         // Kiểm tra đoạn văn đã được sử dụng trong ngân hàng câu hỏi chưa
@@ -201,7 +201,7 @@ module.exports.delete = async (req, res) => {
         await doanVan.update({ da_xoa: true });
 
         res.status(200).json({ 
-            message: "Đã xóa đoạn văn thành công!"
+            message: "Đã xóa đoạn văn thành công."
         });
 
     } catch (error) {
@@ -217,7 +217,7 @@ module.exports.detail = async (req, res) => {
         // Kiểm tra đoạn văn
         const doanVan = await DoanVan.findByPk(id_doan_van);
         if (!doanVan) {
-            return res.status(400).json({ message: "Đoạn văn không tồn tại!" });
+            return res.status(400).json({ message: "Đoạn văn không tồn tại." });
         }
 
         const data = await DoanVan.findByPk(
@@ -238,7 +238,7 @@ module.exports.detail = async (req, res) => {
         );
 
         res.status(200).json({ 
-            message: "Lấy chi tiết đoạn văn thành công!",
+            message: "Lấy chi tiết đoạn văn thành công.",
             data: data
         });
 
