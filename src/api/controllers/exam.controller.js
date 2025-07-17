@@ -620,8 +620,8 @@ module.exports.editExam = async (req, res) => {
         const dataUpdateExam = {};
         if (req.body.ten_bai_thi) dataUpdateExam.ten_bai_thi = req.body.ten_bai_thi;
         if (req.body.mo_ta) dataUpdateExam.mo_ta = striptags(req.body.mo_ta);
-        if (req.body.thoi_gian_bai_thi) dataUpdateExam.thoi_gian_bai_thi = thoi_gian_bai_thi;
-        if (req.body.nam_xuat_ban) dataUpdateExam.nam_xuat_ban = nam_xuat_ban;
+        if (req.body.thoi_gian_bai_thi) dataUpdateExam.thoi_gian_bai_thi = req.body.thoi_gian_bai_thi;
+        if (req.body.nam_xuat_ban) dataUpdateExam.nam_xuat_ban = req.body.nam_xuat_ban;
         
         if (Object.keys(dataUpdateExam) > 0) {
             dataUpdateExam.thoi_gian_cap_nhat = new Date();
