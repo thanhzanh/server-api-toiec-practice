@@ -111,11 +111,34 @@ module.exports.getUserBlogs = async (req, res) => {
 // [GET] /api/blogs/public
 module.exports.getPublicBlogs = async (req, res) => {
     try {
+        const { page, limit, id_danh_muc } = req.query;
+
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false,
+            blog_status: 'da_xuat_ban'
+        };
+        if (id_danh_muc) { where.id_danh_muc = parseInt(id_danh_muc) };
+
+        // Đếm tổng số bản ghi
+        const count = await BaiViet.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        }
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
         const blogs = await BaiViet.findAll({
-            where: {
-                blog_status: 'da_xuat_ban',
-                da_xoa: false
-            },
+            where,
             include: [
                 {
                     model: NguoiDung,
@@ -140,11 +163,20 @@ module.exports.getPublicBlogs = async (req, res) => {
                     attributes: ['id_phuong_tien', 'url_phuong_tien']
                 }
             ],
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
         });
         
         res.status(200).json({
             messsage: "Danh sách bài viết hiển thị ngoài blog",
-            data: blogs
+            data: blogs,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
         });
         
     } catch (error) {
