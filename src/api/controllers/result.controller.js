@@ -167,7 +167,7 @@ module.exports.submitExamFromFE = async (req, res) => {
             chi_tiet_cau_tra_loi
         } = req.body;
 
-        // 1. Tạo bài làm người dùng
+        // Tạo bài làm người dùng
         const submit = await BaiLamNguoiDung.create({
             id_nguoi_dung,
             id_bai_thi,
@@ -179,7 +179,7 @@ module.exports.submitExamFromFE = async (req, res) => {
             da_hoan_thanh: true
         });
 
-        // 2. Ghi câu trả lời
+        // Ghi câu trả lời
         const dataInsert = chi_tiet_cau_tra_loi.map(item => ({
             id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
             id_cau_hoi: item.id_cau_hoi,
@@ -192,7 +192,7 @@ module.exports.submitExamFromFE = async (req, res) => {
         await CauTraLoiNguoiDung.bulkCreate(dataInsert);
 
         return res.status(200).json({
-            message: "Lưu bài làm từ frontend thành công.",
+            message: "Nộp bài thành công.",
             data: {
                 id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
                 diem_nghe,
@@ -200,9 +200,9 @@ module.exports.submitExamFromFE = async (req, res) => {
                 tong_diem
             }
         });
-    } catch (err) {
-        console.error('Lỗi submit-from-fe:', err);
-        return res.status(500).json({ message: "Lỗi khi lưu bài làm: " + err.message });
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ message: "Lỗi khi lưu bài làm: " + error.message });
     }
 };
 
@@ -669,6 +669,17 @@ module.exports.submitExamTest = async (req, res) => {
             order: [['id_muc_do', 'ASC']]
         });
 
+        // Duyệt danh sach đề thi luyện tập để lấy thông tin
+        const deThiLuyenTapInfo = deThiLuyenTap.map(de => ({
+            id_bai_thi: de.id_bai_thi,
+            ten_bai_thi: de.ten_bai_thi,
+            muc_do: de.id_muc_do,
+            so_luong_cau_hoi: de.so_luong_cau_hoi,
+            diem_toi_da: de.diem_toi_da,
+            la_goi_y: true
+        }));
+
+
         return res.status(200).json({
             message: "Lưu bài làm từ frontend thành công.",
             data: {
@@ -677,7 +688,6 @@ module.exports.submitExamTest = async (req, res) => {
                 diem_doc,
                 tong_diem
             },
-            goiYDeThiLuyenTap: deThiLuyenTap
         });
     } catch (err) {
         return res.status(500).json({ message: "Lỗi khi lưu bài làm: " + err.message });
