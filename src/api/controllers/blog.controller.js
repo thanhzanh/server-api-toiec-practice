@@ -80,7 +80,7 @@ module.exports.getUserBlogs = async (req, res) => {
                     include: [
                         {
                             model: HoSoNguoiDung,
-                            as: 'ho_so_nguoi_dung',
+                            as: 'ho_so',
                             attributes: ['ho_ten', 'url_hinh_dai_dien']
                         }
                     ]
@@ -125,7 +125,7 @@ module.exports.getPublicBlogs = async (req, res) => {
                     include: [
                         {
                             model: HoSoNguoiDung,
-                            as: 'ho_so_nguoi_dung',
+                            as: 'ho_so',
                             attributes: ['ho_ten', 'url_hinh_dai_dien']
                         }
                     ]
@@ -245,7 +245,7 @@ module.exports.getUserBlogsDetail = async (req, res) => {
                     include: [
                         {
                             model: HoSoNguoiDung,
-                            as: 'ho_so_nguoi_dung',
+                            as: 'ho_so',
                             attributes: ['ho_ten', 'url_hinh_dai_dien']
                         }
                     ]
@@ -310,7 +310,14 @@ module.exports.getAdminPendingBlogs = async (req, res) => {
                 {
                     model: NguoiDung,
                     as: 'nguoi_dung',
-                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap']
+                    attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap'],
+                    include: [
+                        {
+                            model: HoSoNguoiDung,
+                            as: 'ho_so',
+                            attributes: ['ho_ten', 'url_hinh_dai_dien']
+                        }
+                    ]
                 },
                 {
                     model: DanhMucBaiViet,
@@ -387,7 +394,7 @@ module.exports.index = async (req, res) => {
                     include: [
                         {
                             model: HoSoNguoiDung,
-                            as: 'ho_so_nguoi_dung',
+                            as: 'ho_so',
                             attributes: ['ho_ten', 'url_hinh_dai_dien']
                         }
                     ]
@@ -510,7 +517,7 @@ module.exports.getAdminBlogsDetail = async (req, res) => {
                     include: [
                         {
                             model: HoSoNguoiDung,
-                            as: 'ho_so_nguoi_dung',
+                            as: 'ho_so',
                             attributes: ['ho_ten', 'url_hinh_dai_dien']
                         }
                     ]
