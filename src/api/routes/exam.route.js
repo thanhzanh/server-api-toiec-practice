@@ -96,5 +96,12 @@ router.patch("/unset-entry-exam/:id_bai_thi",
     controller.unsetEntryExam
 );
 
+// Xem chi tiết bài thi đầu vào chỉ có 1 đề thi đầu vào duy nhất
+router.get("/detail-entry-exam", 
+    authenticateUser, 
+    logAction('Xem chi tiết bài thi đầu vào'), 
+    controller.getDetailEntryExam
+);
+
 
 module.exports = router;
