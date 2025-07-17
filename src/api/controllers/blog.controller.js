@@ -57,7 +57,7 @@ module.exports.createUserBlog = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -105,7 +105,7 @@ module.exports.getUserBlogs = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -150,7 +150,7 @@ module.exports.getPublicBlogs = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -271,7 +271,7 @@ module.exports.getUserBlogsDetail = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -341,7 +341,7 @@ module.exports.getAdminPendingBlogs = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -422,7 +422,7 @@ module.exports.index = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -446,7 +446,7 @@ module.exports.approveAdminBlog = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 };
 
@@ -470,7 +470,7 @@ module.exports.rejectAdminBlog = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 }
 
@@ -492,7 +492,7 @@ module.exports.deleteAdminBlog = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 }
 
@@ -539,7 +539,7 @@ module.exports.getAdminBlogsDetail = async (req, res) => {
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ messsage: error.messsage });
+        res.status(500).json({ messsage: error.message });
     }
 }
 
