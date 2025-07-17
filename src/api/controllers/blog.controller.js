@@ -69,7 +69,6 @@ module.exports.getUserBlogs = async (req, res) => {
         const blogs = await BaiViet.findAll({
             where: {
                 id_nguoi_dung: id_nguoi_dung,
-                blog_status: 'da_xuat_ban',
                 da_xoa: false
             },
             include: [
@@ -166,7 +165,6 @@ module.exports.updateUserBlog = async (req, res) => {
                 id_bai_viet,
                 id_nguoi_dung,
                 da_xoa: false,
-                blog_status: 'da_xuat_ban'
             },
             include: [
                 {
