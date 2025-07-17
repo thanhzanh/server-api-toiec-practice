@@ -192,11 +192,11 @@ module.exports.delete = async (req, res) => {
         }
 
         // Kiểm tra đoạn văn đã được sử dụng trong ngân hàng câu hỏi chưa
-        const doanVanTrongCauHoi = await NganHangCauHoi.findOne({ where: { id_doan_van, da_xoa: false } });
+        // const doanVanTrongCauHoi = await NganHangCauHoi.findOne({ where: { id_doan_van, da_xoa: false } });
         
-        if (doanVanTrongCauHoi) {
-            return res.status(400).json({ message: "Đoạn văn đã được sử dụng trong câu hỏi. Không xóa được!" });
-        } 
+        // if (doanVanTrongCauHoi) {
+        //     return res.status(400).json({ message: "Đoạn văn đã được sử dụng trong câu hỏi. Không xóa được!" });
+        // } 
 
         await doanVan.update({ da_xoa: true });
 
