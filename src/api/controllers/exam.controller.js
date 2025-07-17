@@ -622,6 +622,7 @@ module.exports.editExam = async (req, res) => {
         if (req.body.mo_ta) dataUpdateExam.mo_ta = striptags(req.body.mo_ta);
         if (req.body.thoi_gian_bai_thi) dataUpdateExam.thoi_gian_bai_thi = req.body.thoi_gian_bai_thi;
         if (req.body.nam_xuat_ban) dataUpdateExam.nam_xuat_ban = req.body.nam_xuat_ban;
+        if (req.body.la_bai_thi_dau_vao) dataUpdateExam.la_bai_thi_dau_vao = req.body.la_bai_thi_dau_vao;
         
         if (Object.keys(dataUpdateExam) > 0) {
             dataUpdateExam.thoi_gian_cap_nhat = new Date();
