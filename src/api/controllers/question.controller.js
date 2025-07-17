@@ -710,29 +710,22 @@ module.exports.edit = async (req, res) => {
         }
 
         // Cập nhật lựa chọn hủy lựa chọn cũ, thêm lựa chọn mới
-        if (data.lua_chon && Array.isArray(data.lua_chon))
-        {
+        if (data.lua_chon && Array.isArray(data.lua_chon) && data.lua_chon.length > 0) {
+            // Xóa lựa chọn cũ
             await LuaChon.destroy({ where: { id_cau_hoi: id_cau_hoi } });
+            // Tạo lựa chọn mới
             const luaChonDapAn = data.lua_chon.map((lc) => ({
                 id_cau_hoi: id_cau_hoi,
-                ky_tu_lua_chon: lc.ky_tu_lua_chon,
-                noi_dung: lc.noi_dung
+                ky_tu_lua_chon: lc.ky_tu_lua_chon?.toUpperCase(),
+                noi_dung: striptags(lc.noi_dung?.trim())
             }));
             
             // Lưu vào table lua_chon
             await LuaChon.bulkCreate(luaChonDapAn);
         }   
 
-        // Lấy data cập nhật trả về
-        const dataUpdated = await NganHangCauHoi.findByPk(id_cau_hoi, {
-            include: [
-                { model: LuaChon, as: 'lua_chon', attributes: ['id_cau_hoi', 'ky_tu_lua_chon', 'noi_dung'] }
-            ],
-        });
-
         res.status(200).json({
             message: "Đã chỉnh sửa câu hỏi!",
-            data: dataUpdated
         });
 
     } catch (error) {
