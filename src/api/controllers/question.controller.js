@@ -686,8 +686,6 @@ module.exports.edit = async (req, res) => {
                 if (existingQuestion.id_doan_van && req.body.id_doan_van && existingQuestion.id_doan_van !== req.body.id_doan_van) {
                     return res.status(400).json({ message: `Không được phép cập nhật đoạn văn Part ${id_phan}!` });
                 }
-            default:
-                return res.status(400).json({ message: "Phần câu hỏi không hợp lệ!" });
         }
 
         // Cập nhật các trường cho câu hỏi (Tùy trường nào nếu muốn)
