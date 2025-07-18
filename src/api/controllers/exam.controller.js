@@ -643,31 +643,6 @@ module.exports.getExamTest = async (req, res) => {
     try {
         const { page, limit, nam_xuat_ban } = req.query;
 
-        // Lấy token người đã đăng nhập đã làm bài đầu vào chưa
-        const id_nguoi_dung = req.user.id_nguoi_dung;
-
-        // Kiểm tra người dùng đã làm bài đầu vào chưa
-        const daLamBaiDauVao = await BaiLamNguoiDung.findOne({
-            where: {
-                id_nguoi_dung: id_nguoi_dung,
-            },
-            include: [
-                {
-                    model: BaiThi,
-                    as: 'bai_thi_nguoi_dung',
-                    attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
-                    where: {
-                        da_xoa: false,
-                        trang_thai: 'da_xuat_ban',
-                        la_bai_thi_dau_vao: true
-                    }
-                }
-            ]
-        });
-        if (!daLamBaiDauVao) {
-            return res.status(400).json({ message: "Bạn cần làm bài thi đầu vào trước khi làm các bài thi khác." });
-        }
-        
         // Điều kiện lọc
         const where = {
             da_xoa: false,
@@ -719,19 +694,70 @@ module.exports.getExamTest = async (req, res) => {
                 'da_hoan_thien',
                 'nguoi_tao',
                 'thoi_gian_tao',
-                'thoi_gian_cap_nhat'
+                'thoi_gian_cap_nhat',
+                'id_muc_do'
             ],
             order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem
         });
 
-        // Đánh dấu những đề thi gợi ý cần luyện tập
-        
+        let id_nguoi_dung = null;
+        let mucDoDiemNguoiDung = null;
 
+        // Kiểm tra người dùng đã đăng nhập chưa
+        if (req.user) {
+            id_nguoi_dung = req.user.id_nguoi_dung;
+
+            // Lấy bài thi đầu vào của người dùng
+            const baiLamDauVao = await BaiLamNguoiDung.findOne({
+                where: {
+                    id_nguoi_dung: id_nguoi_dung,
+                    da_hoan_thanh: true
+                },
+                include: [
+                    {
+                        model: BaiThi,
+                        as: 'bai_thi_nguoi_dung',
+                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                        where: {
+                            da_xoa: false,
+                            trang_thai: 'da_xuat_ban',
+                            la_bai_thi_dau_vao: true
+                        }
+                    }
+                ],
+                order: [['thoi_gian_lam_bai', 'DESC']],
+            });
+
+            // Nếu người dùng đã làm bài thi đầu vào
+            if (baiLamDauVao) {
+                const tongDiem = baiLamDauVao.tong_diem;
+
+                // Truy vấn mức độ điểm phù hợp
+                mucDoDiemNguoiDung = await MucDoToiec.findOne({
+                    where: {
+                        diem_bat_dau: { [Op.lte]: tongDiem },
+                        diem_ket_thuc: { [Op.gte]: tongDiem }
+                    }
+                });
+            }
+        }
+
+        // Đánh dấu những đề thi gợi ý cần luyện tập
+        const deThiGoiY = exams.map(exam => {
+            const examData = exam.toJSON(); // Chuyển đổi sang JSON
+            if (mucDoDiemNguoiDung && examData.id_muc_do === mucDoDiemNguoiDung.id_muc_do) {
+                examData.goi_y_luyen_tap = true;
+            } else {
+                examData.goi_y_luyen_tap = false;
+            }
+            return examData;
+        })
+        
         res.status(200).json({
             message: "Đã lấy danh sách đề thi thành công.",
-            data: exams,
+            data: deThiGoiY,
             pagination: {
                 page: pagination.currentPage,
                 limit: pagination.limitItem,
