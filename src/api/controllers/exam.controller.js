@@ -915,7 +915,7 @@ module.exports.detailExamTest = async (req, res) => {
                     attributes: ['id_cau_hoi', 'id_bai_thi']
                 },
                 {
-                    mode: BaiLamNguoiDung,
+                    model: BaiLamNguoiDung,
                     as: 'bai_lam',
                     attributes: [
                         "id_bai_lam_nguoi_dung",
