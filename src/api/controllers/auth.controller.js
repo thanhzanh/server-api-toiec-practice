@@ -56,7 +56,7 @@ module.exports.register = async(req, res) => {
 };
 
 // [POST] /api/auth/login
-module.exports.login = async(req, res) => {
+module.exports.login = async (req, res) => {
     try {
         const { identifier, mat_khau } = req.body;
 
