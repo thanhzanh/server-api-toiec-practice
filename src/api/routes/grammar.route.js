@@ -47,8 +47,7 @@ router.delete("/delete/:id_tai_lieu",
 );
 
 // Lấy danh sách ngữ pháp hiển thị trên trang chủ hiển thị theo danh mục
-router.get("/home", 
-    authenticateUser, 
+router.get("/home",  
     logAction('Lấy danh sách ngữ pháp hiển thị trên trang chủ'),
     controller.getHomeGrammars
 );
