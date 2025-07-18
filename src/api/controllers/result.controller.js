@@ -179,6 +179,15 @@ module.exports.submitExamFromFE = async (req, res) => {
             da_hoan_thanh: false
         });
 
+        // Tìm đề thi
+        const exam = await BaiThi.findByPk(id_bai_thi);
+        if (!exam) {
+            return res.status(400).json({ message: "Bài thi không tồn tại." });
+        }
+
+        // Bài thi đầu vào
+        const isEntryExam = exam.la_bai_thi_dau_vao === true;
+
         // Ghi câu trả lời
         const dataInsert = chi_tiet_cau_tra_loi.map(item => ({
             id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
@@ -186,7 +195,8 @@ module.exports.submitExamFromFE = async (req, res) => {
             lua_chon_da_chon: item.lua_chon_da_chon || null,
             la_dung: item.la_dung,
             da_tra_loi: item.da_tra_loi,
-            thoi_gian_tra_loi: new Date()
+            thoi_gian_tra_loi: new Date(),
+            da_hoan_thanh: isEntryExam
         }));
 
         await CauTraLoiNguoiDung.bulkCreate(dataInsert);
