@@ -913,8 +913,17 @@ module.exports.detailExamTest = async (req, res) => {
                         }
                     ], 
                     attributes: ['id_cau_hoi', 'id_bai_thi']
-                }
-            ]
+                },
+                {
+                    mode: BaiLamNguoiDung,
+                    as: 'bai_lam',
+                    attributes: [
+                        "id_bai_lam_nguoi_dung",
+                        "id_nguoi_dung",
+                        "da_hoan_thanh"
+                    ],
+                },
+            ],
         });
 
         if (!detailExamTest) {
