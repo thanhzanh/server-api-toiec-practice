@@ -110,5 +110,11 @@ router.get("/detail-entry-exam",
     controller.getDetailEntryExam
 );
 
+// Kiểm tra đã làm bài thi đầu vào chưa
+router.post("/check-entry-exam/:id_bai_thi",
+    authenticateUser,
+    controller.checkEntryExam
+);
+
 
 module.exports = router;
