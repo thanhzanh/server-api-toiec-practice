@@ -51,6 +51,12 @@ router.get("/detail/:id_bai_viet",
     controller.getUserBlogsDetail
 );
 
+// Xem chi tiết bài viết của người dùng
+router.get("/detail-public/:id_bai_viet",
+    controller.getBlogsDetailPublic
+);
+
+
 // ============================== API QUẢN TRỊ VIÊN ==============================
 // Quản trị viên lấy tất cả danh sách bài viết chờ phê duyệt
 router.get("/pending",
