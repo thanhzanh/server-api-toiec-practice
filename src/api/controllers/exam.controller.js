@@ -769,6 +769,137 @@ module.exports.getExamTest = async (req, res) => {
     }
 };
 
+// [GET] /api/get-all-exam-user
+module.exports.getExamTestUser = async (req, res) => {
+    try {
+        const { page, limit, nam_xuat_ban } = req.query;
+
+        // Điều kiện lọc
+        const where = {
+            da_xoa: false,
+            trang_thai: 'da_xuat_ban',
+            la_bai_thi_dau_vao: false
+        };
+        if (nam_xuat_ban) where.nam_xuat_ban = nam_xuat_ban;
+
+        // Đếm tổng số bản ghi
+        const count = await BaiThi.count({
+            where,
+            distinct: true
+        });
+
+        // Phân trang
+        let initPagination = {
+            currentPage: 1,
+            limitItem: 10
+        };
+        const pagination = createPaginationQuery(
+            initPagination,
+            { page, limit },
+            count
+        );
+
+        // Lấy danh sách năm xuất bản
+        const dsNamXuatBan = await BaiThi.findAll({ 
+            attributes: ['nam_xuat_ban'],
+            where: { da_xoa: false },
+            group: ['nam_xuat_ban'],
+            order: [['nam_xuat_ban', 'ASC']]
+        });
+
+        // Lấy danh sách đề thi theo bộ lọc
+        const exams = await BaiThi.findAll({
+            where,
+            attributes: [
+                'id_bai_thi',
+                'ten_bai_thi',
+                'mo_ta',
+                'la_bai_thi_dau_vao',
+                'nam_xuat_ban',
+                'trang_thai',
+                'so_luong_cau_hoi',
+                'diem_toi_da',
+                'muc_do_diem',
+                'loai_bai_thi',
+                'thoi_gian_bai_thi',
+                'nguoi_tao',
+                'thoi_gian_tao',
+                'thoi_gian_cap_nhat',
+                'id_muc_do'
+            ],
+            order: [['thoi_gian_tao', 'DESC']],
+            offset: pagination.skip,
+            limit: pagination.limitItem
+        });
+
+        let idNguoiDung = null;
+        let mucDoDiemNguoiDung = null;
+
+        // Kiểm tra người dùng đã đăng nhập chưa
+        if (req.user) {
+            idNguoiDung = req.user.id_nguoi_dung;
+
+            // Lấy bài thi đầu vào của người dùng
+            const baiLamDauVao = await BaiLamNguoiDung.findOne({
+                where: {
+                    id_nguoi_dung: idNguoiDung,
+                    da_hoan_thanh: true
+                },
+                include: [
+                    {
+                        model: BaiThi,
+                        as: 'bai_thi_nguoi_dung',
+                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                        where: {
+                            da_xoa: false,
+                            trang_thai: 'da_xuat_ban',
+                            la_bai_thi_dau_vao: true
+                        }
+                    }
+                ],
+            });
+
+            // Nếu người dùng đã làm bài thi đầu vào
+            if (baiLamDauVao) {
+                const tongDiem = baiLamDauVao.tong_diem;
+
+                // Truy vấn mức độ điểm phù hợp
+                mucDoDiemNguoiDung = await MucDoToiec.findOne({
+                    where: {
+                        diem_bat_dau: { [Op.lte]: tongDiem },
+                        diem_ket_thuc: { [Op.gte]: tongDiem }
+                    }
+                });
+            }
+        }
+
+        // Đánh dấu những đề thi gợi ý cần luyện tập
+        const deThiGoiY = exams.map(exam => {
+            const examData = exam.toJSON(); // Chuyển đổi sang JSON
+            if (mucDoDiemNguoiDung && examData.id_muc_do >= mucDoDiemNguoiDung.id_muc_do) {
+                examData.goi_y_luyen_tap = true;
+            } else {
+                examData.goi_y_luyen_tap = false;
+            }
+            return examData;
+        })
+        
+        res.status(200).json({
+            message: "Đã lấy danh sách đề thi thành công.",
+            data: deThiGoiY,
+            pagination: {
+                page: pagination.currentPage,
+                limit: pagination.limitItem,
+                total: count,
+                totalPages: pagination.totalPages
+            },
+            dsNamXuatBan
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [GET] /api/exams/detail-exam-public/:id_bai_thi
 module.exports.detailExamTest = async (req, res) => {
     try {
