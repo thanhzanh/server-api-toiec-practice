@@ -865,6 +865,10 @@ module.exports.getExamTestUser = async (req, res) => {
 module.exports.detailExamTest = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
+
+        // Lấy thông tin người dùng nếu đăng nhập
+        const user = req.user || null;
+
         // Kiểm tra đề thi tồn tại không
         const detailExamTest = await BaiThi.findByPk(id_bai_thi,{
             attributes: [
@@ -928,6 +932,32 @@ module.exports.detailExamTest = async (req, res) => {
 
         if (!detailExamTest) {
             return res.status(400).json({ message: "Đề thi không tồn tại." });
+        }
+
+        // Kiểm tra xem người dùng đã làm bài đầu vào chưa
+        if (!detailExamTest.la_bai_thi_dau_vao && user) {
+            const baiLamDauVao = await BaiLamNguoiDung.findOne({
+                where: {
+                    id_nguoi_dung: user.id_nguoi_dung,
+                    da_hoan_thanh: true
+                },
+                include: [
+                    {
+                        model: BaiThi,
+                        as: 'bai_thi_nguoi_dung',
+                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                        where: {
+                            da_xoa: false,
+                            trang_thai: 'da_xuat_ban',
+                            la_bai_thi_dau_vao: true
+                        }
+                    }
+                ],
+            });
+
+            if (!baiLamDauVao) {
+                return res.status(400).json({ message: "Bạn cần làm bài thi đầu vào để đánh giá năng lực trước khi luyện đề." });
+            }
         }
 
         res.status(200).json({ 

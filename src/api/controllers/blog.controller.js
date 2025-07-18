@@ -137,6 +137,11 @@ module.exports.getPublicBlogs = async (req, res) => {
             count
         );
 
+        // Lấy danh sách danh mục bài viết
+        const categoryBlogs = await DanhMucBaiViet.findAll({
+            attributes: ['id_danh_muc', 'ten_danh_muc', 'mo_ta']
+        })
+
         const blogs = await BaiViet.findAll({
             where,
             include: [
