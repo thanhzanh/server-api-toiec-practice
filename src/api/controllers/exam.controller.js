@@ -781,6 +781,13 @@ module.exports.getExamTestUser = async (req, res) => {
                 'thoi_gian_cap_nhat',
                 'id_muc_do'
             ],
+            include: [
+                {
+                    model: MucDoToiec,
+                    as: 'muc_do',
+                    attributes: ['id_muc_do', 'ten_muc_do', 'diem_bat_dau', 'diem_ket_thuc']
+                }
+            ],
             order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem
@@ -815,7 +822,7 @@ module.exports.getExamTestUser = async (req, res) => {
 
             // Nếu người dùng đã làm bài thi đầu vào
             if (baiLamDauVao) {
-                const tongDiem = baiLamDauVao.tong_diem;
+                const tongDiem = baiLamDauVao.tong_diem; // 230
 
                 // Truy vấn mức độ điểm phù hợp
                 mucDoDiemNguoiDung = await MucDoToiec.findOne({
@@ -823,14 +830,14 @@ module.exports.getExamTestUser = async (req, res) => {
                         diem_bat_dau: { [Op.lte]: tongDiem },
                         diem_ket_thuc: { [Op.gte]: tongDiem }
                     }
-                });
+                }); // 2
             }
         }
 
         // Đánh dấu những đề thi gợi ý cần luyện tập
         const deThiGoiY = exams.map(exam => {
             const examData = exam.toJSON(); // Chuyển đổi sang JSON
-            if (mucDoDiemNguoiDung && examData.id_muc_do >= mucDoDiemNguoiDung.id_muc_do) {
+            if (mucDoDiemNguoiDung && examData.muc_do.diem_bat_dau >= mucDoDiemNguoiDung.diem_bat_dau) {
                 examData.goi_y_luyen_tap = true;
             } else {
                 examData.goi_y_luyen_tap = false;
