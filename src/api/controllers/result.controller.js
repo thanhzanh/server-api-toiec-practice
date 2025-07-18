@@ -655,7 +655,8 @@ module.exports.submitExamTest = async (req, res) => {
                 id_bai_lam_nguoi_dung: submit.id_bai_lam_nguoi_dung,
                 diem_nghe,
                 diem_doc,
-                tong_diem
+                tong_diem,
+                da_hoan_thanh: submit.da_hoan_thanh
             },
         });
     } catch (err) {

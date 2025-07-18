@@ -701,55 +701,9 @@ module.exports.getExamTest = async (req, res) => {
             limit: pagination.limitItem
         });
 
-        let idNguoiDung = null;
-        let mucDoDiemNguoiDung = null;
-
-        // Kiểm tra người dùng đã đăng nhập chưa
-        if (req.user) {
-            idNguoiDung = req.user.id_nguoi_dung;
-
-            // Lấy bài thi đầu vào của người dùng
-            const baiLamDauVao = await BaiLamNguoiDung.findOne({
-                where: {
-                    id_nguoi_dung: idNguoiDung,
-                    da_hoan_thanh: true
-                },
-                include: [
-                    {
-                        model: BaiThi,
-                        as: 'bai_thi_nguoi_dung',
-                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
-                        where: {
-                            da_xoa: false,
-                            trang_thai: 'da_xuat_ban',
-                            la_bai_thi_dau_vao: true
-                        }
-                    }
-                ],
-            });
-
-            // Nếu người dùng đã làm bài thi đầu vào
-            if (baiLamDauVao) {
-                const tongDiem = baiLamDauVao.tong_diem;
-
-                // Truy vấn mức độ điểm phù hợp
-                mucDoDiemNguoiDung = await MucDoToiec.findOne({
-                    where: {
-                        diem_bat_dau: { [Op.lte]: tongDiem },
-                        diem_ket_thuc: { [Op.gte]: tongDiem }
-                    }
-                });
-            }
-        }
-
-        // Đánh dấu những đề thi gợi ý cần luyện tập
         const deThiGoiY = exams.map(exam => {
-            const examData = exam.toJSON(); // Chuyển đổi sang JSON
-            if (mucDoDiemNguoiDung && examData.id_muc_do >= mucDoDiemNguoiDung.id_muc_do) {
-                examData.goi_y_luyen_tap = true;
-            } else {
-                examData.goi_y_luyen_tap = false;
-            }
+            const examData = exam.toJSON();
+            examData.goi_y_luyen_tap = false;
             return examData;
         })
         
