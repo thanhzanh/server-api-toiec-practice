@@ -691,7 +691,6 @@ module.exports.getExamTest = async (req, res) => {
                 'muc_do_diem',
                 'loai_bai_thi',
                 'thoi_gian_bai_thi',
-                'da_hoan_thien',
                 'nguoi_tao',
                 'thoi_gian_tao',
                 'thoi_gian_cap_nhat',
@@ -702,17 +701,17 @@ module.exports.getExamTest = async (req, res) => {
             limit: pagination.limitItem
         });
 
-        let id_nguoi_dung = null;
+        let idNguoiDung = null;
         let mucDoDiemNguoiDung = null;
 
         // Kiểm tra người dùng đã đăng nhập chưa
         if (req.user) {
-            id_nguoi_dung = req.user.id_nguoi_dung;
+            idNguoiDung = req.user.id_nguoi_dung;
 
             // Lấy bài thi đầu vào của người dùng
             const baiLamDauVao = await BaiLamNguoiDung.findOne({
                 where: {
-                    id_nguoi_dung: id_nguoi_dung,
+                    id_nguoi_dung: idNguoiDung,
                     da_hoan_thanh: true
                 },
                 include: [
@@ -727,7 +726,6 @@ module.exports.getExamTest = async (req, res) => {
                         }
                     }
                 ],
-                order: [['thoi_gian_lam_bai', 'DESC']],
             });
 
             // Nếu người dùng đã làm bài thi đầu vào
@@ -747,7 +745,7 @@ module.exports.getExamTest = async (req, res) => {
         // Đánh dấu những đề thi gợi ý cần luyện tập
         const deThiGoiY = exams.map(exam => {
             const examData = exam.toJSON(); // Chuyển đổi sang JSON
-            if (mucDoDiemNguoiDung && examData.id_muc_do === mucDoDiemNguoiDung.id_muc_do) {
+            if (mucDoDiemNguoiDung && examData.id_muc_do >= mucDoDiemNguoiDung.id_muc_do) {
                 examData.goi_y_luyen_tap = true;
             } else {
                 examData.goi_y_luyen_tap = false;
