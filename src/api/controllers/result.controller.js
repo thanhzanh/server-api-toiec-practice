@@ -174,7 +174,7 @@ module.exports.submitExamFromFE = async (req, res) => {
         }
 
         // Bài thi đầu vào
-        const isEntryExam = exam.la_bai_thi_dau_vao === true;
+        const isEntryExam = exam.la_bai_thi_dau_vao === 1;
 
         // Tạo bài làm người dùng
         const submit = await BaiLamNguoiDung.create({
