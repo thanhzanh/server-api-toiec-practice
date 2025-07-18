@@ -785,7 +785,7 @@ module.exports.getExamTestUser = async (req, res) => {
                 {
                     model: MucDoToiec,
                     as: 'muc_do',
-                    attributes: ['id_muc_do', 'ten_muc_do', 'diem_bat_dau', 'diem_ket_thuc']
+                    attributes: ['id_muc_do', 'diem_bat_dau', 'diem_ket_thuc']
                 }
             ],
             order: [['thoi_gian_tao', 'DESC']],
