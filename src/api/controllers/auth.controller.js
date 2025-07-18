@@ -114,19 +114,19 @@ module.exports.login = async(req, res) => {
                 where: {
                     id_nguoi_dung: user.id_nguoi_dung,
                     da_hoan_thanh: true,
-                    include: [
-                        {
-                            model: BaiThi,
-                            as: 'bai_thi_nguoi_dung',
-                            attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
-                            where: {
-                                da_xoa: false,
-                                la_bai_thi_dau_vao: true,
-                                trang_thai: 'da_xuat_ban'
-                            }
+                },
+                include: [
+                    {
+                        model: BaiThi,
+                        as: 'bai_thi_nguoi_dung',
+                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                        where: {
+                            da_xoa: false,
+                            la_bai_thi_dau_vao: true,
+                            trang_thai: 'da_xuat_ban'
                         }
-                    ]
-                }
+                    }
+                ]
             });
     
             da_hoan_thanh_bai_dau_vao = daLamBaiDauVao !== null;
