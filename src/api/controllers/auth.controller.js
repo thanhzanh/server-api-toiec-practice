@@ -414,12 +414,42 @@ module.exports.googleLogin = async(req, res) => {
             }
         }
 
+        // Kiểm tra người dùng làm bài đầu vào
+        let da_hoan_thanh_bai_dau_vao = false;
+        if (user.vai_tro_nguoi_dung && !user.vai_tro_nguoi_dung.is_admin) {
+            const daLamBaiDauVao = await BaiLamNguoiDung.findOne({
+                where: {
+                    id_nguoi_dung: user.id_nguoi_dung,
+                    da_hoan_thanh: true,
+                },
+                include: [
+                    {
+                        model: BaiThi,
+                        as: 'bai_thi_nguoi_dung',
+                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                        where: {
+                            da_xoa: false,
+                            la_bai_thi_dau_vao: true,
+                            trang_thai: 'da_xuat_ban'
+                        }
+                    }
+                ]
+            });
+    
+            da_hoan_thanh_bai_dau_vao = daLamBaiDauVao !== null;
+        }
+
+        // Lấy danh sách mã quyền
+        const permissions = user.vai_tro_nguoi_dung?.ds_quyen?.map(quyen => quyen.ma_quyen) || [];
+
         // Tạo JWT token
         const jwtToken = jwt.sign(
             {
                 id_nguoi_dung: user.id_nguoi_dung,
                 email: user.email,
                 vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro,
+                permissions: permissions,
+                da_hoan_thanh_bai_dau_vao: da_hoan_thanh_bai_dau_vao,
                 action: 'auth'
             },
             process.env.JWT_SECRET,

@@ -1,5 +1,6 @@
 const VaiTro = require("../../models/vaiTro.model");
 const Quyen = require("../../models/quyen.model");
+const NguoiDung = require("../../models/nguoiDung.model");
 const PhanQuyenVaiTro = require("../../models/phanQuyenVaiTro.model");
 const { Op, Sequelize } = require("sequelize");
 
@@ -130,6 +131,17 @@ module.exports.deleteRole = async (req, res) => {
         const vaiTroChinhTrongHeThong = ["quan_tri_vien", "nguoi_dung"];
         if (vaiTroChinhTrongHeThong.includes(role.ten_vai_tro)) {
             return res.status(400).json({ message: `Không thể xóa vai trò chính trong hệ thống: ${role.ten_vai_tro}.` });
+        }
+
+        // Kiểm tra quyền có đang được sử dụng không
+        const roleUsed = await NguoiDung.findOne({
+            where: {
+                id_vai_tro: id_vai_tro
+            }
+        });
+
+        if (roleUsed) {
+            return res.status(400).json({ message: 'Không thể xóa vai trò đang được sử dụng trong hệ thống.' });
         }
 
         // Cập nhật trong database
