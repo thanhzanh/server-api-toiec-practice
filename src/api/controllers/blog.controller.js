@@ -221,8 +221,8 @@ module.exports.updateUserBlog = async (req, res) => {
             await blog.hinh_anh.save();
         }
 
-        blog.tieu_de = tieu_de || blog.tieu_de;
-        blog.noi_dung = noi_dung || blog.noi_dung;
+        blog.tieu_de = striptags(tieu_de) || blog.tieu_de;
+        blog.noi_dung = striptags(noi_dung) || blog.noi_dung;
         blog.id_danh_muc = id_danh_muc || blog.id_danh_muc;
         blog.thoi_gian_cap_nhat = new Date();
 

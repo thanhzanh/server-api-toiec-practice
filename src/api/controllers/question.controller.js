@@ -337,199 +337,405 @@ module.exports.create = async (req, res) => {
 };
 
 // [POST] /api/questions/import-excel
-module.exports.importExcel = async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ message: "Vui lòng tải lên tệp Excel." });
-        }        
+// module.exports.importExcel = async (req, res) => {
+//     try {
+//         if (!req.file) {
+//             return res.status(400).json({ message: "Vui lòng tải lên tệp Excel." });
+//         }        
 
-        const workbook = xlsx.read(req.file.buffer);
-        const sheetName = workbook.SheetNames[0];
-        const workSheet= workbook.Sheets[sheetName];
-        const results = xlsx.utils.sheet_to_json(workSheet);
+//         const workbook = xlsx.read(req.file.buffer);
+//         const sheetName = workbook.SheetNames[0];
+//         const workSheet= workbook.Sheets[sheetName];
+//         const results = xlsx.utils.sheet_to_json(workSheet);
 
-        const questionToAdd = [];
+//         const questionToAdd = [];
 
-        // Cache để lưu id_phuong_tien hoặc id_doan_van chung
-        const phuongTienCache = new Map(); // Map URL -> id_phuong_tien
-        const doanVanCache = new Map(); // Map {tieu_de, noi_dung} -> id_doan_van
+//         // Cache để lưu id_phuong_tien hoặc id_doan_van chung
+//         const phuongTienCache = new Map(); // Map URL -> id_phuong_tien
+//         const doanVanCache = new Map(); // Map {tieu_de, noi_dung} -> id_doan_van
 
-        for (const row of results) {
-            const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, loai_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
+//         for (const row of results) {
+//             const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, loai_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
 
-            const part = parseInt(id_phan);
-            if (isNaN(part) || part < 1 || part > 7) {
-                return res.status(400).json({ message: "Part phải từ 1 đến 7." });
-            }
+//             const part = parseInt(id_phan);
+//             if (isNaN(part) || part < 1 || part > 7) {
+//                 return res.status(400).json({ message: "Part phải từ 1 đến 7." });
+//             }
 
-            const newQuestion = {
-                id_phan: part,
-                noi_dung: striptags(noi_dung) || null,
-                dap_an_dung: dap_an_dung,
-                giai_thich: striptags(giai_thich) || null,
-                muc_do_kho: muc_do_kho,
-                trang_thai: trang_thai,
-                nguon_goc: 'nhap_excel',
-                thoi_gian_tao: new Date(),
-                da_xoa: false
-            };
+//             const newQuestion = {
+//                 id_phan: part,
+//                 noi_dung: striptags(noi_dung) || null,
+//                 dap_an_dung: dap_an_dung,
+//                 giai_thich: striptags(giai_thich) || null,
+//                 muc_do_kho: muc_do_kho,
+//                 trang_thai: trang_thai,
+//                 nguon_goc: 'nhap_excel',
+//                 thoi_gian_tao: new Date(),
+//                 da_xoa: false
+//             };
 
             
-            // Kiểm tra câu hỏi đã tồn tại chưa, nếu tồn tại rồi thì bỏ qua
-            const existingQuestion = await NganHangCauHoi.findOne({
-                where: {
-                    id_phan: newQuestion.id_phan,
-                    noi_dung: newQuestion.noi_dung,
-                    dap_an_dung: newQuestion.dap_an_dung,
-                    muc_do_kho: newQuestion.muc_do_kho,
-                    da_xoa: false,
-                    trang_thai: newQuestion.trang_thai
-                }
-            });
-            if (existingQuestion) {
-                continue;
-            }
+//             // Kiểm tra câu hỏi đã tồn tại chưa, nếu tồn tại rồi thì bỏ qua
+//             const existingQuestion = await NganHangCauHoi.findOne({
+//                 where: {
+//                     id_phan: newQuestion.id_phan,
+//                     noi_dung: newQuestion.noi_dung,
+//                     dap_an_dung: newQuestion.dap_an_dung,
+//                     muc_do_kho: newQuestion.muc_do_kho,
+//                     da_xoa: false,
+//                     trang_thai: newQuestion.trang_thai
+//                 }
+//             });
+//             if (existingQuestion) {
+//                 continue;
+//             }
 
-            // Xử lý đoạn văn
-            let id_doan_van = null;
-            if (tieu_de_doan_van || noi_dung_doan_van) {
-                const whereDoanVan = {};
-                if (tieu_de_doan_van) whereDoanVan.tieu_de = tieu_de_doan_van;
-                if (noi_dung_doan_van) whereDoanVan.noi_dung = noi_dung_doan_van;
-                if (loai_doan_van) whereDoanVan.loai_doan_van = loai_doan_van;
-                // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
-                const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}|${loai_doan_van || ''}`;
+//             // Xử lý đoạn văn
+//             let id_doan_van = null;
+//             if (tieu_de_doan_van || noi_dung_doan_van) {
+//                 const whereDoanVan = {};
+//                 if (tieu_de_doan_van) whereDoanVan.tieu_de = tieu_de_doan_van;
+//                 if (noi_dung_doan_van) whereDoanVan.noi_dung = noi_dung_doan_van;
+//                 if (loai_doan_van) whereDoanVan.loai_doan_van = loai_doan_van;
+//                 // Vì gồm có tieu_de_doan_van và noi_dung_doan_van nên dùng key chung
+//                 const keyTieuDoanVan = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}|${loai_doan_van || ''}`;
                 
-                id_doan_van = doanVanCache.get(keyTieuDoanVan);
+//                 id_doan_van = doanVanCache.get(keyTieuDoanVan);
                 
-                if (!id_doan_van) {
-                    const [doanVan, created] = await DoanVan.findOrCreate({
-                        where: whereDoanVan,
-                        defaults: {
-                            id_phan: newQuestion.id_phan,
-                            tieu_de: tieu_de_doan_van,
-                            noi_dung: noi_dung_doan_van || null,
-                            loai_doan_van: loai_doan_van || null,
-                            thoi_gian_tao: new Date(),
-                        },
-                    });
-                    id_doan_van = doanVan.id_doan_van;
-                    doanVanCache.set(keyTieuDoanVan, id_doan_van);
-                }
+//                 if (!id_doan_van) {
+//                     const [doanVan, created] = await DoanVan.findOrCreate({
+//                         where: whereDoanVan,
+//                         defaults: {
+//                             id_phan: newQuestion.id_phan,
+//                             tieu_de: tieu_de_doan_van,
+//                             noi_dung: noi_dung_doan_van || null,
+//                             loai_doan_van: loai_doan_van || null,
+//                             thoi_gian_tao: new Date(),
+//                         },
+//                     });
+//                     id_doan_van = doanVan.id_doan_van;
+//                     doanVanCache.set(keyTieuDoanVan, id_doan_van);
+//                 }
                 
-            }
-            // Gán id_doan_van cho Part 6, 7
-            if (id_doan_van && [6, 7].includes(part)) {
-                newQuestion.id_doan_van = id_doan_van;
-            }
+//             }
+//             // Gán id_doan_van cho Part 6, 7
+//             if (id_doan_van && [6, 7].includes(part)) {
+//                 newQuestion.id_doan_van = id_doan_van;
+//             }
 
-            // Xử lý hình ảnh
-            if (url_hinh_anh) {
-                // Duyệt qua từng hình ảnh ngăn cách bởi ;
-                const dsHinhAnh = url_hinh_anh.split(";").map(url => url.trim());
+//             // Xử lý hình ảnh
+//             if (url_hinh_anh) {
+//                 // Duyệt qua từng hình ảnh ngăn cách bởi ;
+//                 const dsHinhAnh = url_hinh_anh.split(";").map(url => url.trim());
                 
-                for (const url of dsHinhAnh) {
-                    let id_phuong_tien = phuongTienCache.get(url);
+//                 for (const url of dsHinhAnh) {
+//                     let id_phuong_tien = phuongTienCache.get(url);
 
-                    if (!id_phuong_tien) {
-                        const fileId = url.match(/\/d\/(.*?)\//)?.[1];
-                        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+//                     if (!id_phuong_tien) {
+//                         const fileId = url.match(/\/d\/(.*?)\//)?.[1];
+//                         const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
         
-                        const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
-                        const buffer = Buffer.from(response.data);
+//                         const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+//                         const buffer = Buffer.from(response.data);
         
-                        const result = await streamUpload(buffer, 'image');
-                        const media = await PhuongTien.create({
-                            url_phuong_tien: result.secure_url,
-                            loai_phuong_tien: 'hinh_anh',
-                            thoi_gian_tao: new Date()
-                        });
-                        id_phuong_tien = media.id_phuong_tien;
-                        phuongTienCache.set(url, id_phuong_tien);
-                    }
+//                         const result = await streamUpload(buffer, 'image');
+//                         const media = await PhuongTien.create({
+//                             url_phuong_tien: result.secure_url,
+//                             loai_phuong_tien: 'hinh_anh',
+//                             thoi_gian_tao: new Date()
+//                         });
+//                         id_phuong_tien = media.id_phuong_tien;
+//                         phuongTienCache.set(url, id_phuong_tien);
+//                     }
 
-                    // Lưu vào bảng doan_van_phuong_tien
-                    if (newQuestion.id_doan_van) {
-                        const existed = await DoanVanPhuongTien.findOne({
-                            where: {
-                                id_doan_van: newQuestion.id_doan_van,
-                                id_phuong_tien: id_phuong_tien
-                            }
-                        });
-                        if (!existed) {
-                            await DoanVanPhuongTien.create({
-                                id_doan_van: newQuestion.id_doan_van,
-                                id_phuong_tien: id_phuong_tien
-                            });
-                        }
-                    }
+//                     // Lưu vào bảng doan_van_phuong_tien
+//                     if (newQuestion.id_doan_van) {
+//                         const existed = await DoanVanPhuongTien.findOne({
+//                             where: {
+//                                 id_doan_van: newQuestion.id_doan_van,
+//                                 id_phuong_tien: id_phuong_tien
+//                             }
+//                         });
+//                         if (!existed) {
+//                             await DoanVanPhuongTien.create({
+//                                 id_doan_van: newQuestion.id_doan_van,
+//                                 id_phuong_tien: id_phuong_tien
+//                             });
+//                         }
+//                     }
 
-                    // Lưu id_phuong_tien_hinh_anh cho từng câu hỏi cho trường hợp không phải Part 7
-                    if (part !== 7 && !newQuestion.id_phuong_tien_hinh_anh) {
-                        newQuestion.id_phuong_tien_hinh_anh = id_phuong_tien;
-                    }
-                }
-            }
+//                     // Lưu id_phuong_tien_hinh_anh cho từng câu hỏi cho trường hợp không phải Part 7
+//                     if (part !== 7 && !newQuestion.id_phuong_tien_hinh_anh) {
+//                         newQuestion.id_phuong_tien_hinh_anh = id_phuong_tien;
+//                     }
+//                 }
+//             }
 
-            // Xử lý âm thanh
-            let amThanhId = null;
-            if (url_am_thanh) {
+//             // Xử lý âm thanh
+//             let amThanhId = null;
+//             if (url_am_thanh) {
                 
-                let id_phuong_tien = phuongTienCache.get(url_am_thanh);
+//                 let id_phuong_tien = phuongTienCache.get(url_am_thanh);
                 
-                if (!id_phuong_tien) {
+//                 if (!id_phuong_tien) {
                     
-                    const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
-                    const downloadUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
+//                     const fileId = url_am_thanh.match(/\/d\/(.*?)\//)?.[1];
+//                     const downloadUrl = `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
     
-                    const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+//                     const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
                     
-                    const buffer = Buffer.from(response.data);
+//                     const buffer = Buffer.from(response.data);
     
-                    const result = await streamUpload(buffer, 'video');
-                    const media = await PhuongTien.create({
-                        url_phuong_tien: result.secure_url,
-                        loai_phuong_tien: 'am_thanh',
-                        thoi_gian_tao: new Date()
-                    });
-                    id_phuong_tien = media.id_phuong_tien;
-                    phuongTienCache.set(url_am_thanh, id_phuong_tien);
-                }
-                amThanhId = id_phuong_tien;
-            }
-            if (amThanhId) newQuestion.id_phuong_tien_am_thanh = amThanhId;
+//                     const result = await streamUpload(buffer, 'video');
+//                     const media = await PhuongTien.create({
+//                         url_phuong_tien: result.secure_url,
+//                         loai_phuong_tien: 'am_thanh',
+//                         thoi_gian_tao: new Date()
+//                     });
+//                     id_phuong_tien = media.id_phuong_tien;
+//                     phuongTienCache.set(url_am_thanh, id_phuong_tien);
+//                 }
+//                 amThanhId = id_phuong_tien;
+//             }
+//             if (amThanhId) newQuestion.id_phuong_tien_am_thanh = amThanhId;
 
-            // Xử lý lựa chọn
-            const luaChon = [
-                { ky_tu_lua_chon: 'A', noi_dung: lua_chon_A },
-                { ky_tu_lua_chon: 'B', noi_dung: lua_chon_B },
-                { ky_tu_lua_chon: 'C', noi_dung: lua_chon_C },
-                { ky_tu_lua_chon: 'D', noi_dung: lua_chon_D },
-            ].filter(lc => lc.noi_dung);
+//             // Xử lý lựa chọn
+//             const luaChon = [
+//                 { ky_tu_lua_chon: 'A', noi_dung: lua_chon_A },
+//                 { ky_tu_lua_chon: 'B', noi_dung: lua_chon_B },
+//                 { ky_tu_lua_chon: 'C', noi_dung: lua_chon_C },
+//                 { ky_tu_lua_chon: 'D', noi_dung: lua_chon_D },
+//             ].filter(lc => lc.noi_dung);
 
-            // Lưu vào bảng ngan_hang_cau_hoi
-            const saveQuestions = await NganHangCauHoi.create(newQuestion);
+//             // Lưu vào bảng ngan_hang_cau_hoi
+//             const saveQuestions = await NganHangCauHoi.create(newQuestion);
 
-            if (luaChon.length > 0) {
-                // Lưu id_cau_hoi vào bảng lua_chon
-                const luaChonWithIdCauHoi = luaChon.map((lc) => ({
-                    ...lc,
-                    id_cau_hoi: saveQuestions.id_cau_hoi
-                }));
-                await LuaChon.bulkCreate(luaChonWithIdCauHoi);
-            }
+//             if (luaChon.length > 0) {
+//                 // Lưu id_cau_hoi vào bảng lua_chon
+//                 const luaChonWithIdCauHoi = luaChon.map((lc) => ({
+//                     ...lc,
+//                     id_cau_hoi: saveQuestions.id_cau_hoi
+//                 }));
+//                 await LuaChon.bulkCreate(luaChonWithIdCauHoi);
+//             }
 
-            questionToAdd.push(saveQuestions);
+//             questionToAdd.push(saveQuestions);
+//         }
+
+//         res.status(200).json({ 
+//             message: "Import câu hỏi từ excel thành công.",
+//             data: questionToAdd
+//         });
+
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ message: error.message });
+//     }
+// };
+
+module.exports.importExcel = async (req, res) => {
+    try {
+        // Kiểm tra file Excel
+        if (!req.file) {
+            return res.status(400).json({ message: "Vui lòng tải lên tệp Excel." });
+        }
+        if (!req.file.mimetype.includes('spreadsheet')) {
+            return res.status(400).json({ message: "Tệp tải lên phải là file Excel." });
         }
 
-        res.status(200).json({ 
-            message: "Import câu hỏi từ excel thành công.",
-            data: questionToAdd
-        });
+        // Đọc file Excel
+        const workbook = xlsx.read(req.file.buffer, { cellDates: true });
+        const sheetName = workbook.SheetNames[0];
+        const workSheet = workbook.Sheets[sheetName];
+        const results = xlsx.utils.sheet_to_json(workSheet);
 
+        if (results.length === 0) {
+            return res.status(400).json({ message: "File Excel không chứa dữ liệu." });
+        }
+
+        const questionToAdd = [];
+        const phuongTienCache = new Map();
+        const doanVanCache = new Map();        
+
+        try {
+            // Xử lý đoạn văn trước
+            const doanVanToCreate = [];
+            const uniqueDoanVanKeys = new Set();
+            for (const row of results) {
+                const { tieu_de_doan_van, noi_dung_doan_van, loai_doan_van, id_phan } = row;
+                if (tieu_de_doan_van || noi_dung_doan_van) {
+                    const key = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}|${loai_doan_van || ''}`;
+                    if (!uniqueDoanVanKeys.has(key)) {
+                        uniqueDoanVanKeys.add(key);
+                        doanVanToCreate.push({
+                            id_phan: parseInt(id_phan),
+                            tieu_de: tieu_de_doan_van || null,
+                            noi_dung: noi_dung_doan_van || null,
+                            loai_doan_van: loai_doan_van || null,
+                            thoi_gian_tao: new Date()
+                        });
+                    }
+                }
+            }
+
+            // Tạo hoặc lấy đoạn văn
+            for (const doanVan of doanVanToCreate) {
+                const [record, created] = await DoanVan.findOrCreate({
+                    where: {
+                        tieu_de: doanVan.tieu_de,
+                        noi_dung: doanVan.noi_dung,
+                        loai_doan_van: doanVan.loai_doan_van
+                    },
+                    defaults: doanVan,
+                });
+                doanVanCache.set(
+                    `${doanVan.tieu_de || ''}|${doanVan.noi_dung || ''}|${doanVan.loai_doan_van || ''}`,
+                    record.id_doan_van
+                );
+            }
+
+            // Xử lý phương tiện (hình ảnh và âm thanh)
+            const allMediaUrls = new Set();
+            results.forEach(row => {
+                if (row.url_hinh_anh) {
+                    row.url_hinh_anh.split(';').map(url => url.trim()).forEach(url => allMediaUrls.add(url));
+                }
+                if (row.url_am_thanh) {
+                    allMediaUrls.add(row.url_am_thanh.trim());
+                }
+            });
+
+            const mediaPromises = Array.from(allMediaUrls).map(async (url) => {
+                if (phuongTienCache.has(url)) return;
+                const fileId = url.match(/\/d\/(.*?)\//)?.[1];
+                if (!fileId) {
+                    console.log(`URL không hợp lệ: ${url}`);
+                    return;
+                }
+                const isAudio = url === results.find(row => row.url_am_thanh === url)?.url_am_thanh;
+                const downloadUrl = isAudio
+                    ? `https://drive.usercontent.google.com/download?id=${fileId}&export=download`
+                    : `https://drive.google.com/uc?export=download&id=${fileId}`;
+                try {
+                    const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+                    const buffer = Buffer.from(response.data);
+                    const result = await streamUpload(buffer, isAudio ? 'video' : 'image');
+                    const media = await PhuongTien.create({
+                        url_phuong_tien: result.secure_url,
+                        loai_phuong_tien: isAudio ? 'am_thanh' : 'hinh_anh',
+                        thoi_gian_tao: new Date()
+                    });
+                    phuongTienCache.set(url, media.id_phuong_tien);
+                } catch (error) {
+                    console.log(`Lỗi tải phương tiện ${url}: ${error.message}`);
+                }
+            });
+            await Promise.all(mediaPromises);
+
+            // Xử lý câu hỏi và lựa chọn
+            const luaChonToCreate = [];
+            for (const row of results) {
+                const { id_phan, noi_dung, dap_an_dung, giai_thich, muc_do_kho, trang_thai, tieu_de_doan_van, noi_dung_doan_van, loai_doan_van, lua_chon_A, lua_chon_B, lua_chon_C, lua_chon_D, url_hinh_anh, url_am_thanh } = row;
+
+                const part = parseInt(id_phan);
+                if (isNaN(part) || part < 1 || part > 7) {
+                    console.log(`Bỏ qua dòng ${results.indexOf(row) + 2}: Part phải từ 1 đến 7.`);
+                    continue;
+                }
+
+                // Cho phép part 1 không cần noi_dung, nhưng phải có ít nhất một lựa chọn hoặc phương tiện
+                if (part !== 1 && !noi_dung && !tieu_de_doan_van && !noi_dung_doan_van) {
+                    console.log(`Bỏ qua dòng ${results.indexOf(row) + 2}: Thiếu nội dung câu hỏi hoặc đoạn văn.`);
+                    continue;
+                }
+
+                const newQuestion = {
+                    id_phan: part,
+                    noi_dung: part === 1 ? null : (striptags(noi_dung) || null),
+                    dap_an_dung,
+                    giai_thich: striptags(giai_thich) || null,
+                    muc_do_kho,
+                    trang_thai,
+                    nguon_goc: 'nhap_excel',
+                    thoi_gian_tao: new Date(),
+                    da_xoa: false
+                };
+
+                // Gán id_doan_van cho part 6 và 7
+                if (tieu_de_doan_van || noi_dung_doan_van) {
+                    const key = `${tieu_de_doan_van || ''}|${noi_dung_doan_van || ''}|${loai_doan_van || ''}`;
+                    const id_doan_van = doanVanCache.get(key);
+                    if (id_doan_van && [6, 7].includes(part)) {
+                        newQuestion.id_doan_van = id_doan_van;
+                    }
+                }
+
+                // Gán phương tiện
+                if (url_hinh_anh) {
+                    const dsHinhAnh = url_hinh_anh.split(';').map(url => url.trim());
+                    const id_phuong_tien = phuongTienCache.get(dsHinhAnh[0]);
+                    if (id_phuong_tien && part !== 7) {
+                        newQuestion.id_phuong_tien_hinh_anh = id_phuong_tien;
+                    }
+                    if (newQuestion.id_doan_van) {
+                        for (const url of dsHinhAnh) {
+                            const id_phuong_tien = phuongTienCache.get(url);
+                            if (id_phuong_tien) {
+                                await DoanVanPhuongTien.findOrCreate({
+                                    where: {
+                                        id_doan_van: newQuestion.id_doan_van,
+                                        id_phuong_tien
+                                    },
+                                    defaults: { id_doan_van: newQuestion.id_doan_van, id_phuong_tien },
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (url_am_thanh) {
+                    const id_phuong_tien = phuongTienCache.get(url_am_thanh.trim());
+                    if (id_phuong_tien) {
+                        newQuestion.id_phuong_tien_am_thanh = id_phuong_tien;
+                    }
+                }
+
+                // Lưu câu hỏi
+                const savedQuestion = await NganHangCauHoi.create(newQuestion);
+                questionToAdd.push(savedQuestion);
+
+                // Lưu lựa chọn
+                const luaChon = [
+                    { ky_tu_lua_chon: 'A', noi_dung: lua_chon_A },
+                    { ky_tu_lua_chon: 'B', noi_dung: lua_chon_B },
+                    { ky_tu_lua_chon: 'C', noi_dung: lua_chon_C },
+                    { ky_tu_lua_chon: 'D', noi_dung: lua_chon_D },
+                ].filter(lc => lc.noi_dung);
+
+                if (luaChon.length > 0) {
+                    luaChonToCreate.push(...luaChon.map(lc => ({
+                        ...lc,
+                        id_cau_hoi: savedQuestion.id_cau_hoi
+                    })));
+                }
+            }
+
+            // Lưu toàn bộ lựa chọn
+            if (luaChonToCreate.length > 0) {
+                await LuaChon.bulkCreate(luaChonToCreate);
+            }
+
+            return res.status(200).json({
+                message: `Import thành công ${questionToAdd.length} câu hỏi`,
+                data: questionToAdd
+            });
+        } catch (error) {
+            console.error('Lỗi khi nhập Excel:', error);
+            return res.status(500).json({ message: `Lỗi khi nhập Excel: ${error.message}` });
+        }
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: error.message });
+        console.error('Lỗi khi nhập Excel:', error);
+        return res.status(500).json({ message: `Lỗi khi nhập Excel: ${error.message}` });
     }
 };
 
