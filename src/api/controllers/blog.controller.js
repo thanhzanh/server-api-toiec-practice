@@ -182,6 +182,7 @@ module.exports.getPublicBlogs = async (req, res) => {
                 total: count,
                 totalPages: pagination.totalPages
             },
+            categoryBlogs
         });
         
     } catch (error) {
