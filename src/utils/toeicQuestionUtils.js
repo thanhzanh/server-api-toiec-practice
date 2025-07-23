@@ -49,7 +49,6 @@ const kiemTraNhomCauHoiTheoPart6_7 = async (dsCauHoi) => {
     const doanVanMap = {};
 
     // Duyệt qua toàn bộ câu hỏi
-
     for (const question of questions) {
         if ([6,7].includes(question.id_phan)) {
             const idDoanVan = question.id_doan_van;

@@ -357,11 +357,6 @@ module.exports.addQuestionsToExam = async (req, res) => {
                 return res.status(400).json({ message:`Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu.` });
             }
 
-            for (const part in cauTrucToiec) {
-                if (cauTrucToiec[part] === 0) {
-                    return res.status(400).json({ message:`Part ${part} yêu cầu ít nhất 1 câu.` });
-                }
-            }
         } else {
             return res.status(400).json({ message: `Loại bài thi không hợp lệ: ${loaiDeThi}.` });
         }
@@ -414,45 +409,8 @@ module.exports.addQuestionsToExam = async (req, res) => {
             { where: { id_bai_thi } },
         );
         
-        // Lấy thông tin bài thi cùng với câu hỏi
-        const examWithQuestions = await BaiThi.findByPk(id_bai_thi,{
-            include: [
-                {
-                    model: CauHoiBaiThi,
-                    as: 'cau_hoi_cua_bai_thi',
-                    include: [
-                        {
-                            model: NganHangCauHoi,
-                            as: 'cau_hoi',
-                            attributes: ['id_cau_hoi', 'noi_dung', 'dap_an_dung', 'giai_thich', 'muc_do_kho', 'trang_thai'],
-                            include: [
-                                { model: PhanCauHoi, as: 'phan', attributes: ['id_phan', 'ten_phan', 'loai_phan', 'mo_ta'] },
-                                { 
-                                    model: DoanVan, 
-                                    as: 'doan_van', 
-                                    attributes: ['id_doan_van', 'tieu_de', 'noi_dung', 'loai_doan_van', 'id_phan', 'thoi_gian_tao'],
-                                    include: [
-                                        {
-                                            model: PhuongTien,
-                                            as: 'danh_sach_phuong_tien',
-                                            attributes: ['id_phuong_tien', 'loai_phuong_tien', 'url_phuong_tien']
-                                        }
-                                    ] 
-                                },
-                                { model: PhuongTien, as: 'hinh_anh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
-                                { model: PhuongTien, as: 'am_thanh', attributes: ['id_phuong_tien', 'url_phuong_tien', 'loai_phuong_tien'] },
-                                { model: LuaChon, as: 'lua_chon', attributes: ['ky_tu_lua_chon', 'noi_dung'] }
-                            ]
-                        }
-                    ], 
-                    attributes: ['id_cau_hoi', 'id_bai_thi']
-                }
-            ]
-        });
-        
         res.status(200).json({ 
             message: "Đã thêm câu hỏi vào đề thi và tạo bảng nháp.",
-            dataa: examWithQuestions
         });
 
     } catch (error) {
@@ -630,11 +588,135 @@ module.exports.editExam = async (req, res) => {
         } 
 
         res.status(200).json({ 
-            message: "Đã chỉnh sửa đề thi thành công."
+            message: "Đã chỉnh sửa thông tin đề thi thành công."
         });
         
     } catch (error) {
         return res.status(500).json({ message: error.message });
+    }
+};
+
+// [PUT] /api/exams/questions/update-questions/:id_bai_thi
+module.exports.updateQuestionsToExam = async (req, res) => {
+    try {
+        const { id_bai_thi } = req.params;
+        const { ds_cau_hoi } = req.body;
+
+        const exam = await BaiThi.findByPk(id_bai_thi);
+        if (!exam) {
+            return res.status(400).json({ message: "Bài thi không tồn tại!" });
+        }
+
+        // Kiểm tra nếu có người dùng làm bài thi thì không nên sửa
+        const soBaiLam = await BaiLamNguoiDung.count({ where: { id_bai_thi } });
+        if (soBaiLam > 0) {
+            return res.status(400).json({ message: "Không thể sửa câu hỏi vì đã có học viên làm bài này." });
+        }
+
+        if(ds_cau_hoi.length > MAX_QUESTION_TEST) {
+            return res.status(400).json({ message:`Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu.` });
+        }
+
+        // Kiểm tra danh sách câu hỏi
+        const questions = await NganHangCauHoi.findAll({
+            where: {
+                id_cau_hoi: ds_cau_hoi,
+                da_xoa: false
+            }
+        });
+        if (questions.length !== ds_cau_hoi.length) {
+            return res.status(404).json({ message: "Không tìm thấy 1 số câu hỏi." });
+        }
+
+        // Kiểm tra Part 3&4, Part 6&7 những câu hỏi khi thêm vào đề thi phải đi cùng nhau
+        const thongBaoLoiPart3_4 = await kiemTraNhomCauHoiTheoPart3_4(ds_cau_hoi);
+        if (thongBaoLoiPart3_4) return res.status(400).json({ message: thongBaoLoiPart3_4 });
+
+        const thongBaoLoiPart6_7 = await kiemTraNhomCauHoiTheoPart6_7(ds_cau_hoi);
+        if (thongBaoLoiPart6_7) return res.status(400).json({ message: thongBaoLoiPart6_7 });
+
+        // Loại đề thi
+        const loaiDeThi = exam.loai_bai_thi;
+
+        // Kiểm tra số câu đúng câu trúc của từng Part
+        const cauTrucToiec = { 1: 6, 2: 25, 3: 39, 4: 30, 5: 30, 6: 16, 7: 54 };
+
+        if (loaiDeThi === 'chuan') {
+            // Đếm số câu theo Part
+            const demSoCauTheoPart = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+    
+            for (let i = 0; i < ds_cau_hoi.length; i++) {        
+                const cauHoi = await NganHangCauHoi.findByPk(ds_cau_hoi[i]);   
+                
+                const part = cauHoi.id_phan;
+                if (demSoCauTheoPart[part] !== undefined) {
+                    demSoCauTheoPart[part]++;
+                }
+            }
+    
+            for (const part in cauTrucToiec) {
+                const soCauThucTe = demSoCauTheoPart[part];
+                const soCauChuanPart = cauTrucToiec[part];
+    
+                if (soCauThucTe !== soCauChuanPart) {
+                    return res.status(400).json({ message:`Part ${part} cần ${soCauChuanPart}, nhưng hiện có ${soCauThucTe} câu hỏi.` });
+                }
+            }
+    
+        // Kết thúc kiểm tra số câu đúng câu trúc của từng Part
+        } else if (loaiDeThi === 'tu_do') {
+            if (ds_cau_hoi.length > MAX_QUESTION_TEST) {
+                return res.status(400).json({ message:`Tổng số câu hỏi không được vượt quá ${MAX_QUESTION_TEST} câu.` });
+            }
+
+        } else {
+            return res.status(400).json({ message: `Loại bài thi không hợp lệ: ${loaiDeThi}.` });
+        }
+
+        // Xóa câu hỏi trong bài thi cữ
+        await CauHoiBaiThi.destroy({ where: { id_bai_thi } });
+
+        // Lưu lại câu hỏi mới
+        const saveUpdateQuestion = questions.map(question => ({
+            id_bai_thi: id_bai_thi,
+            id_cau_hoi: question.id_cau_hoi
+        }));
+        await CauHoiBaiThi.bulkCreate(saveUpdateQuestion);
+
+        // Cập nhật thông tin đề thi
+        const tong_so_cau_hoi = ds_cau_hoi.length;
+        const diem_toi_da = await calculateDiemToiDaTheoDoKho(ds_cau_hoi);
+        const muc_do_info = await layMucDoDiemToiecTuDiemToiDa(diem_toi_da);
+        const muc_do_diem = `${muc_do_info.range[0]}-${muc_do_info.range[1]}`;
+        const id_muc_do = muc_do_info.id_muc_do;
+
+        let da_hoan_thien = false;
+        if (loaiDeThi === 'chuan') {
+            da_hoan_thien = tong_so_cau_hoi === MAX_QUESTION_TEST;
+        } else if (loaiDeThi === 'tu_do') {
+            da_hoan_thien = true;
+        }
+
+        // Cập nhật đề thi với thông tin còn lại
+        await BaiThi.update(
+            {
+                so_luong_cau_hoi: tong_so_cau_hoi,
+                diem_toi_da: diem_toi_da,
+                muc_do_diem: muc_do_diem,
+                id_muc_do: id_muc_do,
+                da_hoan_thien: da_hoan_thien,
+                thoi_gian_cap_nhat: new Date()
+            },
+            { where: { id_bai_thi } },
+        );
+        
+        res.status(200).json({ 
+            message: "Cập nhật câu hỏi cho đề thi thành công.",
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: error.message });
     }
 };
 

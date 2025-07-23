@@ -68,6 +68,14 @@ router.put("/edit/:id_bai_thi",
     controller.editExam
 );
 
+// Sửa câu hỏi trong đề thi
+router.put("/questions/update-questions/:id_bai_thi",
+    authenticateUser,
+    authorizePermission("EXAM_UPDATE"),
+    logAction('Sửa câu hỏi trong đề thi'),
+    controller.updateQuestionsToExam
+)
+
 // Hiển thị danh sách đề thi ngoài công khai
 router.get("/get-all-exam-public", 
     logAction('Hiển thị danh sách đề thi ngoài người dùng'), 
@@ -115,9 +123,5 @@ router.post("/check-entry-exam/:id_bai_thi",
     authenticateUser,
     controller.checkEntryExam
 );
-
-// Tìm kiếm đề thi
-
-
 
 module.exports = router;

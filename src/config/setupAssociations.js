@@ -96,7 +96,7 @@ const setupAssociations = () => {
     TaiLieuNguPhap.belongsTo(DanhMucNguPhap, { foreignKey: 'id_danh_muc', targetKey: "id_danh_muc", as: 'danh_muc_ngu_phap' });
     TaiLieuNguPhap.belongsTo(NguoiDung, { foreignKey: 'nguoi_tao', as: 'nguoi_tao_ngu_phap' });
 
-    // Quan hệ phản hồi bình luận (self-referencing)
+    // BinhLuan
     BinhLuan.hasMany(BinhLuan, { as: 'phan_hoi', foreignKey: 'id_binh_luan_cha' });
     BinhLuan.belongsTo(BinhLuan, { as: 'binh_luan_cha', foreignKey: 'id_binh_luan_cha' });
     BinhLuan.belongsTo(NguoiDung, { foreignKey: 'id_nguoi_dung', as: 'nguoi_dung' });
