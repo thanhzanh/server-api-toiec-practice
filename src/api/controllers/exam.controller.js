@@ -537,6 +537,10 @@ module.exports.deleteExam = async (req, res) => {
             return res.status(400).json({ message: "Đề thi đã có người dùng sử dụng. Không xóa được." });
         }
 
+        if (exam.la_bai_thi_dau_vao) {
+            return res.status(400).json({ message: "Không thể xóa bài thi đầu vào." });
+        }
+
         // Xóa đề thi (xóa mềm)
         await BaiThi.update({
             da_xoa: true,
@@ -557,7 +561,6 @@ module.exports.deleteExam = async (req, res) => {
 // [PUT] /api/exams/edit/:id_bai_thi
 module.exports.editExam = async (req, res) => {
     try {
-        // Dữ liệu nhận được
         const { id_bai_thi } = req.params;
         
         // Kiểm tra đề thi tồn tại không
@@ -566,19 +569,57 @@ module.exports.editExam = async (req, res) => {
             return res.status(404).json({ message: "Đề thi không tồn tại." });
         }
 
+        if (exam.la_bai_thi_dau_vao && req.body.hasOwnProperty("la_bai_thi_dau_vao") && req.body.la_bai_thi_dau_vao !== true) {
+            return res.status(400).json({
+                message: "Không thể thay đổi trạng thái bài thi đầu vào hiện tại. Vui lòng chuyển đầu vào sang bài khác trước."
+            });
+        }
+
+        const thoi_gian_bai_thi = parseInt(req.body.thoi_gian_bai_thi);
+        if (req.body.loai_bai_thi === 'chuan') {
+            if (thoi_gian_bai_thi !== 120) {
+                return res.status(400).json({ message: "Đề thi ETS TOIEC chuẩn cần thời gian phải là 120p." });
+            }
+        } else if (req.body.loai_bai_thi === 'tu_do') {
+            if (thoi_gian_bai_thi < 15 || thoi_gian_bai_thi > 120) {
+                return res.status(400).json({ message: "Thời gian cho đề thi tự do nằm trong khoảng 15 đến 120 phút." });
+            }
+        }
+
+        const currentYear = new Date().getFullYear();
+        if (req.body.nam_xuat_ban < 2000 || req.body.nam_xuat_ban > currentYear){
+            return res.status(400).json({ message: "Năm xuất bản không hợp lệ." });
+        }
+
+        if (req.body.la_bai_thi_dau_vao === true) {
+            const baiThiDauVaoCu = await BaiThi.findOne({
+                where: {
+                    la_bai_thi_dau_vao: true,
+                    da_xoa: false,
+                    id_bai_thi: { [Op.ne]: id_bai_thi }
+                }
+            });
+
+            if (baiThiDauVaoCu) {
+                await BaiThi.update(
+                    { la_bai_thi_dau_vao: false, thoi_gian_cap_nhat: new Date() },
+                    { where: { id_bai_thi: baiThiDauVaoCu.id_bai_thi } }
+                );
+            }
+        }
+
         // Cập nhật thông tin đề thi
         const dataUpdateExam = {};
         if (req.body.ten_bai_thi) dataUpdateExam.ten_bai_thi = req.body.ten_bai_thi;
         if (req.body.mo_ta) dataUpdateExam.mo_ta = striptags(req.body.mo_ta);
         if (req.body.thoi_gian_bai_thi) dataUpdateExam.thoi_gian_bai_thi = req.body.thoi_gian_bai_thi;
         if (req.body.nam_xuat_ban) dataUpdateExam.nam_xuat_ban = req.body.nam_xuat_ban;
-        if (req.body.hasOwnProperty('la_bai_thi_dau_vao')) {
+        if (req.body.hasOwnProperty("la_bai_thi_dau_vao")) {
             dataUpdateExam.la_bai_thi_dau_vao = req.body.la_bai_thi_dau_vao;
         }
         
         if (Object.keys(dataUpdateExam).length > 0) {
             dataUpdateExam.thoi_gian_cap_nhat = new Date();
-            // Cập nhật bảng bai_thi
             await BaiThi.update(
                 dataUpdateExam,
                 {
