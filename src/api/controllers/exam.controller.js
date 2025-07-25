@@ -128,7 +128,7 @@ module.exports.createExam = async (req, res) => {
 
         // Kiểm tra nam xuất bản
         const currentYear = new Date().getFullYear();
-        if (nam_xuat_ban < 2000 || nam_xuat_ban > currentYear){
+        if (nam_xuat_ban < 1979 || nam_xuat_ban > currentYear){
             return res.status(400).json({ message: "Năm xuất bản không hợp lệ." });
         }
 
@@ -614,7 +614,7 @@ module.exports.editExam = async (req, res) => {
         }
 
         const currentYear = new Date().getFullYear();
-        if (req.body.nam_xuat_ban < 2000 || req.body.nam_xuat_ban > currentYear){
+        if (req.body.nam_xuat_ban < 1979 || req.body.nam_xuat_ban > currentYear){
             return res.status(400).json({ message: "Năm xuất bản không hợp lệ." });
         }
 

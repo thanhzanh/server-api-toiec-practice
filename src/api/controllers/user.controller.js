@@ -143,6 +143,67 @@ module.exports.detailUser = async(req, res) => {
     }
 };
 
+// [GET] /api/users/detail-admin/:id_nguoi_dung
+module.exports.detailAdmin = async(req, res) => {
+    try {
+        const id_nguoi_dung = req.params.id_nguoi_dung;        
+
+        // Lấy thông tin cá nhân
+        let profile = await HoSoNguoiDung.findByPk(
+            id_nguoi_dung, 
+            {
+                include: [
+                    {
+                        model: NguoiDung,
+                        as: 'nguoi_dung',
+                        attributes: ['email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai'],
+                    },
+                ],
+            },
+        );
+
+        // Nếu chưa có hồ sơ thì lấy thông tin người dùng cơ bản
+        if (!profile) {
+            const nguoiDung = await NguoiDung.findByPk(id_nguoi_dung, {
+                attributes: ['id_nguoi_dung', 'email', 'ten_dang_nhap', 'id_vai_tro', 'trang_thai']
+            });
+
+            if (!nguoiDung) {
+                return res.status(404).json({ message: "Người dùng không tồn tại." });
+            }
+
+            // Trả về thông tin hồ sơ null
+            profile = {
+                id_nguoi_dung,
+                ho_ten: null,
+                so_dien_thoai: null,
+                url_hinh_dai_dien: null,
+                dia_chi: null,
+                ngay_sinh: null,
+                gioi_thieu: null,
+                thoi_gian_tao: null,
+                thoi_gian_cap_nhat: null,
+                nguoi_dung: nguoiDung
+            };
+        }
+
+        // Lấy danh sách trạng thái
+        const listStatus = NguoiDung.rawAttributes.trang_thai.values;
+
+        res.status(200).json({ 
+            message: "Thông tin cá nhân người dùng." ,
+            data: {
+                user: profile,
+                listStatus
+            }
+        });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [DELETE] /api/users/delete/:id_nguoi_dung
 module.exports.deleteUser = async(req, res) => {
     try {

@@ -13,6 +13,13 @@ router.get("/",
     controller.index
 );
 
+// Lấy danh sách vai trò
+router.get("/get-all",
+    authenticateUser,
+    logAction('Lấy danh sách vai trò'),
+    controller.getAll
+);
+
 // Tạo vai trò mới
 router.post("/create",
     authenticateUser,

@@ -21,6 +21,23 @@ module.exports.index = async (req, res) => {
     }
 };
 
+// [GET] /api/roles/get-all
+module.exports.getAll = async (req, res) => {
+    try {
+        const roles = await VaiTro.findAll({
+            where: {
+                da_xoa: false,
+            },
+            attributes: ["id_vai_tro", "ten_vai_tro", "mo_ta", "is_admin", "thoi_gian_tao", "thoi_gian_cap_nhat"], 
+            order: [['thoi_gian_tao', 'ASC']]
+        });
+
+        res.status(200).json({ message: 'Danh sách nhóm quyền.', data: roles });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [POST] /api/roles/create
 module.exports.createRole = async (req, res) => {
     try {

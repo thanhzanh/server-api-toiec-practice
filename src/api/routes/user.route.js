@@ -25,6 +25,13 @@ router.get("/detail/:id_nguoi_dung",
     controller.detailUser
 );
 
+// Lấy thông tin một người dùng (Thông tin tài khoản cá nhân)
+router.get("/detail-admin/:id_nguoi_dung", 
+    authenticateUser, 
+    logAction('Lấy thông tin một người dùng'),
+    controller.detailAdmin
+);
+
 // Xóa tài khoản người dùng (quản trị viên)
 router.delete("/delete/:id_nguoi_dung", 
     authenticateUser, 
