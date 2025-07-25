@@ -50,6 +50,15 @@ router.patch("/edit/:id_nguoi_dung",
     controller.editUser
 );
 
+// Sửa tài khoản người dùng (Thông tin tài khoản cá nhân)
+router.patch("/edit-admin/:id_nguoi_dung", 
+    authenticateUser, 
+    uploadCloudinary([{ name: 'hinh_dai_dien', type: 'image' }]),
+    validate.updateProfileValidation,
+    logAction('Sửa tài khoản người dùng'),
+    controller.editAdmin
+);
+
 // Cập nhật trạng thái người dùng (khong_hoat_dong = block)
 router.put("/change-status/:id_nguoi_dung", 
     authenticateUser, 

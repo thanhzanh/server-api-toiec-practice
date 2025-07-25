@@ -326,6 +326,101 @@ module.exports.editUser = async(req, res) => {
     }
 };
 
+// [PATCH] /api/users/edit-admin/:id_nguoi_dung
+module.exports.editAdmin = async(req, res) => {
+    try {
+        const { ten_dang_nhap, ho_ten, so_dien_thoai, url_hinh_dai_dien, dia_chi, ngay_sinh, gioi_thieu, trang_thai } = req.body;        
+
+        // id_nguoi_dung
+        const { id_nguoi_dung } = req.params;
+
+        // Kiểm tra người dùng
+        const user = await NguoiDung.findByPk(id_nguoi_dung);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
+        }
+
+        // Cập nhật ten_dang_nhap, trang_thai từ bảng NguoiDung
+        const userUpdateData = {};
+        if (ten_dang_nhap && ten_dang_nhap !== user.ten_dang_nhap) {
+            userUpdateData.ten_dang_nhap = ten_dang_nhap;
+        }
+        if (trang_thai !== undefined && trang_thai !== user.trang_thai) {
+            userUpdateData.trang_thai = trang_thai;
+        }
+        // Khi có thay đổi thì cập nhật
+        if (Object.keys(userUpdateData).length > 0) {
+            userUpdateData.thoi_gian_cap_nhat = new Date();
+            await user.update(userUpdateData);
+        }
+
+        const parseDate = (dateStr) => {
+            const date = dayjs(dateStr, 'YYYY-MM-DD', true);
+            return date.isValid() ? date.toDate() : null;
+        }
+            
+        // Cập nhật hồ sơ người dùng
+        let profile = await HoSoNguoiDung.findByPk(id_nguoi_dung);
+        if (!profile) {
+            // Tạo mới profile nếu chưa có
+            profile = await HoSoNguoiDung.create({
+                id_nguoi_dung: parseInt(id_nguoi_dung),
+                ho_ten: ho_ten === "" ? null : ho_ten,
+                so_dien_thoai: so_dien_thoai === "" ? null : so_dien_thoai,
+                url_hinh_dai_dien: url_hinh_dai_dien === "" ? null : url_hinh_dai_dien,
+                dia_chi: dia_chi === "" ? null : dia_chi,
+                ngay_sinh: ngay_sinh === "" ? null : ngay_sinh,
+                gioi_thieu: gioi_thieu === "" ? null : gioi_thieu,
+            });
+        } else {
+            // Cập nhật profile đã có - chỉ cập nhật field có giá trị
+            const updateData = {};
+            if (ho_ten !== undefined) updateData.ho_ten = ho_ten === "" ? null : ho_ten;
+            if (so_dien_thoai !== undefined) updateData.so_dien_thoai = so_dien_thoai === "" ? null : so_dien_thoai;
+            if (url_hinh_dai_dien !== undefined) updateData.url_hinh_dai_dien = url_hinh_dai_dien ===  "" ? null : url_hinh_dai_dien;
+            if (dia_chi !== undefined) updateData.dia_chi = dia_chi === "" ? null : dia_chi;
+            if (ngay_sinh !== undefined) updateData.ngay_sinh = ngay_sinh === "" ? null : parseDate(ngay_sinh);
+            if (gioi_thieu !== undefined) updateData.gioi_thieu = gioi_thieu === "" ? null : gioi_thieu;
+
+            // Chỉ update nếu có dữ liệu thay đổi
+            if (Object.keys(updateData).length > 0) {
+                updateData.thoi_gian_cap_nhat = new Date();
+                await profile.update(updateData);
+            }
+        }
+
+        // Trả về thông tin người dùng
+        const userProfile = await NguoiDung.findByPk(
+            id_nguoi_dung,
+            {
+                attributes: ['id_nguoi_dung', 'ten_dang_nhap', 'trang_thai', 'id_vai_tro'],
+                include: [
+                    {
+                        model: HoSoNguoiDung,
+                        as: 'ho_so',
+                        attributes: [
+                            'ho_ten',
+                            'so_dien_thoai',
+                            'url_hinh_dai_dien',
+                            'dia_chi',
+                            'ngay_sinh',
+                            'gioi_thieu'
+                        ],
+                    },
+                ],
+            },
+        );        
+
+        res.status(200).json({ 
+            message: "Đã cập nhật thông tin cá nhân.",
+            data: userProfile
+        });
+        
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // [PUT] /api/users/change-status/:id_nguoi_dung
 module.exports.changeStatus = async(req, res) => {
     try {
