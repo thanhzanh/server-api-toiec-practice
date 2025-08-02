@@ -155,6 +155,25 @@ module.exports.login = async (req, res) => {
        // Gán req.user để log
         req.user = { id_nguoi_dung: user.id_nguoi_dung };
 
+        // Tạo Refresh Token
+        const refreshToken = jwt.sign(
+            {
+                id_nguoi_dung: user.id_nguoi_dung
+            },
+            process.env.REFRESH_TOKEN_SECRET,
+            {
+                expiresIn: '7d'
+            }
+        );
+
+        // Lưu cookie HTTPOnly
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'Strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+        });
+
         res.status(200).json({
             message: "Đăng nhập thành công",
             token,
@@ -456,7 +475,26 @@ module.exports.googleLogin = async(req, res) => {
             {
                 expiresIn: '1h'
             }
-        )
+        );
+
+        // Tạo Refresh Token
+        const refreshToken = jwt.sign(
+            {
+                id_nguoi_dung: user.id_nguoi_dung
+            },
+            process.env.REFRESH_TOKEN_SECRET,
+            {
+                expiresIn: '7d'
+            }
+        );
+
+        // Lưu cookie HTTPOnly
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'Strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+        });
 
         res.status(200).json({
             message: "Đăng nhập thành công",
@@ -464,6 +502,86 @@ module.exports.googleLogin = async(req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+// [POST] /api/auth/refresh-token
+module.exports.refreshToken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refresh_token;        
+
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await NguoiDung.findOne({
+            where: {
+                id_nguoi_dung: decoded.id_nguoi_dung
+            },
+            include: [
+                {
+                    model: VaiTro,
+                    as: 'vai_tro_nguoi_dung',
+                    attributes: ['ten_vai_tro', 'is_admin'],
+                    include: [
+                        {
+                            model: Quyen,
+                            as: 'ds_quyen',
+                            attributes: ['ma_quyen']
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if (!user) {
+            return res.status(401).json({ message: "Token không hợp lệ." });
+        }
+
+        // Kiểm tra người dùng làm bài đầu vào
+        let da_hoan_thanh_bai_dau_vao = false;
+        if (user.vai_tro_nguoi_dung && !user.vai_tro_nguoi_dung.is_admin) {
+            const daLamBaiDauVao = await BaiLamNguoiDung.findOne({
+                where: {
+                    id_nguoi_dung: user.id_nguoi_dung,
+                    da_hoan_thanh: true,
+                },
+                include: [
+                    {
+                        model: BaiThi,
+                        as: 'bai_thi_nguoi_dung',
+                        attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao'],
+                        where: {
+                            da_xoa: false,
+                            la_bai_thi_dau_vao: true,
+                            trang_thai: 'da_xuat_ban'
+                        }
+                    }
+                ]
+            });
+    
+            da_hoan_thanh_bai_dau_vao = daLamBaiDauVao !== null;
+        }
+
+        const permissions = user.vai_tro_nguoi_dung?.ds_quyen?.map(quyen => quyen.ma_quyen) || [];
+
+        const newAccessToken = jwt.sign(
+            {
+                id_nguoi_dung: user.id_nguoi_dung, 
+                email: user.email, 
+                id_vai_tro: user.id_vai_tro,
+                vai_tro: user.vai_tro_nguoi_dung?.ten_vai_tro,
+                is_admin: user.vai_tro_nguoi_dung?.is_admin,
+                permissions: permissions,
+                da_hoan_thanh_bai_dau_vao: da_hoan_thanh_bai_dau_vao,
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            {
+                expiresIn: '15m'
+            }
+        );
+
+        res.status(200).json({ token: newAccessToken });
+
+    } catch (error) {
+        res.status(403).json({ message: "Refresh token không hợp lệ hoặc đã hết hạn." });
     }
 };
 

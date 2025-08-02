@@ -30,8 +30,12 @@ router.post("/vertify-otp", validate.vertifyOtpValidation, controller.vertifyOtp
 router.post("/reset-password", validate.resetPasswordValidation, controller.resetPassword);
 
 // Thay đổi mật khẩu
-router.post("/change-password", authenticateUser, authorizeRole(['nguoi_dung']), controller.changePassword);
+router.post("/change-password", authenticateUser, controller.changePassword);
 
+// Đăng nhập google
 router.post("/google", controller.googleLogin);
+
+// Refresh token
+router.post("/refresh-token", controller.refreshToken);
 
 module.exports = router;

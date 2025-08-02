@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const sequelize = require('./config/database');
 const routesApi = require('./api/routes/index.route');
 
@@ -13,6 +14,8 @@ const app = express();
 sequelize.authenticate()
     .then(() => console.log("Connected to MySQL database"))
     .catch(error => console.error("Database connection error", error));
+
+app.use(cookieParser());
 
 // Cho phép tất cả các domain truy cập API
 app.use(cors({
