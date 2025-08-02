@@ -1,5 +1,7 @@
 const DanhMucNguPhap = require("../../models/danhMucNguPhap.model");
 const TaiLieuNguPhap = require("../../models/taiLieuNguPhap.model");
+const NguoiDung = require("../../models/nguoiDung.model");
+const HoSoNguoiDung = require("../../models/hoSoNguoiDung.model");
 const striptags = require("striptags");
 const { createPaginationQuery } = require("../../utils/pagination");
 
@@ -41,6 +43,20 @@ module.exports.index = async (req, res) => {
         // Lấy tất cả danh mục bài viết
         const dsDanhMuc = await TaiLieuNguPhap.findAll({
             where,
+            include: [
+              {
+                model: NguoiDung,
+                as: 'nguoi_tao_ngu_phap',
+                attributes: ['id_nguoi_dung'],
+                include: [
+                  {
+                    model: HoSoNguoiDung,
+                    as: 'ho_so',
+                    attributes: ['ho_ten']
+                  }
+                ],
+              }
+            ],
             order: [['thoi_gian_tao', 'DESC']],
             offset: pagination.skip,
             limit: pagination.limitItem,
