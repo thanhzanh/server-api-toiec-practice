@@ -39,6 +39,6 @@ router.post("/google", controller.googleLogin);
 router.post("/refresh-token", controller.refreshToken);
 
 // Đăng xuất
-router.post("logout", controller.logout);
+router.post("/logout", controller.logout);
 
 module.exports = router;
