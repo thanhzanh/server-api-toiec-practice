@@ -14,6 +14,8 @@ const { layMucDoDiemToiecTuDiemToiDa, calculateDiemToiDaTheoDoKho } = require('.
 const { kiemTraNhomCauHoiTheoPart3_4, kiemTraNhomCauHoiTheoPart6_7 } = require('../../utils/toeicQuestionUtils');
 const { where, Op } = require('sequelize');
 const striptags = require('striptags');
+const NguoiDung = require('../../models/nguoiDung.model');
+const HoSoNguoiDung = require('../../models/hoSoNguoiDung.model');
 
 // Số lượng câu hỏi tối đa trong đề thi
 const MAX_QUESTION_TEST = 200;
@@ -64,7 +66,15 @@ module.exports.index = async (req, res) => {
         const exams = await BaiThi.findAll({
             where,
             include: [
-                { model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi', 'id_bai_thi', 'id_cau_hoi'] }
+                { model: CauHoiBaiThi, as: 'cau_hoi_cua_bai_thi', attributes: ['id_cau_hoi_bai_thi', 'id_bai_thi', 'id_cau_hoi'] },
+                { 
+                    model: NguoiDung, 
+                    as: 'nguoi_tao_bai_thi', 
+                    attributes: ['id_nguoi_dung'], 
+                    include: [
+                        { model: HoSoNguoiDung, as: 'ho_so', attributes: ['ho_ten'] }
+                    ]
+                },
             ],
             attributes: [
                 'id_bai_thi',
@@ -121,8 +131,8 @@ module.exports.createExam = async (req, res) => {
             }
         } else if (loai_bai_thi === 'tu_do') {
             const thoiGian = parseInt(thoi_gian_bai_thi);
-            if (thoiGian < 15 || thoiGian > 120) {
-                return res.status(400).json({ message: "Thời gian cho đề thi tự do nằm trong khoảng 15 đến 120 phút." });
+            if (thoiGian < 1) {
+                return res.status(400).json({ message: "Thời gian cho đề thi tự do phải lớn hơn 1 phút." });
             }
         }
 
