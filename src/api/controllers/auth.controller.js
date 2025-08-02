@@ -572,7 +572,7 @@ module.exports.refreshToken = async (req, res) => {
                 permissions: permissions,
                 da_hoan_thanh_bai_dau_vao: da_hoan_thanh_bai_dau_vao,
             },
-            process.env.ACCESS_TOKEN_SECRET,
+            process.env.JWT_SECRET,
             {
                 expiresIn: '15m'
             }
@@ -583,5 +583,15 @@ module.exports.refreshToken = async (req, res) => {
     } catch (error) {
         res.status(403).json({ message: "Refresh token không hợp lệ hoặc đã hết hạn." });
     }
+};
+
+// [POST] /api/auth/logout
+module.exports.logout = async (req, res) => {
+    res.clearCookie("refresh_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
+  res.status(200).json({ message: "Đăng xuất thành công." });
 };
 
