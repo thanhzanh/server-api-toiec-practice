@@ -47,7 +47,16 @@ module.exports.index = async(req, res) => {
         }
 
         // Lấy danh sách người dùng
-        const users = await NguoiDung.findAll(query);
+        const users = await NguoiDung.findAll({
+            ...query,
+            include: [
+                {
+                    model: VaiTro,
+                    as: 'vai_tro_nguoi_dung',
+                    attributes: ['ten_vai_tro']
+                }
+            ]
+        });
 
         res.status(200).json({
             message: "Danh sách người dùng.",
