@@ -315,7 +315,7 @@ module.exports.getAllExamSubmit = async (req, res) => {
                     ],
                 },
                 {
-                    model: BaiThi, as: 'bai_thi_nguoi_dung', attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao']
+                    model: BaiThi, as: 'bai_thi_nguoi_dung', attributes: ['id_bai_thi', 'ten_bai_thi', 'la_bai_thi_dau_vao', 'thoi_gian_bai_thi']
                 }
             ],
             attributes: ['id_bai_lam_nguoi_dung', 'id_nguoi_dung', 'id_bai_thi', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'diem_nghe', 'diem_doc', 'tong_diem', 'da_hoan_thanh'],
