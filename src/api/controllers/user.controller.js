@@ -436,17 +436,21 @@ module.exports.changeStatus = async(req, res) => {
         const { id_nguoi_dung } = req.params;
         const { trang_thai } = req.body;
 
-        const user = await NguoiDung.findByPk(id_nguoi_dung);
+        const user = await NguoiDung.findByPk(id_nguoi_dung, {
+            include: [
+                {
+                    model: VaiTro,
+                    as: 'vai_tro_nguoi_dung'
+                }
+            ]
+        });
         if (!user) {
             return res.status(404).json({ message: "Người dùng không tồn tại." });
         }
-
-        // Vai trò
-        const role = await VaiTro.findOne({ where: { ten_vai_tro: 'quan_tri_vien' } });
-        if (role) {
-            return res.status(404).json({ message: "Không cập nhật trạng thái cho quản trị viên được." });
+    
+        if (user.vai_tro_nguoi_dung && user.vai_tro_nguoi_dung.ten_vai_tro === 'quan_tri_vien') {
+            return res.status(403).json({ message: "Không thể thay đổi trạng thái của quản trị viên." });
         }
-        
 
         // Cập nhật trạng thái
         await user.update({ trang_thai: trang_thai });
