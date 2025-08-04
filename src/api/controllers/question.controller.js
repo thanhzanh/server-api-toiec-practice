@@ -136,7 +136,7 @@ module.exports.create = async (req, res) => {
         if (id_phan) {
             const phan = await PhanCauHoi.findByPk(id_phan);
             if (!phan) {
-                return res.status(400).json({ message: "Phần câu hỏi không tồn tạ." });
+                return res.status(400).json({ message: "Phần câu hỏi không tồn tại." });
             }
         }
 
@@ -442,13 +442,11 @@ module.exports.importExcel = async (req, res) => {
 
                 const part = parseInt(id_phan);
                 if (isNaN(part) || part < 1 || part > 7) {
-                    console.log(`Bỏ qua dòng ${results.indexOf(row) + 2}: Part phải từ 1 đến 7.`);
                     continue;
                 }
 
                 // Cho phép part 1 không cần noi_dung, nhưng phải có ít nhất một lựa chọn hoặc phương tiện
                 if (part !== 1 && !noi_dung && !tieu_de_doan_van && !noi_dung_doan_van) {
-                    console.log(`Bỏ qua dòng ${results.indexOf(row) + 2}: Thiếu nội dung câu hỏi hoặc đoạn văn.`);
                     continue;
                 }
 

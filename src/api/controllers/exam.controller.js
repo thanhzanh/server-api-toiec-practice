@@ -432,23 +432,7 @@ module.exports.addQuestionsToExam = async (req, res) => {
 module.exports.getDraftExam = async (req, res) => {
     try {
         const { id_bai_thi } = req.params;
-        const { page, limit } = req.query;
 
-        // Đếm tổng số bản ghi
-        const count = await BaiThi.count({
-            where: { id_bai_thi }
-        });
-
-        // Phân trang
-        let initPagination = {
-            currentPage: 1,
-            limitItem: 10
-        };
-        const pagination = createPaginationQuery(
-            initPagination,
-            { page, limit },
-            count
-        );
         // Kiểm tra đề thi tồn tại không
         const examWithDraft = await BaiThi.findByPk(id_bai_thi,{
             attributes: [
@@ -512,12 +496,6 @@ module.exports.getDraftExam = async (req, res) => {
             data: {
                 ...examWithDraft.toJSON(),
                 cau_hoi_cua_bai_thi: danhSachCauHoi,
-                pagination: {
-                    page: pagination.currentPage,
-                    limit: pagination.limitItem,
-                    total: count,
-                    totalPages: pagination.totalPages
-                },
             }
         });
 

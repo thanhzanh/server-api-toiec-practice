@@ -40,6 +40,7 @@ router.post("/questions/add-questions/:id_bai_thi",
 // Xem bản nháp thông tin đề thi và tất cả câu hỏi của đề thi (Bước 4)
 router.get("/draft/:id_bai_thi", 
     authenticateUser, 
+    authorizePermission("EXAM_DETAIL"),
     logAction('Xem bản nháp thông tin đề thi và tất cả câu hỏi của đề thi'),
     controller.getDraftExam
 );
