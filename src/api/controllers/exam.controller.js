@@ -487,8 +487,6 @@ module.exports.getDraftExam = async (req, res) => {
                 }
             ], 
             attributes: ['id_cau_hoi', 'id_bai_thi'],
-            offset: pagination.skip,
-            limit: pagination.limitItem
         });
 
         res.status(200).json({ 
