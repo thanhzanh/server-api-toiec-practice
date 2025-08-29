@@ -27,7 +27,7 @@ module.exports.index = async (req, res) => {
         // Phân trang
         let initPagination = {
             currentPage: 1,
-            limitItem: 7
+            limitItem: 40
         }
         const pagination = createPaginationQuery(
             initPagination,

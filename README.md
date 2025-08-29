@@ -4,6 +4,10 @@
 
 Hệ thống website ôn luyện thi TOEIC, được xây dựng bằng Node.js và Express.js. Hệ thống sử dụng MySQL làm cơ sở dữ liệu và Sequelize làm ORM để tương tác với database một cách hiệu quả.
 
+# Tài khoản admin
+Tài khoản: admin
+Mật khẩu: Admin@123
+
 # Tính năng chính:
 1.Quản lý người dùng: Đăng ký, đăng nhập, xác thực bằng JWT (JSON Web Tokens).
 2.Quản lý ngân hàng câu hỏi: Thêm, sửa, xóa các câu hỏi TOEIC theo từng phần (Part 1, Part 2, ..., Part 7), import câu hỏi vào ngân hàng câu hỏi.
